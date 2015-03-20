@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="kr.ac.snu.imlab.ohpclient"
+    android:versionCode="1"
+    android:versionName="1.0.1">
+
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="14" />
+
+    <!-- All probes -->
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+    <!-- Battery probe and Launching -->
+    <uses-permission android:name="android.permission.BATTERY_STATS" />
+    <!-- Backing up database to SD card -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- Accounts probe -->
+    <uses-permission android:name="android.Manifest.permission.GET_ACCOUNTS"/>
+    <!-- AudioCapture probe -->
+    <uses-permission android:name="android.Manifest.permission.RECORD_AUDIO"/>
+    <!-- Bluetooth probe -->
+    <uses-permission android:name="android.Manifest.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.Manifest.permission.BLUETOOTH_ADMIN"/>
+    <!-- BrowserBookmarks probe -->
+    <uses-permission android:name="android.Manifest.permission.READ_HISTORY_BOOKMARKS"/>
+    <!-- CallLog probe -->
+    <uses-permission android:name="android.Manifest.permission.READ_CONTACTS"/>
+    <!-- HardwareInfo probe -->
+    <uses-permission android:name="android.Manifest.permission.READ_PHONE_STATE"/>
+    <!-- ImageCapture probe -->
+    <uses-permission android:name="android.Manifest.permission.CAMERA"/>
+    <!-- Location probe, Cell probe -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <!-- Location probe -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- Running Applications probe -->
+    <uses-permission android:name="android.Manifest.permission.GET_TASKS"/>
+    <!-- SMS probe -->
+    <uses-permission android:name="android.Manifest.permission.READ_SMS"/>
+    <!-- Wifi probe, Hardware Info probe -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <!-- Wifi probe -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+
+        <!-- Activity -->
+        <activity
+            android:name=".LaunchActivity"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Funf Probe Services -->
+
+
+
+    </application>
+</manifest>
