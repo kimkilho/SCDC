@@ -1,6 +1,7 @@
 package kr.ac.snu.imlab.ohpclient;
 
-import android.app.Activity;
+import android.support.v7.app.ActionBarActivity;
+// import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -8,6 +9,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -21,16 +24,16 @@ import edu.mit.media.funf.probe.builtin.*;
 import edu.mit.media.funf.storage.NameValueDatabaseHelper;
 
 import android.os.IBinder;
-import android.widget.CheckBox;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 
-public class LaunchActivity extends Activity implements DataListener {
+public class LaunchActivity extends ActionBarActivity implements DataListener {
     public static final String PIPELINE_NAME = "default";
     private FunfManager funfManager;
     private BasicPipeline pipeline;
@@ -66,7 +69,6 @@ public class LaunchActivity extends Activity implements DataListener {
     private MagneticFieldSensorProbe magneticFieldSensorProbe;
     private OrientationSensorProbe orientationSensorProbe;
     private PressureSensorProbe pressureSensorProbe;
-    private ProbeKeys probeKeys;
     private ProcessStatisticsProbe processStatisticsProbe;
     private ProximitySensorProbe proximitySensorProbe;
     private RotationVectorSensorProbe rotationVectorSensorProbe;
@@ -84,8 +86,7 @@ public class LaunchActivity extends Activity implements DataListener {
     private VideoMediaProbe videoMediaProbe;
     private WifiProbe wifiProbe;
 
-    private SimpleLocationProbe locationProbe;
-    private CheckBox enabledCheckbox;
+    private ToggleButton enabledToggleButton;
     private Button archiveButton, scanNowButton;
     private TextView dataCountView;
     private Handler handler;
@@ -95,14 +96,14 @@ public class LaunchActivity extends Activity implements DataListener {
             funfManager = ((FunfManager.LocalBinder)service).getManager();
             Gson gson = funfManager.getGson();
             wifiProbe = gson.fromJson(new JsonObject(), WifiProbe.class);
-            locationProbe = gson.fromJson(new JsonObject(), SimpleLocationProbe.class);
+            simpleLocationProbe = gson.fromJson(new JsonObject(), SimpleLocationProbe.class);
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
             wifiProbe.registerPassiveListener(LaunchActivity.this);
-            locationProbe.registerPassiveListener(LaunchActivity.this);
+            simpleLocationProbe.registerPassiveListener(LaunchActivity.this);
 
             // This checkbox enables or disables the pipeline
-            enabledCheckbox.setChecked(pipeline.isEnabled());
-            enabledCheckbox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            enabledToggleButton.setChecked(pipeline.isEnabled());
+            enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (funfManager != null) {
@@ -117,7 +118,7 @@ public class LaunchActivity extends Activity implements DataListener {
             });
 
             // Set UI ready to use, by enabling buttons
-            enabledCheckbox.setEnabled(true);
+            enabledToggleButton.setEnabled(true);
             archiveButton.setEnabled(true);
             scanNowButton.setEnabled(true);
         }
@@ -140,8 +141,8 @@ public class LaunchActivity extends Activity implements DataListener {
         // Used to make interface changes on main thread
         handler = new Handler();
 
-        enabledCheckbox = (CheckBox)findViewById(R.id.enabledCheckbox);
-        enabledCheckbox.setEnabled(false);
+        enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
+        enabledToggleButton.setEnabled(false);
 
         // Runs an archive if pipeline is enabled
         archiveButton = (Button)findViewById(R.id.archiveButton);
@@ -180,7 +181,7 @@ public class LaunchActivity extends Activity implements DataListener {
                 if (pipeline.isEnabled()) {
                     // Manually register the pipeline
                     wifiProbe.registerListener(pipeline);
-                    locationProbe.registerListener(pipeline);
+                    simpleLocationProbe.registerListener(pipeline);
                 } else {
                     Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
                             Toast.LENGTH_SHORT).show();
@@ -231,30 +232,29 @@ public class LaunchActivity extends Activity implements DataListener {
         updateScanCount();
         // Re-register to keep listening after probe completes.
         wifiProbe.registerPassiveListener(this);
-        locationProbe.registerPassiveListener(this);
+        simpleLocationProbe.registerPassiveListener(this);
     }
 
-
-    /*
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu items for use in the action bar
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main, menu);
-        return super.onCreateOptionsMenu(menu);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle presses on the action bar items
-        switch (item.getItemId()) {
-            case R.id.action_settings:
-                // openSettings();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
         }
+
+        return super.onOptionsItemSelected(item);
     }
-    */
 
 }
