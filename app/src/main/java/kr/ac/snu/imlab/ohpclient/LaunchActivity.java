@@ -103,6 +103,7 @@ public class LaunchActivity extends Activity implements DataListener {
             public void onClick(View v) {
                 if (pipeline.isEnabled()) {
                     pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
+                    pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
 
                     // Wait 1 second for archive to finish, then refresh the UI
                     // (Note: this is kind of a hack since archiving is seamless

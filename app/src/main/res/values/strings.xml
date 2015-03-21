@@ -3,4 +3,26 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="default_pipeline">
+        {
+            "@type":"edu.mit.media.funf.pipeline.BasicPipeline",
+            "name":"default",
+            "version":1,
+            "upload": {
+                "url": \"http://imlab-ws2.snu.ac.kr:8000/data\",
+                "@schedule": {"interval": 86400}
+            },
+            "update": {
+                "url": \"http://imlab-ws2.snu.ac.kr:8000/data\",
+                "@schedule": {"interval": 86400}
+            },
+            "data": [
+                {
+                    "@type": "edu.mit.media.funf.probe.builtin.WifiProbe",
+                    "@schedule": {"interval": 300, "duration": 10},
+                    "sensorDelay": "NORMAL"
+                }
+            ]
+        }
+    </string>
 </resources>
