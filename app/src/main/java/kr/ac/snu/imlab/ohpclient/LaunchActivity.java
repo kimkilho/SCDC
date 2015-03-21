@@ -13,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
@@ -86,7 +87,14 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private VideoMediaProbe videoMediaProbe;
     private WifiProbe wifiProbe;
 
+    // Run Data Collection button
     private ToggleButton enabledToggleButton;
+
+    // Probe checkboxes
+    private CheckBox enabledProcessStatistics;
+    private CheckBox enabledServices;
+
+
     private Button archiveButton, scanNowButton;
     private TextView dataCountView;
     private Handler handler;
@@ -95,11 +103,107 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         public void onServiceConnected(ComponentName name, IBinder service) {
             funfManager = ((FunfManager.LocalBinder)service).getManager();
             Gson gson = funfManager.getGson();
-            wifiProbe = gson.fromJson(new JsonObject(), WifiProbe.class);
-            simpleLocationProbe = gson.fromJson(new JsonObject(), SimpleLocationProbe.class);
+
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
+
+            accelerometerFeaturesProbe = gson.fromJson(new JsonObject(), AccelerometerFeaturesProbe.class);
+            accelerometerSensorProbe = gson.fromJson(new JsonObject(), AccelerometerSensorProbe.class);
+            accountsProbe = gson.fromJson(new JsonObject(), AccountsProbe.class);
+            activityProbe = gson.fromJson(new JsonObject(), ActivityProbe.class);
+            alarmProbe = gson.fromJson(new JsonObject(), AlarmProbe.class);
+            androidInfoProbe = gson.fromJson(new JsonObject(), AndroidInfoProbe.class);
+            applicationsProbe = gson.fromJson(new JsonObject(), ApplicationsProbe.class);
+            audioCaptureProbe = gson.fromJson(new JsonObject(), AudioCaptureProbe.class);
+            audioFeaturesProbe = gson.fromJson(new JsonObject(), AudioFeaturesProbe.class);
+            audioMediaProbe = gson.fromJson(new JsonObject(), AudioMediaProbe.class);
+            batteryProbe = gson.fromJson(new JsonObject(), BatteryProbe.class);
+            bluetoothProbe = gson.fromJson(new JsonObject(), BluetoothProbe.class);
+            browserBookmarksProbe = gson.fromJson(new JsonObject(), BrowserBookmarksProbe.class);
+            browserSearchesProbe = gson.fromJson(new JsonObject(), BrowserSearchesProbe.class);
+            callLogProbe = gson.fromJson(new JsonObject(), CallLogProbe.class);
+            cellTowerProbe = gson.fromJson(new JsonObject(), CellTowerProbe.class);
+            contactProbe = gson.fromJson(new JsonObject(), ContactProbe.class);
+            contentProviderProbe = gson.fromJson(new JsonObject(), ContentProviderProbe.class);
+            datedContentProviderProbe = gson.fromJson(new JsonObject(), DatedContentProviderProbe.class);
+            gravitySensorProbe = gson.fromJson(new JsonObject(), GravitySensorProbe.class);
+            gyroscopeSensorProbe = gson.fromJson(new JsonObject(), GyroscopeSensorProbe.class);
+            hardwareInfoProbe = gson.fromJson(new JsonObject(), HardwareInfoProbe.class);
+            imageCaptureProbe = gson.fromJson(new JsonObject(), ImageCaptureProbe.class);
+            imageMediaProbe = gson.fromJson(new JsonObject(), ImageMediaProbe.class);
+            impulseProbe = gson.fromJson(new JsonObject(), ImpulseProbe.class);
+            lightSensorProbe = gson.fromJson(new JsonObject(), LightSensorProbe.class);
+            linearAccelerationSensorProbe = gson.fromJson(new JsonObject(), LinearAccelerationSensorProbe.class);
+            locationProbe = gson.fromJson(new JsonObject(), LocationProbe.class);
+            magneticFieldSensorProbe = gson.fromJson(new JsonObject(), MagneticFieldSensorProbe.class);
+            orientationSensorProbe = gson.fromJson(new JsonObject(), OrientationSensorProbe.class);
+            pressureSensorProbe = gson.fromJson(new JsonObject(), PressureSensorProbe.class);
+            processStatisticsProbe = gson.fromJson(new JsonObject(), ProcessStatisticsProbe.class);
+            proximitySensorProbe = gson.fromJson(new JsonObject(), ProximitySensorProbe.class);
+            rotationVectorSensorProbe = gson.fromJson(new JsonObject(), RotationVectorSensorProbe.class);
+            runningApplicationsProbe = gson.fromJson(new JsonObject(), RunningApplicationsProbe.class);
+            screenProbe = gson.fromJson(new JsonObject(), ScreenProbe.class);
+            sensorProbe = gson.fromJson(new JsonObject(), SensorProbe.class);
+            servicesProbe = gson.fromJson(new JsonObject(), ServicesProbe.class);
+            simpleLocationProbe = gson.fromJson(new JsonObject(), SimpleLocationProbe.class);
+            simpleProbe = gson.fromJson(new JsonObject(), SimpleProbe.class);
+            smsProbe = gson.fromJson(new JsonObject(), SmsProbe.class);
+            telephonyProbe = gson.fromJson(new JsonObject(), TelephonyProbe.class);
+            temperatureSensorProbe = gson.fromJson(new JsonObject(), TemperatureSensorProbe.class);
+            timeOffsetProbe = gson.fromJson(new JsonObject(), TimeOffsetProbe.class);
+            videoCaptureProbe = gson.fromJson(new JsonObject(), VideoCaptureProbe.class);
+            videoMediaProbe = gson.fromJson(new JsonObject(), VideoMediaProbe.class);
+            wifiProbe = gson.fromJson(new JsonObject(), WifiProbe.class);
+
+
             wifiProbe.registerPassiveListener(LaunchActivity.this);
             simpleLocationProbe.registerPassiveListener(LaunchActivity.this);
+            accelerometerFeaturesProbe.registerPassiveListener(LaunchActivity.this);
+            accelerometerSensorProbe.registerPassiveListener(LaunchActivity.this);
+            accountsProbe.registerPassiveListener(LaunchActivity.this);
+            activityProbe.registerPassiveListener(LaunchActivity.this);
+            alarmProbe.registerPassiveListener(LaunchActivity.this);
+            androidInfoProbe.registerPassiveListener(LaunchActivity.this);
+            applicationsProbe.registerPassiveListener(LaunchActivity.this);
+            audioCaptureProbe.registerPassiveListener(LaunchActivity.this);
+            audioFeaturesProbe.registerPassiveListener(LaunchActivity.this);
+            audioMediaProbe.registerPassiveListener(LaunchActivity.this);
+            batteryProbe.registerPassiveListener(LaunchActivity.this);
+            bluetoothProbe.registerPassiveListener(LaunchActivity.this);
+            browserBookmarksProbe.registerPassiveListener(LaunchActivity.this);
+            browserSearchesProbe.registerPassiveListener(LaunchActivity.this);
+            callLogProbe.registerPassiveListener(LaunchActivity.this);
+            cellTowerProbe.registerPassiveListener(LaunchActivity.this);
+            contactProbe.registerPassiveListener(LaunchActivity.this);
+            contentProviderProbe.registerPassiveListener(LaunchActivity.this);
+            datedContentProviderProbe.registerPassiveListener(LaunchActivity.this);
+            gravitySensorProbe.registerPassiveListener(LaunchActivity.this);
+            gyroscopeSensorProbe.registerPassiveListener(LaunchActivity.this);
+            hardwareInfoProbe.registerPassiveListener(LaunchActivity.this);
+            imageCaptureProbe.registerPassiveListener(LaunchActivity.this);
+            imageMediaProbe.registerPassiveListener(LaunchActivity.this);
+            impulseProbe.registerPassiveListener(LaunchActivity.this);
+            lightSensorProbe.registerPassiveListener(LaunchActivity.this);
+            linearAccelerationSensorProbe.registerPassiveListener(LaunchActivity.this);
+            locationProbe.registerPassiveListener(LaunchActivity.this);
+            magneticFieldSensorProbe.registerPassiveListener(LaunchActivity.this);
+            orientationSensorProbe.registerPassiveListener(LaunchActivity.this);
+            pressureSensorProbe.registerPassiveListener(LaunchActivity.this);
+            processStatisticsProbe.registerPassiveListener(LaunchActivity.this);
+            proximitySensorProbe.registerPassiveListener(LaunchActivity.this);
+            rotationVectorSensorProbe.registerPassiveListener(LaunchActivity.this);
+            runningApplicationsProbe.registerPassiveListener(LaunchActivity.this);
+            screenProbe.registerPassiveListener(LaunchActivity.this);
+            sensorProbe.registerPassiveListener(LaunchActivity.this);
+            servicesProbe.registerPassiveListener(LaunchActivity.this);
+            simpleLocationProbe.registerPassiveListener(LaunchActivity.this);
+            simpleProbe.registerPassiveListener(LaunchActivity.this);
+            smsProbe.registerPassiveListener(LaunchActivity.this);
+            telephonyProbe.registerPassiveListener(LaunchActivity.this);
+            temperatureSensorProbe.registerPassiveListener(LaunchActivity.this);
+            timeOffsetProbe.registerPassiveListener(LaunchActivity.this);
+            videoCaptureProbe.registerPassiveListener(LaunchActivity.this);
+            videoMediaProbe.registerPassiveListener(LaunchActivity.this);
+            wifiProbe.registerPassiveListener(LaunchActivity.this);
 
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setChecked(pipeline.isEnabled());
@@ -151,7 +255,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             @Override
             public void onClick(View v) {
                 if (pipeline.isEnabled()) {
-                    pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
+                    //pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
                     pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
 
                     // Wait 1 second for archive to finish, then refresh the UI
@@ -160,7 +264,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getBaseContext(), "Archived!",
+                            Toast.makeText(getBaseContext(), "Uploaded!",
                                 Toast.LENGTH_SHORT).show();
                             updateScanCount();
                         }
@@ -180,8 +284,53 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             public void onClick(View v) {
                 if (pipeline.isEnabled()) {
                     // Manually register the pipeline
-                    wifiProbe.registerListener(pipeline);
+                    accelerometerFeaturesProbe.registerListener(pipeline);
+                    accelerometerSensorProbe.registerListener(pipeline);
+                    accountsProbe.registerListener(pipeline);
+                    activityProbe.registerListener(pipeline);
+                    alarmProbe.registerListener(pipeline);
+                    androidInfoProbe.registerListener(pipeline);
+                    applicationsProbe.registerListener(pipeline);
+                    audioCaptureProbe.registerListener(pipeline);
+                    audioFeaturesProbe.registerListener(pipeline);
+                    audioMediaProbe.registerListener(pipeline);
+                    batteryProbe.registerListener(pipeline);
+                    bluetoothProbe.registerListener(pipeline);
+                    browserBookmarksProbe.registerListener(pipeline);
+                    browserSearchesProbe.registerListener(pipeline);
+                    callLogProbe.registerListener(pipeline);
+                    cellTowerProbe.registerListener(pipeline);
+                    contactProbe.registerListener(pipeline);
+                    contentProviderProbe.registerListener(pipeline);
+                    datedContentProviderProbe.registerListener(pipeline);
+                    gravitySensorProbe.registerListener(pipeline);
+                    gyroscopeSensorProbe.registerListener(pipeline);
+                    hardwareInfoProbe.registerListener(pipeline);
+                    imageCaptureProbe.registerListener(pipeline);
+                    imageMediaProbe.registerListener(pipeline);
+                    impulseProbe.registerListener(pipeline);
+                    lightSensorProbe.registerListener(pipeline);
+                    linearAccelerationSensorProbe.registerListener(pipeline);
+                    locationProbe.registerListener(pipeline);
+                    magneticFieldSensorProbe.registerListener(pipeline);
+                    orientationSensorProbe.registerListener(pipeline);
+                    pressureSensorProbe.registerListener(pipeline);
+                    processStatisticsProbe.registerListener(pipeline);
+                    proximitySensorProbe.registerListener(pipeline);
+                    rotationVectorSensorProbe.registerListener(pipeline);
+                    runningApplicationsProbe.registerListener(pipeline);
+                    screenProbe.registerListener(pipeline);
+                    sensorProbe.registerListener(pipeline);
+                    servicesProbe.registerListener(pipeline);
                     simpleLocationProbe.registerListener(pipeline);
+                    simpleProbe.registerListener(pipeline);
+                    smsProbe.registerListener(pipeline);
+                    telephonyProbe.registerListener(pipeline);
+                    temperatureSensorProbe.registerListener(pipeline);
+                    timeOffsetProbe.registerListener(pipeline);
+                    videoCaptureProbe.registerListener(pipeline);
+                    videoMediaProbe.registerListener(pipeline);
+                    wifiProbe.registerListener(pipeline);
                 } else {
                     Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
                             Toast.LENGTH_SHORT).show();
