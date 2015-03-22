@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="fill_parent"
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <TextView android:id="@id/probeName" android:text="Probe Name" style="@style/header" />
+    <LinearLayout android:focusable="true" android:focusableInTouchMode="true" android:layout_width="0.0px" android:layout_height="0.0px" />
+    <LinearLayout android:orientation="vertical" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_margin="10.0dip">
+        <LinearLayout android:orientation="horizontal" android:id="@id/enableSection" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="20.0sp" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Enabled" android:layout_weight="1.0" />
+            <TextView android:textSize="14.0sp" android:textStyle="italic" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="" android:layout_weight="1.0" />
+            <CheckBox android:id="@id/enableCheckbox" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1.0" android:inputType="number" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/periodSection" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="20.0sp" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Period" android:layout_weight="1.0" />
+            <TextView android:textSize="14.0sp" android:textStyle="italic" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="(in seconds)" android:layout_weight="1.0" />
+            <EditText android:id="@id/period" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1.0" android:inputType="number" />
+        </LinearLayout>
+        <LinearLayout android:orientation="horizontal" android:id="@id/durationSection" android:layout_width="fill_parent" android:layout_height="wrap_content">
+            <TextView android:textSize="20.0sp" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="Duration" android:layout_weight="1.0" />
+            <TextView android:textSize="14.0sp" android:textStyle="italic" android:layout_width="fill_parent" android:layout_height="wrap_content" android:text="(in seconds)" android:layout_weight="1.0" />
+            <EditText android:id="@id/duration" android:layout_width="fill_parent" android:layout_height="wrap_content" android:layout_weight="1.0" android:inputType="number" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

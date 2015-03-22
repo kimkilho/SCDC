@@ -24,4 +24,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile files('libs/funf-0.4.2-61-gb4c433f.jar')
     compile files('libs/gson-2.1.funf.jar')
+    compile files('libs/actionbarsherlock-4.4.0.jar')
 }

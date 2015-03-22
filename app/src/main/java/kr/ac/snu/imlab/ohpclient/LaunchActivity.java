@@ -43,7 +43,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private AccelerometerSensorProbe accelerometerSensorProbe;
     private AccountsProbe accountsProbe;
     private ActivityProbe activityProbe;
-    private AlarmProbe alarmProbe;
+    // private AlarmProbe alarmProbe;
     private AndroidInfoProbe androidInfoProbe;
     private ApplicationsProbe applicationsProbe;
     private AudioCaptureProbe audioCaptureProbe;
@@ -56,14 +56,14 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private CallLogProbe callLogProbe;
     private CellTowerProbe cellTowerProbe;
     private ContactProbe contactProbe;
-    private ContentProviderProbe contentProviderProbe;
-    private DatedContentProviderProbe datedContentProviderProbe;
+    // private ContentProviderProbe contentProviderProbe;
+    // private DatedContentProviderProbe datedContentProviderProbe;
     private GravitySensorProbe gravitySensorProbe;
     private GyroscopeSensorProbe gyroscopeSensorProbe;
     private HardwareInfoProbe hardwareInfoProbe;
     private ImageCaptureProbe imageCaptureProbe;
     private ImageMediaProbe imageMediaProbe;
-    private ImpulseProbe impulseProbe;
+    // private ImpulseProbe impulseProbe;
     private LightSensorProbe lightSensorProbe;
     private LinearAccelerationSensorProbe linearAccelerationSensorProbe;
     private LocationProbe locationProbe;
@@ -78,7 +78,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private SensorProbe sensorProbe;
     private ServicesProbe servicesProbe;
     private SimpleLocationProbe simpleLocationProbe;
-    private SimpleProbe simpleProbe;
+    // private SimpleProbe simpleProbe;
     private SmsProbe smsProbe;
     private TelephonyProbe telephonyProbe;
     private TemperatureSensorProbe temperatureSensorProbe;
@@ -94,7 +94,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private CheckBox enabledProcessStatistics;
     private CheckBox enabledServices;
 
-    private Button archiveButton; // , scanNowButton;
+    private Button archiveButton, scanNowButton, updateDataCountButton;
     private TextView dataCountView;
     private Handler handler;
     private ServiceConnection funfManagerConn = new ServiceConnection() {
@@ -109,7 +109,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             accelerometerSensorProbe = gson.fromJson(new JsonObject(), AccelerometerSensorProbe.class);
             accountsProbe = gson.fromJson(new JsonObject(), AccountsProbe.class);
             activityProbe = gson.fromJson(new JsonObject(), ActivityProbe.class);
-            alarmProbe = gson.fromJson(new JsonObject(), AlarmProbe.class);
+            // alarmProbe = gson.fromJson(new JsonObject(), AlarmProbe.class);
             androidInfoProbe = gson.fromJson(new JsonObject(), AndroidInfoProbe.class);
             applicationsProbe = gson.fromJson(new JsonObject(), ApplicationsProbe.class);
             audioCaptureProbe = gson.fromJson(new JsonObject(), AudioCaptureProbe.class);
@@ -159,7 +159,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             accelerometerSensorProbe.registerPassiveListener(LaunchActivity.this);
             accountsProbe.registerPassiveListener(LaunchActivity.this);
             activityProbe.registerPassiveListener(LaunchActivity.this);
-            alarmProbe.registerPassiveListener(LaunchActivity.this);
+            // alarmProbe.registerPassiveListener(LaunchActivity.this);
             androidInfoProbe.registerPassiveListener(LaunchActivity.this);
             applicationsProbe.registerPassiveListener(LaunchActivity.this);
             audioCaptureProbe.registerPassiveListener(LaunchActivity.this);
@@ -223,7 +223,8 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             // Set UI ready to use, by enabling buttons
             enabledToggleButton.setEnabled(true);
             archiveButton.setEnabled(true);
-            // scanNowButton.setEnabled(true);
+            updateDataCountButton.setEnabled(true);
+            scanNowButton.setEnabled(true);
         }
 
         @Override
@@ -254,7 +255,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             @Override
             public void onClick(View v) {
                 if (pipeline.isEnabled()) {
-                    //pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
+                    pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
                     pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
 
                     // Wait 1 second for archive to finish, then refresh the UI
@@ -263,7 +264,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            Toast.makeText(getBaseContext(), "Uploaded!",
+                            Toast.makeText(getBaseContext(), "Archived!",
                                 Toast.LENGTH_SHORT).show();
                             updateScanCount();
                         }
@@ -275,8 +276,19 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             }
         });
 
+
+        // Update the data count
+        updateDataCountButton = (Button)findViewById(R.id.updateDataCountButton);
+        updateDataCountButton.setEnabled(false);
+        updateDataCountButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateScanCount();
+            }
+        });
+
+
         // Forces the pipeline to scan now
-        /*
         scanNowButton = (Button)findViewById(R.id.scanNowButton);
         scanNowButton.setEnabled(false);
         scanNowButton.setOnClickListener(new View.OnClickListener() {
@@ -284,11 +296,12 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             public void onClick(View v) {
                 if (pipeline.isEnabled()) {
                     // Manually register the pipeline
+                    /*
                     accelerometerFeaturesProbe.registerListener(pipeline);
                     accelerometerSensorProbe.registerListener(pipeline);
                     accountsProbe.registerListener(pipeline);
                     activityProbe.registerListener(pipeline);
-                    alarmProbe.registerListener(pipeline);
+                    // alarmProbe.registerListener(pipeline);
                     androidInfoProbe.registerListener(pipeline);
                     applicationsProbe.registerListener(pipeline);
                     audioCaptureProbe.registerListener(pipeline);
@@ -311,7 +324,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     // impulseProbe.registerListener(pipeline);
                     lightSensorProbe.registerListener(pipeline);
                     linearAccelerationSensorProbe.registerListener(pipeline);
-                    locationProbe.registerListener(pipeline);
                     magneticFieldSensorProbe.registerListener(pipeline);
                     orientationSensorProbe.registerListener(pipeline);
                     pressureSensorProbe.registerListener(pipeline);
@@ -330,6 +342,8 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     timeOffsetProbe.registerListener(pipeline);
                     videoCaptureProbe.registerListener(pipeline);
                     videoMediaProbe.registerListener(pipeline);
+                    locationProbe.registerListener(pipeline);
+                    */
                     wifiProbe.registerListener(pipeline);
                 } else {
                     Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
@@ -337,7 +351,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                 }
             }
         });
-        */
 
         // Bind to the service, to create the connection with FunfManager
         bindService(new Intent(this, FunfManager.class), funfManagerConn,
@@ -381,8 +394,54 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     public void onDataCompleted(IJsonObject probeConfig, JsonElement checkpoint) {
         updateScanCount();
         // Re-register to keep listening after probe completes.
-        wifiProbe.registerPassiveListener(this);
-        simpleLocationProbe.registerPassiveListener(this);
+        accelerometerFeaturesProbe.registerPassiveListener(LaunchActivity.this);
+        accelerometerSensorProbe.registerPassiveListener(LaunchActivity.this);
+        accountsProbe.registerPassiveListener(LaunchActivity.this);
+        activityProbe.registerPassiveListener(LaunchActivity.this);
+        // alarmProbe.registerPassiveListener(LaunchActivity.this);
+        androidInfoProbe.registerPassiveListener(LaunchActivity.this);
+        applicationsProbe.registerPassiveListener(LaunchActivity.this);
+        audioCaptureProbe.registerPassiveListener(LaunchActivity.this);
+        audioFeaturesProbe.registerPassiveListener(LaunchActivity.this);
+        audioMediaProbe.registerPassiveListener(LaunchActivity.this);
+        batteryProbe.registerPassiveListener(LaunchActivity.this);
+        bluetoothProbe.registerPassiveListener(LaunchActivity.this);
+        browserBookmarksProbe.registerPassiveListener(LaunchActivity.this);
+        browserSearchesProbe.registerPassiveListener(LaunchActivity.this);
+        callLogProbe.registerPassiveListener(LaunchActivity.this);
+        cellTowerProbe.registerPassiveListener(LaunchActivity.this);
+        contactProbe.registerPassiveListener(LaunchActivity.this);
+        // contentProviderProbe.registerPassiveListener(LaunchActivity
+        // .this);
+        // datedContentProviderProbe.registerPassiveListener(LaunchActivity.this);
+        gravitySensorProbe.registerPassiveListener(LaunchActivity.this);
+        gyroscopeSensorProbe.registerPassiveListener(LaunchActivity.this);
+        hardwareInfoProbe.registerPassiveListener(LaunchActivity.this);
+        imageCaptureProbe.registerPassiveListener(LaunchActivity.this);
+        imageMediaProbe.registerPassiveListener(LaunchActivity.this);
+        // impulseProbe.registerPassiveListener(LaunchActivity.this);
+        lightSensorProbe.registerPassiveListener(LaunchActivity.this);
+        linearAccelerationSensorProbe.registerPassiveListener(LaunchActivity.this);
+        magneticFieldSensorProbe.registerPassiveListener(LaunchActivity.this);
+        orientationSensorProbe.registerPassiveListener(LaunchActivity.this);
+        pressureSensorProbe.registerPassiveListener(LaunchActivity.this);
+        processStatisticsProbe.registerPassiveListener(LaunchActivity.this);
+        proximitySensorProbe.registerPassiveListener(LaunchActivity.this);
+        rotationVectorSensorProbe.registerPassiveListener(LaunchActivity.this);
+        runningApplicationsProbe.registerPassiveListener(LaunchActivity.this);
+        screenProbe.registerPassiveListener(LaunchActivity.this);
+        // sensorProbe.registerPassiveListener(LaunchActivity.this);
+        servicesProbe.registerPassiveListener(LaunchActivity.this);
+        simpleLocationProbe.registerPassiveListener(LaunchActivity.this);
+        // simpleProbe.registerPassiveListener(LaunchActivity.this);
+        smsProbe.registerPassiveListener(LaunchActivity.this);
+        telephonyProbe.registerPassiveListener(LaunchActivity.this);
+        temperatureSensorProbe.registerPassiveListener(LaunchActivity.this);
+        timeOffsetProbe.registerPassiveListener(LaunchActivity.this);
+        videoCaptureProbe.registerPassiveListener(LaunchActivity.this);
+        videoMediaProbe.registerPassiveListener(LaunchActivity.this);
+        wifiProbe.registerPassiveListener(LaunchActivity.this);
+        simpleLocationProbe.registerPassiveListener(LaunchActivity.this);
     }
 
     @Override

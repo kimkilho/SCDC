@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+  xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:icon="@drawable/ic_lock_lock" android:id="@id/setPassword" android:title="Set Password" />
+    <item android:icon="@drawable/ic_menu_clear_playlist" android:id="@id/resetSettings" android:title="Reset Settings" />
+    <item android:icon="@drawable/ic_menu_delete" android:id="@id/deleteData" android:title="Delete Data" />
+    <item android:icon="@drawable/ic_menu_upload" android:id="@id/linkToServer" android:title="Link to Server" />
+    <item android:icon="@drawable/ic_menu_help" android:id="@id/help" android:title="Help" />
+    <item android:icon="@drawable/ic_menu_info_details" android:id="@id/about" android:title="About" />
+</menu>
