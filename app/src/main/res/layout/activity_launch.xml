@@ -104,7 +104,7 @@
 
 
     <Button android:id="@+id/archiveButton"
-        android:text="Save Data to SD Card"
+        android:text="Upload data to server"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"/>
 
@@ -113,10 +113,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
+    <!--
     <Button android:id="@+id/scanNowButton"
         android:text="Scan Now"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"/>
+    -->
 
 
 </LinearLayout>

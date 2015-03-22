@@ -94,8 +94,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private CheckBox enabledProcessStatistics;
     private CheckBox enabledServices;
 
-
-    private Button archiveButton, scanNowButton;
+    private Button archiveButton; // , scanNowButton;
     private TextView dataCountView;
     private Handler handler;
     private ServiceConnection funfManagerConn = new ServiceConnection() {
@@ -123,17 +122,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             callLogProbe = gson.fromJson(new JsonObject(), CallLogProbe.class);
             cellTowerProbe = gson.fromJson(new JsonObject(), CellTowerProbe.class);
             contactProbe = gson.fromJson(new JsonObject(), ContactProbe.class);
-            contentProviderProbe = gson.fromJson(new JsonObject(), ContentProviderProbe.class);
-            datedContentProviderProbe = gson.fromJson(new JsonObject(), DatedContentProviderProbe.class);
+            // contentProviderProbe = gson.fromJson(new JsonObject(), ContentProviderProbe.class);
+            // datedContentProviderProbe = gson.fromJson(new JsonObject(), DatedContentProviderProbe.class);
             gravitySensorProbe = gson.fromJson(new JsonObject(), GravitySensorProbe.class);
             gyroscopeSensorProbe = gson.fromJson(new JsonObject(), GyroscopeSensorProbe.class);
             hardwareInfoProbe = gson.fromJson(new JsonObject(), HardwareInfoProbe.class);
             imageCaptureProbe = gson.fromJson(new JsonObject(), ImageCaptureProbe.class);
             imageMediaProbe = gson.fromJson(new JsonObject(), ImageMediaProbe.class);
-            impulseProbe = gson.fromJson(new JsonObject(), ImpulseProbe.class);
+            // impulseProbe = gson.fromJson(new JsonObject(),
+            // ImpulseProbe.class);
             lightSensorProbe = gson.fromJson(new JsonObject(), LightSensorProbe.class);
             linearAccelerationSensorProbe = gson.fromJson(new JsonObject(), LinearAccelerationSensorProbe.class);
-            locationProbe = gson.fromJson(new JsonObject(), LocationProbe.class);
             magneticFieldSensorProbe = gson.fromJson(new JsonObject(), MagneticFieldSensorProbe.class);
             orientationSensorProbe = gson.fromJson(new JsonObject(), OrientationSensorProbe.class);
             pressureSensorProbe = gson.fromJson(new JsonObject(), PressureSensorProbe.class);
@@ -142,21 +141,20 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             rotationVectorSensorProbe = gson.fromJson(new JsonObject(), RotationVectorSensorProbe.class);
             runningApplicationsProbe = gson.fromJson(new JsonObject(), RunningApplicationsProbe.class);
             screenProbe = gson.fromJson(new JsonObject(), ScreenProbe.class);
-            sensorProbe = gson.fromJson(new JsonObject(), SensorProbe.class);
+            // sensorProbe = gson.fromJson(new JsonObject(), SensorProbe.class);
             servicesProbe = gson.fromJson(new JsonObject(), ServicesProbe.class);
             simpleLocationProbe = gson.fromJson(new JsonObject(), SimpleLocationProbe.class);
-            simpleProbe = gson.fromJson(new JsonObject(), SimpleProbe.class);
+            // simpleProbe = gson.fromJson(new JsonObject(), SimpleProbe.class);
             smsProbe = gson.fromJson(new JsonObject(), SmsProbe.class);
             telephonyProbe = gson.fromJson(new JsonObject(), TelephonyProbe.class);
             temperatureSensorProbe = gson.fromJson(new JsonObject(), TemperatureSensorProbe.class);
             timeOffsetProbe = gson.fromJson(new JsonObject(), TimeOffsetProbe.class);
             videoCaptureProbe = gson.fromJson(new JsonObject(), VideoCaptureProbe.class);
             videoMediaProbe = gson.fromJson(new JsonObject(), VideoMediaProbe.class);
+            locationProbe = gson.fromJson(new JsonObject(), LocationProbe.class);
             wifiProbe = gson.fromJson(new JsonObject(), WifiProbe.class);
 
 
-            wifiProbe.registerPassiveListener(LaunchActivity.this);
-            simpleLocationProbe.registerPassiveListener(LaunchActivity.this);
             accelerometerFeaturesProbe.registerPassiveListener(LaunchActivity.this);
             accelerometerSensorProbe.registerPassiveListener(LaunchActivity.this);
             accountsProbe.registerPassiveListener(LaunchActivity.this);
@@ -174,17 +172,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             callLogProbe.registerPassiveListener(LaunchActivity.this);
             cellTowerProbe.registerPassiveListener(LaunchActivity.this);
             contactProbe.registerPassiveListener(LaunchActivity.this);
-            contentProviderProbe.registerPassiveListener(LaunchActivity.this);
-            datedContentProviderProbe.registerPassiveListener(LaunchActivity.this);
+            // contentProviderProbe.registerPassiveListener(LaunchActivity
+            // .this);
+            // datedContentProviderProbe.registerPassiveListener(LaunchActivity.this);
             gravitySensorProbe.registerPassiveListener(LaunchActivity.this);
             gyroscopeSensorProbe.registerPassiveListener(LaunchActivity.this);
             hardwareInfoProbe.registerPassiveListener(LaunchActivity.this);
             imageCaptureProbe.registerPassiveListener(LaunchActivity.this);
             imageMediaProbe.registerPassiveListener(LaunchActivity.this);
-            impulseProbe.registerPassiveListener(LaunchActivity.this);
+            // impulseProbe.registerPassiveListener(LaunchActivity.this);
             lightSensorProbe.registerPassiveListener(LaunchActivity.this);
             linearAccelerationSensorProbe.registerPassiveListener(LaunchActivity.this);
-            locationProbe.registerPassiveListener(LaunchActivity.this);
             magneticFieldSensorProbe.registerPassiveListener(LaunchActivity.this);
             orientationSensorProbe.registerPassiveListener(LaunchActivity.this);
             pressureSensorProbe.registerPassiveListener(LaunchActivity.this);
@@ -193,16 +191,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             rotationVectorSensorProbe.registerPassiveListener(LaunchActivity.this);
             runningApplicationsProbe.registerPassiveListener(LaunchActivity.this);
             screenProbe.registerPassiveListener(LaunchActivity.this);
-            sensorProbe.registerPassiveListener(LaunchActivity.this);
+            // sensorProbe.registerPassiveListener(LaunchActivity.this);
             servicesProbe.registerPassiveListener(LaunchActivity.this);
             simpleLocationProbe.registerPassiveListener(LaunchActivity.this);
-            simpleProbe.registerPassiveListener(LaunchActivity.this);
+            // simpleProbe.registerPassiveListener(LaunchActivity.this);
             smsProbe.registerPassiveListener(LaunchActivity.this);
             telephonyProbe.registerPassiveListener(LaunchActivity.this);
             temperatureSensorProbe.registerPassiveListener(LaunchActivity.this);
             timeOffsetProbe.registerPassiveListener(LaunchActivity.this);
             videoCaptureProbe.registerPassiveListener(LaunchActivity.this);
             videoMediaProbe.registerPassiveListener(LaunchActivity.this);
+            locationProbe.registerPassiveListener(LaunchActivity.this);
             wifiProbe.registerPassiveListener(LaunchActivity.this);
 
             // This checkbox enables or disables the pipeline
@@ -210,21 +209,21 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (funfManager != null) {
-                        if (isChecked) {
-                            funfManager.enablePipeline(PIPELINE_NAME);
-                            pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
-                        } else {
-                            funfManager.disablePipeline(PIPELINE_NAME);
-                        }
+                if (funfManager != null) {
+                    if (isChecked) {
+                        funfManager.enablePipeline(PIPELINE_NAME);
+                        pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
+                    } else {
+                        funfManager.disablePipeline(PIPELINE_NAME);
                     }
+                }
                 }
             });
 
             // Set UI ready to use, by enabling buttons
             enabledToggleButton.setEnabled(true);
             archiveButton.setEnabled(true);
-            scanNowButton.setEnabled(true);
+            // scanNowButton.setEnabled(true);
         }
 
         @Override
@@ -277,6 +276,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         });
 
         // Forces the pipeline to scan now
+        /*
         scanNowButton = (Button)findViewById(R.id.scanNowButton);
         scanNowButton.setEnabled(false);
         scanNowButton.setOnClickListener(new View.OnClickListener() {
@@ -301,14 +301,14 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     callLogProbe.registerListener(pipeline);
                     cellTowerProbe.registerListener(pipeline);
                     contactProbe.registerListener(pipeline);
-                    contentProviderProbe.registerListener(pipeline);
-                    datedContentProviderProbe.registerListener(pipeline);
+                    // contentProviderProbe.registerListener(pipeline);
+                    // datedContentProviderProbe.registerListener(pipeline);
                     gravitySensorProbe.registerListener(pipeline);
                     gyroscopeSensorProbe.registerListener(pipeline);
                     hardwareInfoProbe.registerListener(pipeline);
                     imageCaptureProbe.registerListener(pipeline);
                     imageMediaProbe.registerListener(pipeline);
-                    impulseProbe.registerListener(pipeline);
+                    // impulseProbe.registerListener(pipeline);
                     lightSensorProbe.registerListener(pipeline);
                     linearAccelerationSensorProbe.registerListener(pipeline);
                     locationProbe.registerListener(pipeline);
@@ -320,10 +320,10 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     rotationVectorSensorProbe.registerListener(pipeline);
                     runningApplicationsProbe.registerListener(pipeline);
                     screenProbe.registerListener(pipeline);
-                    sensorProbe.registerListener(pipeline);
+                    // sensorProbe.registerListener(pipeline);
                     servicesProbe.registerListener(pipeline);
                     simpleLocationProbe.registerListener(pipeline);
-                    simpleProbe.registerListener(pipeline);
+                    // simpleProbe.registerListener(pipeline);
                     smsProbe.registerListener(pipeline);
                     telephonyProbe.registerListener(pipeline);
                     temperatureSensorProbe.registerListener(pipeline);
@@ -337,6 +337,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                 }
             }
         });
+        */
 
         // Bind to the service, to create the connection with FunfManager
         bindService(new Intent(this, FunfManager.class), funfManagerConn,
