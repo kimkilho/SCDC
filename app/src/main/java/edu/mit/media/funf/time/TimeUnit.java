@@ -365,7 +365,7 @@ public abstract class TimeUnit implements java.io.Serializable {
      * into the form required by the <tt>Object.wait</tt> method.
      *
      * <p>For example, you could implement a blocking <tt>poll</tt>
-     * method (see {@link java.util.concurrent.BlockingQueue#poll BlockingQueue.poll})
+     * method (see {@link BlockingQueue#poll BlockingQueue.poll})
      * using:
      *
      * <pre>  public synchronized  Object poll(long timeout, TimeUnit unit) throws InterruptedException {
@@ -379,7 +379,7 @@ public abstract class TimeUnit implements java.io.Serializable {
      * @param timeout the maximum time to wait. If less than
      * or equal to zero, do not wait at all.
      * @throws InterruptedException if interrupted while waiting.
-     * @see Object#wait(long, int)
+     * @see java.lang.Object#wait(long, int)
      */
     public void timedWait(Object obj, long timeout)
         throws InterruptedException {
@@ -398,7 +398,7 @@ public abstract class TimeUnit implements java.io.Serializable {
      * @param timeout the maximum time to wait. If less than
      * or equal to zero, do not wait at all.
      * @throws InterruptedException if interrupted while waiting.
-     * @see Thread#join(long, int)
+     * @see java.lang.Thread#join(long, int)
      */
     public void timedJoin(Thread thread, long timeout)
         throws InterruptedException {
@@ -416,7 +416,7 @@ public abstract class TimeUnit implements java.io.Serializable {
      * @param timeout the maximum time to sleep. If less than
      * or equal to zero, do not sleep at all.
      * @throws InterruptedException if interrupted while sleeping.
-     * @see Thread#sleep
+     * @see java.lang.Thread#sleep
      */
     public void sleep(long timeout) throws InterruptedException {
         if (timeout > 0) {

@@ -66,7 +66,7 @@ public class ContactProbe extends ContentProviderProbe implements ContactKeys, C
 	@Override
 	protected Cursor getCursor(String[] projection) {
 		return getContext().getContentResolver().query(
-				Data.CONTENT_URI,
+				ContactsContract.Data.CONTENT_URI,
                 projection, 
                 null, //Data.MIMETYPE + " IN ('" + Email.CONTENT_ITEM_TYPE + "')",
                 null,//new String[] {"('" + Utils.join(Arrays.asList(Email.MIMETYPE, Event.MIMETYPE), "','") +"')"}, 

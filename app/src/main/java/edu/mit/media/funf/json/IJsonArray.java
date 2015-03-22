@@ -86,7 +86,7 @@ public class IJsonArray extends JsonElement {
 	 * 
 	 * @return get this element as a number if it is single element array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             and is not a valid Number.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.
@@ -105,7 +105,7 @@ public class IJsonArray extends JsonElement {
 	 * 
 	 * @return get this element as a String if it is single element array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             and is not a valid String.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.
@@ -124,7 +124,7 @@ public class IJsonArray extends JsonElement {
 	 * 
 	 * @return get this element as a double if it is single element array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             and is not a valid double.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.
@@ -138,16 +138,16 @@ public class IJsonArray extends JsonElement {
 	}
 
 	/**
-	 * convenience method to get this array as a {@link java.math.BigDecimal} if it
+	 * convenience method to get this array as a {@link BigDecimal} if it
 	 * contains a single element.
 	 * 
-	 * @return get this element as a {@link java.math.BigDecimal} if it is single element
+	 * @return get this element as a {@link BigDecimal} if it is single element
 	 *         array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             .
 	 * @throws NumberFormatException
-	 *             if the element at index 0 is not a valid {@link java.math.BigDecimal}.
+	 *             if the element at index 0 is not a valid {@link BigDecimal}.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.
 	 * @since 1.2
@@ -161,16 +161,16 @@ public class IJsonArray extends JsonElement {
 	}
 
 	/**
-	 * convenience method to get this array as a {@link java.math.BigInteger} if it
+	 * convenience method to get this array as a {@link BigInteger} if it
 	 * contains a single element.
 	 * 
-	 * @return get this element as a {@link java.math.BigInteger} if it is single element
+	 * @return get this element as a {@link BigInteger} if it is single element
 	 *         array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             .
 	 * @throws NumberFormatException
-	 *             if the element at index 0 is not a valid {@link java.math.BigInteger}.
+	 *             if the element at index 0 is not a valid {@link BigInteger}.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.
 	 * @since 1.2
@@ -189,7 +189,7 @@ public class IJsonArray extends JsonElement {
 	 * 
 	 * @return get this element as a float if it is single element array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             and is not a valid float.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.
@@ -208,7 +208,7 @@ public class IJsonArray extends JsonElement {
 	 * 
 	 * @return get this element as a long if it is single element array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             and is not a valid long.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.
@@ -227,7 +227,7 @@ public class IJsonArray extends JsonElement {
 	 * 
 	 * @return get this element as an integer if it is single element array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             and is not a valid integer.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.
@@ -263,7 +263,7 @@ public class IJsonArray extends JsonElement {
 	 * @return get this element as a primitive short if it is single element
 	 *         array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             and is not a valid short.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.
@@ -282,7 +282,7 @@ public class IJsonArray extends JsonElement {
 	 * 
 	 * @return get this element as a boolean if it is single element array.
 	 * @throws ClassCastException
-	 *             if the element in the array is of not a {@link com.google.gson.JsonPrimitive}
+	 *             if the element in the array is of not a {@link JsonPrimitive}
 	 *             and is not a valid boolean.
 	 * @throws IllegalStateException
 	 *             if the array has more than one element.

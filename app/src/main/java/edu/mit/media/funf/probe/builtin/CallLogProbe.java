@@ -39,7 +39,7 @@ public class CallLogProbe extends DatedContentProviderProbe {
 
 	@Override
 	protected Uri getContentProviderUri() {
-		return Calls.CONTENT_URI;
+		return CallLog.Calls.CONTENT_URI;
 	}
 
 	@Override

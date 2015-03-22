@@ -159,11 +159,11 @@ public class AsyncSharedPrefs implements SharedPreferences, OnSharedPreferenceCh
     }
 	
 	
-	public final class AsyncEditorImpl implements Editor {
+	public final class AsyncEditorImpl implements SharedPreferences.Editor {
 
 		private final Map<String, Object> mModified = new HashMap<String, Object>();
         private boolean mClear = false;
-		private Editor editor = prefs.edit();
+		private SharedPreferences.Editor editor = prefs.edit();
         
         public Editor putString(String key, String value) {
             synchronized (this) {
@@ -325,7 +325,7 @@ public class AsyncSharedPrefs implements SharedPreferences, OnSharedPreferenceCh
 	
 	private static Method getApplyMethod() {
 		try {
-			return Editor.class.getMethod("apply");
+			return SharedPreferences.Editor.class.getMethod("apply");
 		} catch (NoSuchMethodException e) {
 			Log.i(TAG, "Apply method does not exist, using async commit.");
 		}
@@ -336,7 +336,7 @@ public class AsyncSharedPrefs implements SharedPreferences, OnSharedPreferenceCh
     
     private static Method getSetStringSetMethod() {
         try {
-            return Editor.class.getMethod("putStringSet");
+            return SharedPreferences.Editor.class.getMethod("putStringSet");
         } catch (NoSuchMethodException e) {
             Log.i(TAG, "putStringSet method does not exist, using async commit.");
         }
@@ -359,7 +359,7 @@ public class AsyncSharedPrefs implements SharedPreferences, OnSharedPreferenceCh
 	 * Asynchronous commit of shared preferences values
 	 * @param editor
 	 */
-	public static void apply(final Editor editor) {
+	public static void apply(final SharedPreferences.Editor editor) {
 		// Use the apply method if it exists
 		try {
 			applyMethod.invoke(editor);

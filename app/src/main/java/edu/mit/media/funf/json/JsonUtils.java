@@ -45,7 +45,7 @@ public class JsonUtils {
 
 	private JsonUtils() {}
 	
-	private static final Comparator<Entry<String,JsonElement>> JSON_OBJECT_ENTRY_SET_COMPARATOR = new Comparator<Entry<String,JsonElement>>() {
+	private static final Comparator<Entry<String,JsonElement>> JSON_OBJECT_ENTRY_SET_COMPARATOR = new Comparator<Map.Entry<String,JsonElement>>() {
 		@Override
 		public int compare(Entry<String, JsonElement> lhs, Entry<String, JsonElement> rhs) {
 			return lhs==null ?
@@ -98,7 +98,7 @@ public class JsonUtils {
 			return (T)array;
 		} else if (el.isJsonObject()) {
 			JsonObject object = new JsonObject();
-			for (Entry<String, JsonElement> entry : el.getAsJsonObject().entrySet()) {
+			for (Map.Entry<String, JsonElement> entry : el.getAsJsonObject().entrySet()) {
 				object.add(entry.getKey(), deepCopy(entry.getValue()));
 			}
 			return (T)object;
@@ -140,7 +140,7 @@ public class JsonUtils {
 	}
 	
 	private static void deepCopyOnto(JsonObject source, JsonObject destination, boolean replace, boolean initial) {
-		for (Entry<String, JsonElement> sourceVal : source.entrySet()) {
+		for (Map.Entry<String, JsonElement> sourceVal : source.entrySet()) {
 			if (replace || !destination.has(sourceVal.getKey())) {
 				String key = sourceVal.getKey();
 				JsonElement value = sourceVal.getValue();
