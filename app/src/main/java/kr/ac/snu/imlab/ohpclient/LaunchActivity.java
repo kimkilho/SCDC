@@ -249,7 +249,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         // Load probe list view from config
         if (pipeline != null && pipeline instanceof BasicPipeline) {
             List<String> names = new ArrayList<String>();
-            for (StartableDataSource el : ((BasicPipeline)pipeline).getDataRequests()) {
+            for (JsonElement el : ((BasicPipeline)pipeline).getDataRequests()) {
                 String probeClassName = el.isJsonPrimitive() ? el.getAsString() : el.getAsJsonObject().get(RuntimeTypeAdapterFactory.TYPE).getAsString();
                 DisplayName probeDisplayName = null;
                 try {
