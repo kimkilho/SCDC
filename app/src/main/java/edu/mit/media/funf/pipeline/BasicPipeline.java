@@ -25,46 +25,56 @@
  */
 package edu.mit.media.funf.pipeline;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.content.ContentValues;
 import android.content.Context;
-import android.database.sqlite.SQLiteOpenHelper;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.Message;
+import android.util.Log;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import edu.mit.media.funf.FunfManager;
-import edu.mit.media.funf.action.ActionAdapter;
-import edu.mit.media.funf.action.RunArchiveAction;
-import edu.mit.media.funf.action.RunUpdateAction;
-import edu.mit.media.funf.action.RunUploadAction;
-import edu.mit.media.funf.action.WriteDataAction;
+import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.config.ConfigUpdater;
 import edu.mit.media.funf.config.Configurable;
-import edu.mit.media.funf.datasource.StartableDataSource;
+import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
 import edu.mit.media.funf.json.IJsonObject;
-import edu.mit.media.funf.json.JsonUtils;
-import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DataListener;
+import edu.mit.media.funf.probe.builtin.ProbeKeys;
 import edu.mit.media.funf.storage.DefaultArchive;
 import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.NameValueDatabaseHelper;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
+import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
+
 
 public class BasicPipeline implements Pipeline, DataListener {
 
-    public static final String ACTION_ARCHIVE = "archive",
+    public static final String
+            ACTION_ARCHIVE = "archive",
             ACTION_UPLOAD = "upload",
             ACTION_UPDATE = "update";
-    
+
+    protected final int ARCHIVE = 0, UPLOAD = 1, UPDATE = 2, DATA = 3;
+
+
     @Configurable
-    protected String name = "actiongraph";
+    protected String name = "default";
 
     @Configurable
     protected int version = 1;
@@ -77,95 +87,85 @@ public class BasicPipeline implements Pipeline, DataListener {
 
     @Configurable
     protected ConfigUpdater update = null;
-    
+
     @Configurable
-    protected List<StartableDataSource> data = null;
-    
+    protected List<JsonElement> data = new ArrayList<JsonElement>();
+
     @Configurable
-    protected Map<String, StartableDataSource> schedules = null;
-    
-    private UploadService uploader;    
-    
+    protected Map<String, Schedule> schedules = new HashMap<String, Schedule>();
+
+    private UploadService uploader;
+
     private boolean enabled;
     private FunfManager manager;
     private SQLiteOpenHelper databaseHelper = null;
     private Looper looper;
     private Handler handler;
-    
-    private WriteDataAction writeAction;
-    private RunArchiveAction archiveAction;
-    private RunUploadAction uploadAction;
-    private RunUpdateAction updateAction;
-    
-//    private class DataRequestInfo {
-//        private DataListener listener;
-//        private JsonElement checkpoint;
-//    }
-//
-//    private StateListener probeStateListener = new StateListener() {
-//        @Override
-//        public void onStateChanged(Probe probe, State previousState) {
-//            if (probe instanceof ContinuableProbe && previousState == State.RUNNING) {
-//                JsonElement checkpoint = ((ContinuableProbe)probe).getCheckpoint();
-//                IJsonObject config = (IJsonObject)JsonUtils.immutable(getFunfManager().getGson().toJsonTree(probe));
-//                for (DataRequestInfo requestInfo : activeDataRequests.get(config)) {
-//                    requestInfo.checkpoint = checkpoint;
-//                }
-//            }
-//        }
-//    };
-    
-    public IJsonObject getImmutableProbeConfig(String probeConfig) {
-        Probe probe = getFunfManager().getGson().fromJson(probeConfig, Probe.class);
-        IJsonObject probeJson = (IJsonObject)JsonUtils.immutable(
-                getFunfManager().getGson().toJsonTree(probe));
-        return probeJson;
-    }
-    
-    protected void setupDataSources() {
-        if (enabled == false) {
-            
-            for (StartableDataSource dataSource: data) {
-                dataSource.setListener((DataListener)writeAction);
+    private Handler.Callback callback = new Handler.Callback() {
+
+        @Override
+        public boolean handleMessage(Message msg) {
+            onBeforeRun(msg.what, (JsonObject)msg.obj);
+            switch (msg.what) {
+                case ARCHIVE:
+                    if (archive != null) {
+                        runArchive();
+                    }
+                    break;
+                case UPLOAD:
+                    if (archive != null && upload != null && uploader != null) {
+                        uploader.run(archive, upload);
+                    }
+                    break;
+                case UPDATE:
+                    if (update != null) {
+                        update.run(name, manager);
+                    }
+                    break;
+                case DATA:
+                    String name = ((JsonObject)msg.obj).get("name").getAsString();
+                    IJsonObject data = (IJsonObject)((JsonObject)msg.obj).get("value");
+                    writeData(name, data);
+                    break;
+                default:
+                    break;
             }
-            
-            if (schedules != null) {
-                if (schedules.containsKey("archive")) {
-                    DataListener archiveListener = (DataListener)new ActionAdapter(archiveAction);
-                    schedules.get("archive").setListener(archiveListener);
-                    schedules.get("archive").start();
-                }
-                
-                if (schedules.containsKey("upload")) {
-                    DataListener uploadListener = (DataListener)new ActionAdapter(uploadAction);
-                    schedules.get("upload").setListener(uploadListener);
-                    schedules.get("upload").start();
-                }
-                
-                if (schedules.containsKey("update")) {
-                    DataListener updateListener = (DataListener)new ActionAdapter(updateAction);
-                    schedules.get("update").setListener(updateListener);
-                    schedules.get("update").start();
-                }
-            }
-            
-            for (StartableDataSource dataSource: data) {
-                dataSource.start();
-            }
-            
-            enabled = true;
+            onAfterRun(msg.what, (JsonObject)msg.obj);
+            return false;
         }
+    };
+
+    protected void reloadDbHelper(Context ctx) {
+        this.databaseHelper = new NameValueDatabaseHelper(ctx, StringUtil.simpleFilesafe(name), version);
     }
 
-    private void destroyDataSources() {
-        if (enabled == true) {
-            
-            for (StartableDataSource dataSource: data) {
-                dataSource.stop();
-            }
-            enabled = false;
+    protected void runArchive() {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        // TODO: add check to make sure this is not empty
+        File dbFile = new File(db.getPath());
+        db.close();
+        if (archive.add(dbFile)) {
+            dbFile.delete();
         }
+        reloadDbHelper(manager);
+        databaseHelper.getWritableDatabase(); // Build new database
     }
+
+    protected void writeData(String name, IJsonObject data) {
+        SQLiteDatabase db = databaseHelper.getWritableDatabase();
+        final double timestamp = data.get(ProbeKeys.BaseProbeKeys.TIMESTAMP).getAsDouble();
+        final String value = data.toString();
+        if (timestamp == 0L || name == null || value == null) {
+            Log.e(LogUtil.TAG, "Unable to save data.  Not all required values specified. " + timestamp + " " + name + " - " + value);
+            throw new SQLException("Not all required fields specified.");
+        }
+        ContentValues cv = new ContentValues();
+        cv.put(NameValueDatabaseHelper.COLUMN_NAME, name);
+        cv.put(NameValueDatabaseHelper.COLUMN_VALUE, value);
+        cv.put(NameValueDatabaseHelper.COLUMN_TIMESTAMP, timestamp);
+        db.insertOrThrow(NameValueDatabaseHelper.DATA_TABLE.name, "", cv);
+    }
+
 
     @Override
     public void onCreate(FunfManager manager) {
@@ -178,84 +178,84 @@ public class BasicPipeline implements Pipeline, DataListener {
         }
         this.manager = manager;
         reloadDbHelper(manager);
-        
         HandlerThread thread = new HandlerThread(getClass().getName());
         thread.start();
         this.looper = thread.getLooper();
-        this.handler = new Handler(looper);
-        
-        writeAction = new WriteDataAction(databaseHelper);
-        writeAction.setHandler(handler);
-        archiveAction = new RunArchiveAction(archive, databaseHelper);
-        archiveAction.setHandler(handler);
-        uploadAction = new RunUploadAction(archive, upload, uploader);
-        uploadAction.setHandler(handler);
-        updateAction = new RunUpdateAction(name, getFunfManager(), update);
-        updateAction.setHandler(handler);
-        
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                setupDataSources();
-            }
-        });
+        this.handler = new Handler(looper, callback);
+        enabled = true;
+        for (JsonElement dataRequest : data) {
+            manager.requestData(this, dataRequest);
+        }
+        for (Map.Entry<String, Schedule> schedule : schedules.entrySet()) {
+            manager.registerPipelineAction(this, schedule.getKey(), schedule.getValue());
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        for (JsonElement dataRequest : data) {
+            manager.unrequestData(this, dataRequest);
+        }
+        for (Map.Entry<String, Schedule> schedule : schedules.entrySet()) {
+            manager.unregisterPipelineAction(this, schedule.getKey());
+        }
+        if (uploader != null) {
+            uploader.stop();
+        }
+        looper.quit();
+        enabled = false;
     }
 
     @Override
     public void onRun(String action, JsonElement config) {
         // Run on handler thread
         if (ACTION_ARCHIVE.equals(action)) {
-            archiveAction.run();
+            handler.obtainMessage(ARCHIVE, config).sendToTarget();
         } else if (ACTION_UPLOAD.equals(action)) {
-            uploadAction.run();
+            handler.obtainMessage(UPLOAD, config).sendToTarget();
         } else if (ACTION_UPDATE.equals(action)) {
-            updateAction.run();
+            handler.obtainMessage(UPDATE, config).sendToTarget();
         }
     }
 
-    @Override
-    public void onDestroy() {
-        if (uploader != null) {
-            uploader.stop();
-        }
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                destroyDataSources();
-                looper.quit();
-            }
-        });
+    /**
+     * Used as a hook to customize behavior before an action takes place.
+     * @param action the type of action taking place
+     * @param config the configuration for the action
+     */
+    protected void onBeforeRun(int action, JsonElement config) {
+
     }
 
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-    
-    @Override
-    public void onDataReceived(IJsonObject probeConfig, IJsonObject data) {
-      writeAction.onDataReceived(probeConfig, data);
+    /**
+     * Used as a hook to customize behavior after an action takes place.
+     * @param action the type of action taking place
+     * @param config the configuration for the action
+     */
+    protected void onAfterRun(int action, JsonElement config) {
+
     }
 
-    @Override
-    public void onDataCompleted(IJsonObject probeConfig, JsonElement checkpoint) {
-      writeAction.onDataCompleted(probeConfig, checkpoint);
+    protected Handler getHandler() {
+        return handler;
     }
+
+    protected FunfManager getFunfManager() {
+        return manager;
+    }
+
 
     public SQLiteDatabase getDb() {
         return databaseHelper.getReadableDatabase();
     }
 
-    public Handler getHandler() {
-        return handler;
+    public List<JsonElement> getDataRequests() {
+        return data == null ? null : Collections.unmodifiableList(data);
     }
 
-    public FunfManager getFunfManager() {
-        return manager;
-    }
-
-    protected void reloadDbHelper(Context ctx) {
-        this.databaseHelper = new NameValueDatabaseHelper(ctx, StringUtil.simpleFilesafe(name), version);
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 
     public String getName() {
@@ -287,6 +287,7 @@ public class BasicPipeline implements Pipeline, DataListener {
         this.archive = archive;
     }
 
+
     public RemoteFileArchive getUpload() {
         return upload;
     }
@@ -305,4 +306,56 @@ public class BasicPipeline implements Pipeline, DataListener {
     public void setUpdate(ConfigUpdater update) {
         this.update = update;
     }
+
+
+    public void setDataRequests(List<JsonElement> data) {
+        this.data = new ArrayList<JsonElement>(data); // Defensive copy
+    }
+
+
+    public Map<String, Schedule> getSchedules() {
+        return schedules;
+    }
+
+
+    public void setSchedules(Map<String, Schedule> schedules) {
+        this.schedules = schedules;
+    }
+
+
+    public UploadService getUploader() {
+        return uploader;
+    }
+
+
+    public void setUploader(UploadService uploader) {
+        this.uploader = uploader;
+    }
+
+
+    public SQLiteOpenHelper getDatabaseHelper() {
+        return databaseHelper;
+    }
+
+
+    public void setDatabaseHelper(SQLiteOpenHelper databaseHelper) {
+        this.databaseHelper = databaseHelper;
+    }
+
+
+    @Override
+    public void onDataReceived(IJsonObject probeConfig, IJsonObject data) {
+        JsonObject record = new JsonObject();
+        record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
+        record.add("value", data);
+        handler.obtainMessage(DATA, record).sendToTarget();
+    }
+
+    @Override
+    public void onDataCompleted(IJsonObject probeConfig, JsonElement checkpoint) {
+        // TODO Figure out what to do with continuations of probes, if anything
+
+    }
 }
+
+

@@ -9,6 +9,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,11 +19,17 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import edu.mit.media.funf.FunfManager;
+import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
+import edu.mit.media.funf.datasource.StartableDataSource;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
+import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DataListener;
 import edu.mit.media.funf.probe.builtin.*;
 import edu.mit.media.funf.storage.NameValueDatabaseHelper;
+import edu.mit.media.funf.probe.Probe.DisplayName;
+import edu.mit.media.funf.util.LogUtil;
+import edu.mit.media.funf.util.StringUtil;
 
 import android.os.IBinder;
 import android.widget.TextView;
@@ -33,11 +40,17 @@ import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class LaunchActivity extends ActionBarActivity implements DataListener {
     public static final String PIPELINE_NAME = "default";
-    private FunfManager funfManager;
-    private BasicPipeline pipeline;
+
+    private Handler handler;
+    private FunfManager funfManager = null;
+    private BasicPipeline pipeline = null;
+
     // Probes
     private AccelerometerFeaturesProbe accelerometerFeaturesProbe;
     private AccelerometerSensorProbe accelerometerSensorProbe;
@@ -96,13 +109,11 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
     private Button archiveButton, scanNowButton, updateDataCountButton;
     private TextView dataCountView;
-    private Handler handler;
     private ServiceConnection funfManagerConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             funfManager = ((FunfManager.LocalBinder)service).getManager();
             Gson gson = funfManager.getGson();
-
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
             accelerometerFeaturesProbe = gson.fromJson(new JsonObject(), AccelerometerFeaturesProbe.class);
@@ -225,6 +236,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             archiveButton.setEnabled(true);
             updateDataCountButton.setEnabled(true);
             scanNowButton.setEnabled(true);
+            reloadProbeList();
         }
 
         @Override
@@ -232,6 +244,37 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             funfManager = null;
         }
     };
+
+    private void reloadProbeList() {
+        // Load probe list view from config
+        if (pipeline != null && pipeline instanceof BasicPipeline) {
+            List<String> names = new ArrayList<String>();
+            for (StartableDataSource el : ((BasicPipeline)pipeline).getDataRequests()) {
+                String probeClassName = el.isJsonPrimitive() ? el.getAsString() : el.getAsJsonObject().get(RuntimeTypeAdapterFactory.TYPE).getAsString();
+                DisplayName probeDisplayName = null;
+                try {
+                    probeDisplayName = Class.forName(probeClassName).getAnnotation(DisplayName.class);
+                } catch (ClassNotFoundException e) {
+
+                }
+                String name = "Unknown";
+                if (probeDisplayName == null) {
+                    String[] parts = probeClassName.split("\\.");
+                    if (parts.length == 0) {
+                        Log.d(LogUtil.TAG, "Bad probe type: '" + probeClassName + "'");
+                    } else {
+                        name = parts[parts.length - 1].replace("Probe", "");
+                    }
+                } else {
+                    name = probeDisplayName.value();
+                }
+                names.add(name);
+            }
+            ((TextView)findViewById(R.id.probe_list)).setText(StringUtil.join(names, ", "));
+        } else {
+            ((TextView)findViewById(R.id.probe_list)).setText("Unknown...");
+        }
+    }
 
 
     @Override
@@ -255,8 +298,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             @Override
             public void onClick(View v) {
                 if (pipeline.isEnabled()) {
-                    pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
-                    pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
 
                     // Wait 1 second for archive to finish, then refresh the UI
                     // (Note: this is kind of a hack since archiving is seamless
@@ -264,11 +305,14 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     handler.postDelayed(new Runnable() {
                         @Override
                         public void run() {
+                            pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
+                            pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
                             Toast.makeText(getBaseContext(), "Archived!",
                                 Toast.LENGTH_SHORT).show();
                             updateScanCount();
                         }
-                    }, 1000L);
+                    // }, 1000L);
+                    }, 10L * 1000L);
                 } else {
                     Toast.makeText(getBaseContext(), "Pipeline is not enabled",
                             Toast.LENGTH_SHORT).show();
