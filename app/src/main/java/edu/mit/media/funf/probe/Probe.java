@@ -739,7 +739,7 @@ public interface Probe {
 		 * to funf@media.mit.edu in accordance with the LGPL license. *
 		 */
 		//@Configurable
-		private boolean hideSensitiveData = true;
+		private boolean hideSensitiveData = false;
 
 		protected final String sensitiveData(String data) {
 			return sensitiveData(data, null);

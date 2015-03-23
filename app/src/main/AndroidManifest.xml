@@ -13,25 +13,22 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <!-- Accounts probe -->
     <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
-    <uses-permission android:name="android.Manifest.permission.GET_ACCOUNTS"/>
+    <uses-permission android:name="android.permission.GET_ACCOUNTS"/>
     <!-- AudioCapture probe -->
-    <uses-permission android:name="android.Manifest.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <!-- Bluetooth probe -->
-    <uses-permission android:name="android.Manifest.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.Manifest.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <!-- BrowserBookmarks probe -->
-    <uses-permission android:name="android.Manifest.permission.READ_HISTORY_BOOKMARKS"/>
     <uses-permission android:name="android.permission.READ_HISTORY_BOOKMARKS"/>
+    <uses-permission android:name="com.android.browser.permission.READ_HISTORY_BOOKMARKS"/>
     <!-- CallLog probe -->
-    <uses-permission android:name="android.Manifest.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.READ_CALL_LOG"/>
     <!-- HardwareInfo probe -->
-    <uses-permission android:name="android.Manifest.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <!-- ImageCapture probe -->
-    <uses-permission android:name="android.Manifest.permission.CAMERA"/>
+    <uses-permission android:name="android.permission.CAMERA"/>
     <!-- Location probe, Cell probe -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <!-- Location probe -->
@@ -39,7 +36,7 @@
     <!-- Running Applications probe -->
     <uses-permission android:name="android.permission.GET_TASKS"/>
     <!-- SMS probe -->
-    <uses-permission android:name="android.Manifest.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.READ_SMS"/>
     <!-- Wifi probe, Hardware Info probe -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <!-- Wifi probe -->

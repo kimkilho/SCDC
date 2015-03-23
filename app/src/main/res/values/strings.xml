@@ -160,13 +160,6 @@
                     }
                 },
                 {
-                    "@type":
-        "edu.mit.media.funf.probe.builtin.ImageCaptureProbe",
-                    "@schedule": {
-                        "interval": 1800
-                    }
-                },
-                {
                     "@type": "edu.mit.media.funf.probe.builtin.ImageMediaProbe",
                     "@schedule": {
                         "interval": 3600
@@ -292,13 +285,6 @@
                     "@type": "edu.mit.media.funf.probe.builtin.TimeOffsetProbe",
                     "@schedule": {
                         "interval": 3600
-                    }
-                },
-                {
-                    "@type":
-        "edu.mit.media.funf.probe.builtin.VideoCaptureProbe",
-                    "@schedule": {
-                        "interval": 1800
                     }
                 },
                 {

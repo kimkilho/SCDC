@@ -24,76 +24,275 @@
                           android:textOff="해제"
                           android:layout_marginLeft="80dp" />
         </LinearLayout>
+
+        <!-- Probe list -->
         <TextView
             android:id="@+id/probe_list"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text=""
             android:gravity="center" />
+
+        <!-- Device -->
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textSize="20dp"
             android:textStyle="bold"
             android:text="Device" />
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-            <TextView
-                android:layout_width="wrap_content"
+
+            <!-- Services -->
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="ProcessStatistics"
-                android:layout_gravity="left" />
-            <CheckBox android:id="@+id/enabledProcessStatistics"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_gravity="right" />
-        </LinearLayout>
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal" >
-            <TextView
-                android:layout_width="wrap_content"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Services"
+                    android:layout_gravity="left" />
+                <CheckBox android:id="@+id/enabledServices"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_gravity="right" />
+            </LinearLayout>
+            <!-- Hardware Info -->
+            <LinearLayout
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="Services"
-                android:layout_gravity="left" />
-            <CheckBox android:id="@+id/enabledServices"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_gravity="right" />
-        </LinearLayout>
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Hardware Info"
+                    android:layout_gravity="left" />
+                <CheckBox android:id="@+id/enabledHardwareInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right" />
+            </LinearLayout>
+            <!-- Mobile Network Info -->
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Mobile Network Info"
+                    android:layout_gravity="left" />
+                <CheckBox android:id="@+id/enabledMobileNetworkInfo"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_gravity="right" />
+            </LinearLayout>
+            <!-- Process Statistics -->
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Process Statistics"
+                    android:layout_gravity="left" />
+                <CheckBox android:id="@+id/enabledProcessStatistics"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right" />
+            </LinearLayout>
+            <!-- Battery -->
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Battery"
+                    android:layout_gravity="left" />
+                <CheckBox android:id="@+id/enabledBattery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right" />
+            </LinearLayout>
+            <!-- Time Offset -->
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Time Offset"
+                    android:layout_gravity="left" />
+                <CheckBox android:id="@+id/enabledTimeOffset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right" />
+            </LinearLayout>
+            <!-- Android Info -->
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" >
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Android Info"
+                    android:layout_gravity="left" />
+                <CheckBox android:id="@+id/enabledAndroidInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right" />
+            </LinearLayout>
+
+        <!-- Device Interaction -->
         <TextView
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textSize="20dp"
             android:textStyle="bold"
             android:text="Device Interaction" />
-        <TextView
+
+        <!-- Running Applications -->
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            android:text="Environment" />
-        <TextView
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Running Applications"
+                android:layout_gravity="left" />
+            <CheckBox android:id="@+id/enabledRunningApplications"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+        <!-- Video File Stats -->
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            android:text="Motion" />
-        <TextView
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Video File Stats"
+                android:layout_gravity="left" />
+            <CheckBox android:id="@+id/enabledVideoFileStats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+        <!-- Image File Stats -->
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            android:text="Positioning" />
-        <TextView
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Image File Stats"
+                android:layout_gravity="left" />
+            <CheckBox android:id="@+id/enabledImageFileStats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+        <!-- Browser Bookmarks -->
+        <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="20dp"
-            android:textStyle="bold"
-            android:text="Social" />
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Browser Bookmarks"
+                android:layout_gravity="left" />
+            <CheckBox android:id="@+id/enabledBrowserBookmarks"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+        <!-- Screen On/Off -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Screen On/Off"
+                android:layout_gravity="left" />
+            <CheckBox android:id="@+id/enabledScreenOnOff"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+        <!-- Browser Searches -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Browser Searches"
+                android:layout_gravity="left" />
+            <CheckBox android:id="@+id/enabledBrowserSearches"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+        <!-- Applications -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Applications"
+                android:layout_gravity="left" />
+            <CheckBox android:id="@+id/enabledApplications"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+        <!-- Audio Media File Stats -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Audio Media File Stats"
+                android:layout_gravity="left" />
+            <CheckBox android:id="@+id/enabledAudioMediaFileStats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+        <!-- Accounts -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accounts"
+                android:layout_gravity="left" />
+            <CheckBox android:id="@+id/enabledAccounts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+
+        <!-- To be continued -->
+
         <Button android:id="@+id/archiveButton"
                 android:text="Upload data to server"
                 android:layout_width="fill_parent"
