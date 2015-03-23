@@ -59,7 +59,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     // private AlarmProbe alarmProbe;
     private AndroidInfoProbe androidInfoProbe;
     private ApplicationsProbe applicationsProbe;
-    private AudioCaptureProbe audioCaptureProbe;
+    // private AudioCaptureProbe audioCaptureProbe;
     private AudioFeaturesProbe audioFeaturesProbe;
     private AudioMediaProbe audioMediaProbe;
     private BatteryProbe batteryProbe;
@@ -123,7 +123,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             // alarmProbe = gson.fromJson(new JsonObject(), AlarmProbe.class);
             androidInfoProbe = gson.fromJson(new JsonObject(), AndroidInfoProbe.class);
             applicationsProbe = gson.fromJson(new JsonObject(), ApplicationsProbe.class);
-            audioCaptureProbe = gson.fromJson(new JsonObject(), AudioCaptureProbe.class);
+            // audioCaptureProbe = gson.fromJson(new JsonObject(), AudioCaptureProbe.class);
             audioFeaturesProbe = gson.fromJson(new JsonObject(), AudioFeaturesProbe.class);
             audioMediaProbe = gson.fromJson(new JsonObject(), AudioMediaProbe.class);
             batteryProbe = gson.fromJson(new JsonObject(), BatteryProbe.class);
@@ -173,7 +173,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             // alarmProbe.registerPassiveListener(LaunchActivity.this);
             androidInfoProbe.registerPassiveListener(LaunchActivity.this);
             applicationsProbe.registerPassiveListener(LaunchActivity.this);
-            audioCaptureProbe.registerPassiveListener(LaunchActivity.this);
+            // audioCaptureProbe.registerPassiveListener(LaunchActivity.this);
             audioFeaturesProbe.registerPassiveListener(LaunchActivity.this);
             audioMediaProbe.registerPassiveListener(LaunchActivity.this);
             batteryProbe.registerPassiveListener(LaunchActivity.this);
@@ -445,7 +445,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         // alarmProbe.registerPassiveListener(LaunchActivity.this);
         androidInfoProbe.registerPassiveListener(LaunchActivity.this);
         applicationsProbe.registerPassiveListener(LaunchActivity.this);
-        audioCaptureProbe.registerPassiveListener(LaunchActivity.this);
+        // audioCaptureProbe.registerPassiveListener(LaunchActivity.this);
         audioFeaturesProbe.registerPassiveListener(LaunchActivity.this);
         audioMediaProbe.registerPassiveListener(LaunchActivity.this);
         batteryProbe.registerPassiveListener(LaunchActivity.this);

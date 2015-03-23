@@ -19,8 +19,11 @@
     <!-- Bluetooth probe -->
     <uses-permission android:name="android.Manifest.permission.BLUETOOTH"/>
     <uses-permission android:name="android.Manifest.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <!-- BrowserBookmarks probe -->
     <uses-permission android:name="android.Manifest.permission.READ_HISTORY_BOOKMARKS"/>
+    <uses-permission android:name="android.permission.READ_HISTORY_BOOKMARKS"/>
     <!-- CallLog probe -->
     <uses-permission android:name="android.Manifest.permission.READ_CONTACTS"/>
     <uses-permission android:name="android.permission.READ_CONTACTS"/>
