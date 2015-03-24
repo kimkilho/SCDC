@@ -147,8 +147,8 @@ public class BasicPipeline implements Pipeline, DataListener {
     SQLiteDatabase db = databaseHelper.getWritableDatabase();
     final double timestamp = data.get(ProbeKeys.BaseProbeKeys.TIMESTAMP).getAsDouble();
     final String value = data.toString();
-    if (name == null || value == null) {
-    // if (timestamp == 0L || name == null || value == null) {
+    // if (name == null || value == null) {
+    if (timestamp == 0L || name == null || value == null) {
         Log.e(LogUtil.TAG, "Unable to save data.  Not all required values specified. " + timestamp + " " + name + " - " + value);
         throw new SQLException("Not all required fields specified.");
     }
