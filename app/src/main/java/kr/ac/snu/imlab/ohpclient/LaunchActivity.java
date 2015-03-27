@@ -18,7 +18,19 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+import com.google.gson.TypeAdapterFactory;
+
 import edu.mit.media.funf.FunfManager;
+import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
 import edu.mit.media.funf.datasource.StartableDataSource;
 import edu.mit.media.funf.json.IJsonObject;
@@ -52,102 +64,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private BasicPipeline pipeline = null;
 
     // Probes
-    private AccelerometerFeaturesProbe accelerometerFeaturesProbe;
-    private AccelerometerSensorProbe accelerometerSensorProbe;
-    private AccountsProbe accountsProbe;
-    private ActivityProbe activityProbe;
-    // private AlarmProbe alarmProbe;
-    private AndroidInfoProbe androidInfoProbe;
-    private ApplicationsProbe applicationsProbe;
-    // private AudioCaptureProbe audioCaptureProbe;
-    // private AudioFeaturesProbe audioFeaturesProbe;
-    private AudioMediaProbe audioMediaProbe;
-    private BatteryProbe batteryProbe;
-    private BluetoothProbe bluetoothProbe;
-    private BrowserBookmarksProbe browserBookmarksProbe;
-    private BrowserSearchesProbe browserSearchesProbe;
-    private CallLogProbe callLogProbe;
-    private CellTowerProbe cellTowerProbe;
-    private ContactProbe contactProbe;
-    // private ContentProviderProbe contentProviderProbe;
-    // private DatedContentProviderProbe datedContentProviderProbe;
-    private GravitySensorProbe gravitySensorProbe;
-    private GyroscopeSensorProbe gyroscopeSensorProbe;
-    private HardwareInfoProbe hardwareInfoProbe;
-    // private ImageCaptureProbe imageCaptureProbe;
-    private ImageMediaProbe imageMediaProbe;
-    // private ImpulseProbe impulseProbe;
-    private LightSensorProbe lightSensorProbe;
-    private LinearAccelerationSensorProbe linearAccelerationSensorProbe;
-    private LocationProbe locationProbe;
-    private MagneticFieldSensorProbe magneticFieldSensorProbe;
-    private OrientationSensorProbe orientationSensorProbe;
-    private PressureSensorProbe pressureSensorProbe;
-    private ProcessStatisticsProbe processStatisticsProbe;
-    private ProximitySensorProbe proximitySensorProbe;
-    private RotationVectorSensorProbe rotationVectorSensorProbe;
-    private RunningApplicationsProbe runningApplicationsProbe;
-    private ScreenProbe screenProbe;
-    private SensorProbe sensorProbe;
-    private ServicesProbe servicesProbe;
-    private SimpleLocationProbe simpleLocationProbe;
-    // private SimpleProbe simpleProbe;
-    private SmsProbe smsProbe;
-    private TelephonyProbe telephonyProbe;
-    private TemperatureSensorProbe temperatureSensorProbe;
-    private TimeOffsetProbe timeOffsetProbe;
-    // private VideoCaptureProbe videoCaptureProbe;
-    private VideoMediaProbe videoMediaProbe;
     private WifiProbe wifiProbe;
 
     // Run Data Collection button
     private ToggleButton enabledToggleButton;
 
+    // Probe schedules
+    TextView scheduleNearbyWifiDevices;
+
+
     // Probe checkboxes
-    // Device
-    private CheckBox enabledServices;
-    private CheckBox enabledHardwareInfo;
-    private CheckBox enabledMobileNetworkInfo;
-    private CheckBox enabledProcessStatistics;
-    private CheckBox enabledBattery;
-    private CheckBox enabledTimeOffset;
-    private CheckBox enabledAndroidInfo;
-    // Device Interaction
-    private CheckBox enabledRunningApplications;
-    private CheckBox enabledVideoFileStats;
-    private CheckBox enabledImageFileStats;
-    private CheckBox enabledBrowserBookmarks;
-    private CheckBox enabledScreenOnOff;
-    private CheckBox enabledBrowserSearches;
-    private CheckBox enabledApplications;
-    private CheckBox enabledAudioMediaFileStats;
-    private CheckBox enabledAccounts;
-    // Environment
-    private CheckBox enabledProximitySensor;
-    private CheckBox enabledLightSensor;
-    private CheckBox enabledMagneticFieldSensor;
-    private CheckBox enabledTemperatureSensor;
-    private CheckBox enabledPressureSensor;
-    private CheckBox enabledAudioFeatures;
-    // Motion
-    private CheckBox enabledActivity;
-    private CheckBox enabledGyroscopeSensor;
-    private CheckBox enabledAccelerometerFeatures;
-    private CheckBox enabledAccelerometerSensor;
-    private CheckBox enabledLinearAccelerationSensor;
-    private CheckBox enabledOrientationSensor;
-    private CheckBox enabledGravitySensor;
-    private CheckBox enabledRotationVectorSensor;
-    // Positioning
-    private CheckBox enabledSimpleLocation;
     private CheckBox enabledNearbyWifiDevices;
-    private CheckBox enabledNearbyCellularTowers;
-    private CheckBox enabledNearbyBluetoothDevices;
-    private CheckBox enabledContinuousLocation;
-    // Social
-    private CheckBox enabledCallLog;
-    private CheckBox enabledContacts;
-    private CheckBox enabledSmsLog;
 
     private Button archiveButton, scanNowButton, updateDataCountButton;
     private TextView dataCountView;
@@ -159,10 +86,8 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
             wifiProbe = gson.fromJson(new JsonObject(), WifiProbe.class);
-            Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
+            // Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
 
-            wifiProbe.registerPassiveListener(LaunchActivity.this);
-            Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
 
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setChecked(pipeline.isEnabled());
@@ -173,8 +98,21 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     if (isChecked) {
                         funfManager.enablePipeline(PIPELINE_NAME);
                         pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
+                        // Probe probe = getGson().fromJson(wifiProbe.getConfig(), wifiProbe.getClass());
+
+
+                        if (enabledNearbyWifiDevices.isChecked()) {
+                            funfManager.requestData(pipeline, wifiProbe.getConfig().get("@type"), null);
+                            wifiProbe.registerPassiveListener(LaunchActivity.this);
+                            Schedule wifiSchedule = funfManager.getDataRequestSchedule(wifiProbe.getConfig(), pipeline);
+                            scheduleNearbyWifiDevices.setText("   Runs every " + wifiSchedule.getInterval()
+                                    + " seconds \n for " + wifiSchedule.getDuration() + " seconds");
+                        } else {
+                            wifiProbe.unregisterPassiveListener(LaunchActivity.this);
+                        }
                     } else {
                         funfManager.disablePipeline(PIPELINE_NAME);
+                        scheduleNearbyWifiDevices.setText("   Disabled");
                     }
                 }
                 }
@@ -185,6 +123,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             archiveButton.setEnabled(true);
             updateDataCountButton.setEnabled(true);
             scanNowButton.setEnabled(true);
+            enabledNearbyWifiDevices.setEnabled(true);
             reloadProbeList();
         }
 
@@ -239,24 +178,13 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
         enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
         enabledToggleButton.setEnabled(false);
-        // Device
-        enabledServices = (CheckBox)findViewById(R.id.enabledServices);
-        enabledHardwareInfo = (CheckBox)findViewById(R.id.enabledHardwareInfo);
-        enabledMobileNetworkInfo = (CheckBox)findViewById(R.id.enabledMobileNetworkInfo);
-        enabledProcessStatistics = (CheckBox)findViewById(R.id.enabledProcessStatistics);
-        enabledBattery = (CheckBox)findViewById(R.id.enabledBattery);
-        enabledTimeOffset = (CheckBox)findViewById(R.id.enabledTimeOffset);
-        enabledAndroidInfo = (CheckBox)findViewById(R.id.enabledAndroidInfo);
-        // Device Interaction
-        enabledRunningApplications = (CheckBox)findViewById(R.id.enabledRunningApplications);
-        enabledVideoFileStats = (CheckBox)findViewById(R.id.enabledVideoFileStats);
-        enabledImageFileStats = (CheckBox)findViewById(R.id.enabledImageFileStats);
-        enabledBrowserBookmarks = (CheckBox)findViewById(R.id.enabledBrowserBookmarks);
-        enabledScreenOnOff = (CheckBox)findViewById(R.id.enabledScreenOnOff);
-        enabledBrowserSearches = (CheckBox)findViewById(R.id.enabledBrowserSearches);
-        enabledApplications = (CheckBox)findViewById(R.id.enabledApplications);
-        enabledAudioMediaFileStats = (CheckBox)findViewById(R.id.enabledAudioMediaFileStats);
-        enabledAccounts = (CheckBox)findViewById(R.id.enabledAccounts);
+
+        // Wifi
+        enabledNearbyWifiDevices = (CheckBox)findViewById(R.id.enabledNearbyWifiDevices);
+        enabledNearbyWifiDevices.setEnabled(false);
+        scheduleNearbyWifiDevices = (TextView)findViewById(R.id.scheduleNearbyWifiDevices);
+        scheduleNearbyWifiDevices.setText("   Disabled");
+
 
         // Runs an archive if pipeline is enabled
         archiveButton = (Button)findViewById(R.id.archiveButton);
@@ -279,7 +207,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             updateScanCount();
                         }
                     // }, 1000L);
-                    }, 10L * 1000L);
+                    }, 1000L);
                 } else {
                     Toast.makeText(getBaseContext(), "Pipeline is not enabled",
                             Toast.LENGTH_SHORT).show();
@@ -307,54 +235,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             public void onClick(View v) {
                 if (pipeline.isEnabled()) {
                     // Manually register the pipeline
-                    /*
-                    accelerometerFeaturesProbe.registerListener(pipeline);
-                    accelerometerSensorProbe.registerListener(pipeline);
-                    accountsProbe.registerListener(pipeline);
-                    activityProbe.registerListener(pipeline);
-                    // alarmProbe.registerListener(pipeline);
-                    androidInfoProbe.registerListener(pipeline);
-                    applicationsProbe.registerListener(pipeline);
-                    // audioCaptureProbe.registerListener(pipeline);
-                    // audioFeaturesProbe.registerListener(pipeline);
-                    audioMediaProbe.registerListener(pipeline);
-                    batteryProbe.registerListener(pipeline);
-                    bluetoothProbe.registerListener(pipeline);
-                    browserBookmarksProbe.registerListener(pipeline);
-                    browserSearchesProbe.registerListener(pipeline);
-                    callLogProbe.registerListener(pipeline);
-                    cellTowerProbe.registerListener(pipeline);
-                    contactProbe.registerListener(pipeline);
-                    // contentProviderProbe.registerListener(pipeline);
-                    // datedContentProviderProbe.registerListener(pipeline);
-                    gravitySensorProbe.registerListener(pipeline);
-                    gyroscopeSensorProbe.registerListener(pipeline);
-                    hardwareInfoProbe.registerListener(pipeline);
-                    // imageCaptureProbe.registerListener(pipeline);
-                    imageMediaProbe.registerListener(pipeline);
-                    // impulseProbe.registerListener(pipeline);
-                    lightSensorProbe.registerListener(pipeline);
-                    linearAccelerationSensorProbe.registerListener(pipeline);
-                    magneticFieldSensorProbe.registerListener(pipeline);
-                    orientationSensorProbe.registerListener(pipeline);
-                    pressureSensorProbe.registerListener(pipeline);
-                    processStatisticsProbe.registerListener(pipeline);
-                    proximitySensorProbe.registerListener(pipeline);
-                    rotationVectorSensorProbe.registerListener(pipeline);
-                    runningApplicationsProbe.registerListener(pipeline);
-                    screenProbe.registerListener(pipeline);
-                    // sensorProbe.registerListener(pipeline);
-                    servicesProbe.registerListener(pipeline);
-                    simpleLocationProbe.registerListener(pipeline);
-                    // simpleProbe.registerListener(pipeline);
-                    smsProbe.registerListener(pipeline);
-                    telephonyProbe.registerListener(pipeline);
-                    temperatureSensorProbe.registerListener(pipeline);
-                    timeOffsetProbe.registerListener(pipeline);
-                    // videoCaptureProbe.registerListener(pipeline);
-                    videoMediaProbe.registerListener(pipeline);
-                    locationProbe.registerListener(pipeline);
-                    */
                     wifiProbe.registerListener(pipeline);
                 } else {
                     Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
@@ -401,78 +281,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         // (Remember to make UI changes on the main thread)
         // Toast.makeText(getBaseContext(), probeConfig.toString() + " | " + data.toString(),
                 // Toast.LENGTH_LONG).show();
-        Log.w(LogUtil.TAG, "probeConfig: " + probeConfig + ", data: " + data);
+        // Log.w(LogUtil.TAG, "probeConfig: " + probeConfig + ", data: " + data);
     }
 
     @Override
     public void onDataCompleted(IJsonObject probeConfig, JsonElement checkpoint) {
         updateScanCount();
         // Re-register to keep listening after probe completes.
-//            accelerometerFeaturesProbe.registerPassiveListener(LaunchActivity.this);
-//            Log.w(LogUtil.TAG, "accelerometerFeatuesProbe: " + accelerometerFeaturesProbe.getConfig() + ", " + accelerometerFeaturesProbe.getState());
-//            accelerometerSensorProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledAccounts.isChecked())
-            accountsProbe.registerPassiveListener(LaunchActivity.this);
-//            activityProbe.registerPassiveListener(LaunchActivity.this);
-        //// alarmProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledAndroidInfo.isChecked())
-            androidInfoProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledApplications.isChecked())
-            applicationsProbe.registerPassiveListener(LaunchActivity.this);
-        //// audioCaptureProbe.registerPassiveListener(LaunchActivity.this);
-        //// audioFeaturesProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledAudioMediaFileStats.isChecked())
-            audioMediaProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledBattery.isChecked())
-            batteryProbe.registerPassiveListener(LaunchActivity.this);
-//            bluetoothProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledBrowserBookmarks.isChecked())
-            browserBookmarksProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledBrowserSearches.isChecked())
-            browserSearchesProbe.registerPassiveListener(LaunchActivity.this);
-//            callLogProbe.registerPassiveListener(LaunchActivity.this);
-//            cellTowerProbe.registerPassiveListener(LaunchActivity.this);
-//            contactProbe.registerPassiveListener(LaunchActivity.this);
-        //// contentProviderProbe.registerPassiveListener(LaunchActivity.this);
-        //// datedContentProviderProbe.registerPassiveListener(LaunchActivity.this);
-//            gravitySensorProbe.registerPassiveListener(LaunchActivity.this);
-//            gyroscopeSensorProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledHardwareInfo.isChecked())
-            hardwareInfoProbe.registerPassiveListener(LaunchActivity.this);
-        //// imageCaptureProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledImageFileStats.isChecked())
-            imageMediaProbe.registerPassiveListener(LaunchActivity.this);
-        //// impulseProbe.registerPassiveListener(LaunchActivity.this);
-//            lightSensorProbe.registerPassiveListener(LaunchActivity.this);
-//            linearAccelerationSensorProbe.registerPassiveListener(LaunchActivity.this);
-//            magneticFieldSensorProbe.registerPassiveListener(LaunchActivity.this);
-//            orientationSensorProbe.registerPassiveListener(LaunchActivity.this);
-//            pressureSensorProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledProcessStatistics.isChecked())
-            processStatisticsProbe.registerPassiveListener(LaunchActivity.this);
-//            proximitySensorProbe.registerPassiveListener(LaunchActivity.this);
-//            rotationVectorSensorProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledRunningApplications.isChecked())
-            runningApplicationsProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledScreenOnOff.isChecked())
-            screenProbe.registerPassiveListener(LaunchActivity.this);
-        //// sensorProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledServices.isChecked())
-            servicesProbe.registerPassiveListener(LaunchActivity.this);
-//            simpleLocationProbe.registerPassiveListener(LaunchActivity.this);
-        //// simpleProbe.registerPassiveListener(LaunchActivity.this);
-//            smsProbe.registerPassiveListener(LaunchActivity.this);
-//            telephonyProbe.registerPassiveListener(LaunchActivity.this);
-//            temperatureSensorProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledTimeOffset.isChecked())
-            timeOffsetProbe.registerPassiveListener(LaunchActivity.this);
-        //// videoCaptureProbe.registerPassiveListener(LaunchActivity.this);
-        if (enabledVideoFileStats.isChecked())
-            videoMediaProbe.registerPassiveListener(LaunchActivity.this);
-//            locationProbe.registerPassiveListener(LaunchActivity.this);
-//            wifiProbe.registerPassiveListener(LaunchActivity.this);
+        wifiProbe.registerPassiveListener(LaunchActivity.this);
 //            Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

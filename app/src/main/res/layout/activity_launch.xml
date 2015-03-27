@@ -33,6 +33,30 @@
             android:text=""
             android:gravity="center" />
 
+        <!-- Test -->
+        <!-- Wifi -->
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wifi"
+                android:layout_gravity="left" />
+            <TextView android:id="@+id/scheduleNearbyWifiDevices"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="" />
+            <CheckBox android:id="@+id/enabledNearbyWifiDevices"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right" />
+        </LinearLayout>
+
+
+
+
         <!-- Device -->
         <TextView
             android:layout_width="fill_parent"
