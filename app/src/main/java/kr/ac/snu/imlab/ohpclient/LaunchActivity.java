@@ -65,16 +65,18 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
     // Probes
     private WifiProbe wifiProbe;
+    private SmsProbe smsProbe;
 
     // Run Data Collection button
     private ToggleButton enabledToggleButton;
 
     // Probe schedules
-    TextView scheduleNearbyWifiDevices;
-
+    TextView scheduleWifiProbe;
+    TextView scheduleSmsProbe;
 
     // Probe checkboxes
-    private CheckBox enabledNearbyWifiDevices;
+    private CheckBox enabledWifiProbe;
+    private CheckBox enabledSmsProbe;
 
     private Button archiveButton, scanNowButton, updateDataCountButton;
     private TextView dataCountView;
@@ -86,35 +88,44 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
             wifiProbe = gson.fromJson(new JsonObject(), WifiProbe.class);
+            smsProbe = gson.fromJson(new JsonObject(), SmsProbe.class);
             // Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
-
 
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setChecked(pipeline.isEnabled());
             enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (funfManager != null) {
-                    if (isChecked) {
-                        funfManager.enablePipeline(PIPELINE_NAME);
-                        pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
-                        // Probe probe = getGson().fromJson(wifiProbe.getConfig(), wifiProbe.getClass());
+                    if (funfManager != null) {
+                        if (isChecked) {
+                            funfManager.enablePipeline(PIPELINE_NAME);
+                            pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
+                            // Probe probe = getGson().fromJson(wifiProbe.getConfig(), wifiProbe.getClass());
 
+                            if (enabledWifiProbe.isChecked()) {
+                                funfManager.requestData(pipeline, wifiProbe.getConfig().get("@type"), null);
+                                wifiProbe.registerPassiveListener(LaunchActivity.this);
+                                Schedule wifiSchedule = funfManager.getDataRequestSchedule(wifiProbe.getConfig(), pipeline);
+                                scheduleWifiProbe.setText("   Runs every " + wifiSchedule.getInterval() + " seconds \n for " + wifiSchedule.getDuration() + " seconds");
+                            } else {
+                                wifiProbe.unregisterPassiveListener(LaunchActivity.this);
+                            }
 
-                        if (enabledNearbyWifiDevices.isChecked()) {
-                            funfManager.requestData(pipeline, wifiProbe.getConfig().get("@type"), null);
-                            wifiProbe.registerPassiveListener(LaunchActivity.this);
-                            Schedule wifiSchedule = funfManager.getDataRequestSchedule(wifiProbe.getConfig(), pipeline);
-                            scheduleNearbyWifiDevices.setText("   Runs every " + wifiSchedule.getInterval()
-                                    + " seconds \n for " + wifiSchedule.getDuration() + " seconds");
+                            if (enabledSmsProbe.isChecked()) {
+                                funfManager.requestData(pipeline, smsProbe.getConfig().get("@type"), null);
+                                smsProbe.registerPassiveListener(LaunchActivity
+                                        .this);
+                                Schedule smsSchedule = funfManager.getDataRequestSchedule(smsProbe.getConfig(), pipeline);
+                                scheduleSmsProbe.setText("   Runs every " + smsSchedule.getInterval() + " seconds \n for " + smsSchedule.getDuration() + " seconds");
+                            } else {
+                                smsProbe.unregisterPassiveListener(LaunchActivity.this);
+                            }
                         } else {
-                            wifiProbe.unregisterPassiveListener(LaunchActivity.this);
+                            funfManager.disablePipeline(PIPELINE_NAME);
+                            scheduleWifiProbe.setText("   Disabled");
+                            scheduleSmsProbe.setText("   Disabled");
                         }
-                    } else {
-                        funfManager.disablePipeline(PIPELINE_NAME);
-                        scheduleNearbyWifiDevices.setText("   Disabled");
                     }
-                }
                 }
             });
 
@@ -123,7 +134,8 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             archiveButton.setEnabled(true);
             updateDataCountButton.setEnabled(true);
             scanNowButton.setEnabled(true);
-            enabledNearbyWifiDevices.setEnabled(true);
+            enabledWifiProbe.setEnabled(true);
+            enabledSmsProbe.setEnabled(true);
             reloadProbeList();
         }
 
@@ -132,38 +144,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             funfManager = null;
         }
     };
-
-    private void reloadProbeList() {
-        // Load probe list view from config
-        if (pipeline != null && pipeline instanceof BasicPipeline) {
-            List<String> names = new ArrayList<String>();
-            for (JsonElement el : ((BasicPipeline)pipeline).getDataRequests()) {
-                String probeClassName = el.isJsonPrimitive() ? el.getAsString() : el.getAsJsonObject().get(RuntimeTypeAdapterFactory.TYPE).getAsString();
-                DisplayName probeDisplayName = null;
-                try {
-                    probeDisplayName = Class.forName(probeClassName).getAnnotation(DisplayName.class);
-                } catch (ClassNotFoundException e) {
-
-                }
-                String name = "Unknown";
-                if (probeDisplayName == null) {
-                    String[] parts = probeClassName.split("\\.");
-                    if (parts.length == 0) {
-                        Log.d(LogUtil.TAG, "Bad probe type: '" + probeClassName + "'");
-                    } else {
-                        name = parts[parts.length - 1].replace("Probe", "");
-                    }
-                } else {
-                    name = probeDisplayName.value();
-                }
-                names.add(name);
-            }
-            ((TextView)findViewById(R.id.probe_list)).setText(StringUtil.join(names, ", "));
-        } else {
-            ((TextView)findViewById(R.id.probe_list)).setText("Unknown...");
-        }
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -179,11 +159,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
         enabledToggleButton.setEnabled(false);
 
-        // Wifi
-        enabledNearbyWifiDevices = (CheckBox)findViewById(R.id.enabledNearbyWifiDevices);
-        enabledNearbyWifiDevices.setEnabled(false);
-        scheduleNearbyWifiDevices = (TextView)findViewById(R.id.scheduleNearbyWifiDevices);
-        scheduleNearbyWifiDevices.setText("   Disabled");
+        // Wifi Probe : Nearby Wifi Deices
+        enabledWifiProbe = (CheckBox)findViewById(R.id.enabledWifiProbe);
+        enabledWifiProbe.setEnabled(false);
+        scheduleWifiProbe = (TextView)findViewById(R.id.scheduleWifiProbe);
+        scheduleWifiProbe.setText("   Disabled");
+
+        // Sms Probe : SMS Log
+        enabledSmsProbe = (CheckBox)findViewById(R.id.enabledSmsProbe);
+        enabledSmsProbe.setEnabled(false);
+        scheduleSmsProbe = (TextView)findViewById(R.id.scheduleSmsProbe);
+        scheduleSmsProbe.setText("   Disabled");
 
 
         // Runs an archive if pipeline is enabled
@@ -289,7 +275,40 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         updateScanCount();
         // Re-register to keep listening after probe completes.
         wifiProbe.registerPassiveListener(LaunchActivity.this);
+        smsProbe.registerPassiveListener(LaunchActivity.this);
 //            Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
+    }
+
+
+    private void reloadProbeList() {
+        // Load probe list view from config
+        if (pipeline != null && pipeline instanceof BasicPipeline) {
+            List<String> names = new ArrayList<String>();
+            for (JsonElement el : ((BasicPipeline)pipeline).getDataRequests()) {
+                String probeClassName = el.isJsonPrimitive() ? el.getAsString() : el.getAsJsonObject().get(RuntimeTypeAdapterFactory.TYPE).getAsString();
+                DisplayName probeDisplayName = null;
+                try {
+                    probeDisplayName = Class.forName(probeClassName).getAnnotation(DisplayName.class);
+                } catch (ClassNotFoundException e) {
+
+                }
+                String name = "Unknown";
+                if (probeDisplayName == null) {
+                    String[] parts = probeClassName.split("\\.");
+                    if (parts.length == 0) {
+                        Log.d(LogUtil.TAG, "Bad probe type: '" + probeClassName + "'");
+                    } else {
+                        name = parts[parts.length - 1].replace("Probe", "");
+                    }
+                } else {
+                    name = probeDisplayName.value();
+                }
+                names.add(name);
+            }
+            ((TextView)findViewById(R.id.probe_list)).setText(StringUtil.join(names, ", "));
+        } else {
+            ((TextView)findViewById(R.id.probe_list)).setText("Unknown...");
+        }
     }
 
 
