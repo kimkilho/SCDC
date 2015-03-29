@@ -13,16 +13,16 @@
             android:layout_height="wrap_content"
             android:gravity="left"
             android:orientation="horizontal">
-            <TextView android:text="Data Collection"
+            <TextView android:text="@string/app_title"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:textSize="30dp" />
+                      android:textSize="20sp" />
             <ToggleButton android:id="@+id/enabledToggleButton"
                           android:layout_width="wrap_content"
                           android:layout_height="wrap_content"
                           android:textOn="설정"
                           android:textOff="해제"
-                          android:layout_marginLeft="80dp" />
+                          android:layout_marginLeft="40dp" />
         </LinearLayout>
 
         <!-- Probe list -->
@@ -34,40 +34,48 @@
             android:gravity="center" />
 
         <!-- Test -->
-        <!-- Nearby Wifi Devices -->
+        <!-- WifiProbe -->
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
-            <TextView
+            <Button android:id="@+id/buttonWifiProbe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Nearby Wifi Devices"
-                android:layout_gravity="left" />
+                android:text="@string/wifiProbe_displayname"
+                android:textSize="16sp"
+                android:layout_gravity="left"
+                android:onClick="onClickProbeRegister" />
             <TextView android:id="@+id/scheduleWifiProbe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="" />
+                android:clickable="true"
+                android:text="@string/probe_disabled" />
+                <!--android:onClick="onClickProbeReschedule"-->
             <CheckBox android:id="@+id/enabledWifiProbe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="right" />
         </LinearLayout>
 
-        <!-- SMS Log -->
+        <!-- SmsProbe -->
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal" >
-            <TextView
+            <Button android:id="@+id/buttonSmsProbe"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sms Log"
-                android:layout_gravity="left" />
+                android:text="@string/smsProbe_displayname"
+                android:textSize="16sp"
+                android:layout_gravity="left"
+                android:onClick="onClickProbeRegister" />
             <TextView android:id="@+id/scheduleSmsProbe"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
-                      android:text="" />
+                      android:clickable="true"
+                      android:text="@string/probe_disabled" />
+                      <!--android:onClick="onClickProbeReschedule"-->
             <CheckBox android:id="@+id/enabledSmsProbe"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
@@ -337,10 +345,6 @@
 
         <!-- To be continued -->
 
-        <Button android:id="@+id/archiveButton"
-                android:text="Upload data to server"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"/>
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
@@ -356,10 +360,11 @@
                 android:layout_height="wrap_content"/>
 
         </LinearLayout>
-        <Button android:id="@+id/scanNowButton"
-        android:text="Scan Now"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"/>
+
+        <Button android:id="@+id/archiveButton"
+                android:text="Upload data to server"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"/>
     </LinearLayout>
 
 </ScrollView>

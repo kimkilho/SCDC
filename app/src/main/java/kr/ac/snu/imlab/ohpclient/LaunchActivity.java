@@ -48,10 +48,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -78,7 +74,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private CheckBox enabledWifiProbe;
     private CheckBox enabledSmsProbe;
 
-    private Button archiveButton, scanNowButton, updateDataCountButton;
+    private Button archiveButton, updateDataCountButton;
     private TextView dataCountView;
     private ServiceConnection funfManagerConn = new ServiceConnection() {
         @Override
@@ -122,8 +118,8 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             }
                         } else {
                             funfManager.disablePipeline(PIPELINE_NAME);
-                            scheduleWifiProbe.setText("   Disabled");
-                            scheduleSmsProbe.setText("   Disabled");
+                            scheduleWifiProbe.setText(R.string.probe_disabled);
+                            scheduleSmsProbe.setText(R.string.probe_disabled);
                         }
                     }
                 }
@@ -133,7 +129,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             enabledToggleButton.setEnabled(true);
             archiveButton.setEnabled(true);
             updateDataCountButton.setEnabled(true);
-            scanNowButton.setEnabled(true);
             enabledWifiProbe.setEnabled(true);
             enabledSmsProbe.setEnabled(true);
             reloadProbeList();
@@ -163,13 +158,13 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         enabledWifiProbe = (CheckBox)findViewById(R.id.enabledWifiProbe);
         enabledWifiProbe.setEnabled(false);
         scheduleWifiProbe = (TextView)findViewById(R.id.scheduleWifiProbe);
-        scheduleWifiProbe.setText("   Disabled");
+        scheduleWifiProbe.setText(R.string.probe_disabled);
 
         // Sms Probe : SMS Log
         enabledSmsProbe = (CheckBox)findViewById(R.id.enabledSmsProbe);
         enabledSmsProbe.setEnabled(false);
         scheduleSmsProbe = (TextView)findViewById(R.id.scheduleSmsProbe);
-        scheduleSmsProbe.setText("   Disabled");
+        scheduleSmsProbe.setText(R.string.probe_disabled);
 
 
         // Runs an archive if pipeline is enabled
@@ -201,7 +196,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             }
         });
 
-
         // Update the data count
         updateDataCountButton = (Button)findViewById(R.id.updateDataCountButton);
         updateDataCountButton.setEnabled(false);
@@ -212,26 +206,45 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             }
         });
 
-
-        // Forces the pipeline to scan now
-        scanNowButton = (Button)findViewById(R.id.scanNowButton);
-        scanNowButton.setEnabled(false);
-        scanNowButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (pipeline.isEnabled()) {
-                    // Manually register the pipeline
-                    wifiProbe.registerListener(pipeline);
-                } else {
-                    Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
         // Bind to the service, to create the connection with FunfManager
         bindService(new Intent(this, FunfManager.class), funfManagerConn,
                 BIND_AUTO_CREATE);
+    }
+
+    public void onClickProbeRegister(View v) {
+        if (pipeline.isEnabled()) {
+            // Manually register the pipeline
+            switch (v.getId()) {
+                case R.id.buttonWifiProbe:
+                    wifiProbe.registerListener(pipeline);
+                    break;
+                case R.id.buttonSmsProbe:
+                    smsProbe.registerListener(pipeline);
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // FIXME:
+    public void onClickProbeReschedule(View v, IJsonObject probeConfig,
+                                       boolean isEnabled) {
+        if (!pipeline.isEnabled()) {
+            Intent rescheduleIntent = new Intent(this,
+                    ProbeRescheduleActivity.class);
+            rescheduleIntent.putExtra("PROBE", probeConfig.toString());
+            rescheduleIntent.putExtra("IS_ENABLED", isEnabled);
+            startActivity(rescheduleIntent);
+        } else {
+            Toast.makeText(getBaseContext(),
+                    "Pipeline should be disabled to reschedule the probe.",
+                    Toast.LENGTH_LONG).show();
+        }
+
     }
 
     @Override
@@ -268,6 +281,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         // Toast.makeText(getBaseContext(), probeConfig.toString() + " | " + data.toString(),
                 // Toast.LENGTH_LONG).show();
         // Log.w(LogUtil.TAG, "probeConfig: " + probeConfig + ", data: " + data);
+        updateScanCount();
     }
 
     @Override
@@ -321,7 +335,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
+        // Hkandle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
     <string name="abs__action_bar_home_description">Navigate home</string>
     <string name="abs__action_bar_up_description">Navigate up</string>
     <string name="abs__action_menu_overflow_description">More options</string>
@@ -21,8 +22,11 @@
     <string name="default_config">{ @type: edu.mit.media.funf.journal.JournalPipeline, name: default, version: 1, data: [ {@type: edu.mit.media.funf.probe.builtin.SimpleLocationProbe}, {@type: edu.mit.media.funf.probe.builtin.ActivityProbe}, {@type: edu.mit.media.funf.probe.builtin.AndroidInfoProbe}, {@type: edu.mit.media.funf.probe.builtin.ApplicationsProbe}, {@type: edu.mit.media.funf.probe.builtin.BatteryProbe}, {@type: edu.mit.media.funf.probe.builtin.BluetoothProbe}, {@type: edu.mit.media.funf.probe.builtin.CellTowerProbe}, {@type: edu.mit.media.funf.probe.builtin.HardwareInfoProbe}, {@type: edu.mit.media.funf.probe.builtin.ProximitySensorProbe}, {@type: edu.mit.media.funf.probe.builtin.RunningApplicationsProbe}, {@type: edu.mit.media.funf.probe.builtin.ScreenProbe}, {@type: edu.mit.media.funf.probe.builtin.TimeOffsetProbe}, {@type: edu.mit.media.funf.probe.builtin.WifiProbe} ] }</string>
     <string name="all_probes_config">{ @type: edu.mit.media.funf.journal.JournalPipeline, name: default, version: 1, data: [ {@type: edu.mit.media.funf.probe.builtin.AccelerometerFeaturesProbe}, {@type: edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.AccountsProbe}, {@type: edu.mit.media.funf.probe.builtin.ActivityProbe}, {@type: edu.mit.media.funf.probe.builtin.AndroidInfoProbe}, {@type: edu.mit.media.funf.probe.builtin.ApplicationsProbe}, {@type: edu.mit.media.funf.probe.builtin.AudioFeaturesProbe}, {@type: edu.mit.media.funf.probe.builtin.AudioMediaProbe}, {@type: edu.mit.media.funf.probe.builtin.BatteryProbe}, {@type: edu.mit.media.funf.probe.builtin.BluetoothProbe}, {@type: edu.mit.media.funf.probe.builtin.BrowserBookmarksProbe}, {@type: edu.mit.media.funf.probe.builtin.BrowserSearchesProbe}, {@type: edu.mit.media.funf.probe.builtin.CallLogProbe}, {@type: edu.mit.media.funf.probe.builtin.CellTowerProbe}, {@type: edu.mit.media.funf.probe.builtin.ContactProbe}, {@type: edu.mit.media.funf.probe.builtin.GravitySensorProbe}, {@type: edu.mit.media.funf.probe.builtin.GyroscopeSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.HardwareInfoProbe}, {@type: edu.mit.media.funf.probe.builtin.ImageMediaProbe}, {@type: edu.mit.media.funf.probe.builtin.LightSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.LinearAccelerationSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.LocationProbe}, {@type: edu.mit.media.funf.probe.builtin.MagneticFieldSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.OrientationSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.PressureSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.ProcessStatisticsProbe}, {@type: edu.mit.media.funf.probe.builtin.ProximitySensorProbe}, {@type: edu.mit.media.funf.probe.builtin.RotationVectorSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.RunningApplicationsProbe}, {@type: edu.mit.media.funf.probe.builtin.ScreenProbe}, {@type: edu.mit.media.funf.probe.builtin.ServicesProbe}, {@type: edu.mit.media.funf.probe.builtin.SimpleLocationProbe}, {@type: edu.mit.media.funf.probe.builtin.SmsProbe}, {@type: edu.mit.media.funf.probe.builtin.TelephonyProbe}, {@type: edu.mit.media.funf.probe.builtin.TemperatureSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.TimeOffsetProbe}, {@type: edu.mit.media.funf.probe.builtin.VideoMediaProbe}, {@type: edu.mit.media.funf.probe.builtin.WifiProbe} ] }</string>
     <string name="no_probes_config">{ @type: edu.mit.media.funf.journal.JournalPipeline, name: default, version: 1, data: [] }</string>
-        <string name="default_pipeline">
-        {
+    <string name="app_title">OHPClient Data Collection</string>
+    <string name="probe_disabled">   Disabled</string>
+    <string name="wifiProbe_displayname">Nearby Wifi Devices</string>
+    <string name="smsProbe_displayname">SMS Log</string>
+    <string name="default_pipeline">        {
             "@type":"edu.mit.media.funf.pipeline.BasicPipeline",
             "name":"default",
             "version":1,
@@ -30,16 +34,16 @@
                 "url": \"http://imlab-ws2.snu.ac.kr:8000/data\",
                 "@schedule": {"interval": 10800}
             }
-        }
-    </string>
-    <string name="temp_space">
-            "data": [
+        }</string>
+    <string name="temp_space">            "data": [
                 {
                     "@type": "edu.mit.media.funf.probe.builtin.WifiProbe",
                     "@schedule": {
                         "interval": 300
                     }
                 }
-            ]
-    </string>
+            ]</string>
+    <string name="title_activity_probe_reschedule">ProbeRescheduleActivity</string>
+    <string name="hello_world">Hello world!</string>
+
 </resources>
