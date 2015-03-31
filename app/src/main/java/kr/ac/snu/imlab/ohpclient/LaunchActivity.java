@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -36,6 +38,7 @@ import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
 
 import android.os.IBinder;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -51,42 +54,11 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private FunfManager funfManager = null;
     private BasicPipeline pipeline = null;
 
-    private class ProbeEntry {
-      private Probe.Base probe;
-      private Class probeClass;
-      private Button registerProbeButton;
-      private TextView scheduleTextView;
-      private CheckBox enabledCheckBox;
 
-      public ProbeEntry(Class probeClass, int registerProbeButtonId,
-                        int scheduleTextViewId, int enabledCheckBoxId) {
-        this.probeClass = probeClass;
-        this.registerProbeButton = (Button)findViewById(registerProbeButtonId);
-        this.scheduleTextView = (TextView)findViewById(scheduleTextViewId);
-        scheduleTextView.setText(R.string.probe_disabled);
-        this.enabledCheckBox = (CheckBox)findViewById(enabledCheckBoxId);
-        enabledCheckBox.setEnabled(false);
-      }
-
-      public void setProbe(Gson gson) {
-        this.probe = (Probe.Base)gson.fromJson(new JsonObject(), this.probeClass);
-      }
-
-      public Probe.Base getProbe() {
-        return this.probe;
-      }
-
-      public boolean isChecked() {
-        return this.enabledCheckBox.isChecked();
-      }
-
-      public Button getRegisterProbeButton() {
-        return this.registerProbeButton;
-      }
-    }
-
+    private ListView mListView = null;
+    private BaseAdapterEx mAdapter = null;
     // Probes list
-    private List<ProbeEntry> probeEntries;
+    private ArrayList<ProbeEntry> probeEntries;
 
     // Run Data Collection button
     private ToggleButton enabledToggleButton;
@@ -100,7 +72,8 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             Gson gson = funfManager.getGson();
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
-            for (ProbeEntry probeEntry : probeEntries) {
+            for (int i = 0; i < mAdapter.getCount(); i++) {
+              ProbeEntry probeEntry = mAdapter.getItem(i);
               probeEntry.setProbe(gson);
             }
             // Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
@@ -116,23 +89,25 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
                             // Probe probe = getGson().fromJson(wifiProbe.getConfig(), wifiProbe.getClass());
 
-                          for (ProbeEntry probeEntry : probeEntries) {
+                          for (int i = 0; i < mAdapter.getCount(); i++) {
+                            ProbeEntry probeEntry = mAdapter.getItem(i);
                             Probe.Base probe = probeEntry.getProbe();
-                            if (probeEntry.isChecked()) {
+                            if (probeEntry.isEnabled()) {
                               funfManager.requestData(pipeline,
                                       probe.getConfig().get("@type"), null);
                               probe.registerPassiveListener(LaunchActivity.this);
                               Schedule probeSchedule = funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
-                              probeEntry.scheduleTextView.setText("   Runs every " + probeSchedule.getInterval() + " seconds \n for " + probeSchedule.getDuration() + " seconds");
+                              // FIXME:
+                              ((TextView)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(1)).setText("   Runs every " + probeSchedule.getInterval() + " seconds for " + probeSchedule.getDuration() + " seconds");
                             } else {
                               probe.unregisterPassiveListener(LaunchActivity.this);
                             }
                           }
-
                         } else {
                           funfManager.disablePipeline(PIPELINE_NAME);
-                          for (ProbeEntry probeEntry : probeEntries) {
-                            probeEntry.scheduleTextView.setText(R.string.probe_disabled);
+                          ArrayList<View> scheduleTextViews = getViewsByTag((ViewGroup)findViewById(R.id.list_view), "PROBE_SCHEDULE");
+                          for (View scheduleTextView : scheduleTextViews) {
+                            ((TextView)scheduleTextView).setText(R.string.probe_disabled);
                           }
                         }
                     }
@@ -143,8 +118,9 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             enabledToggleButton.setEnabled(true);
             archiveButton.setEnabled(true);
             updateDataCountButton.setEnabled(true);
-            for (ProbeEntry probeEntry : probeEntries) {
-              probeEntry.enabledCheckBox.setEnabled(true);
+            ArrayList<View> enabledCheckBoxes = getViewsByTag((ViewGroup)findViewById(R.id.list_view), "PROBE_CHECKBOX");
+            for (View enabledCheckBox : enabledCheckBoxes) {
+              ((CheckBox)enabledCheckBox).setEnabled(true);
             }
             reloadProbeList();
         }
@@ -160,6 +136,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
 
+        probeEntries = new ArrayList<ProbeEntry>();
+        probeEntries.add(new ProbeEntry(SmsProbe.class));
+        probeEntries.add(new ProbeEntry(WifiProbe.class));
+        Log.w("DEBUG", "probeEntries has number of elements : " + probeEntries.size());
+
+        mAdapter = new BaseAdapterEx(this, probeEntries);
+
+        mListView = (ListView)findViewById(R.id.list_view);
+        mListView.setAdapter(mAdapter);
+
+
         // Displays the count of rows in the data
         dataCountView = (TextView)findViewById(R.id.dataCountText);
 
@@ -170,11 +157,13 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         enabledToggleButton.setEnabled(false);
 
         // Add available probes to the probeEntries
+        /*
         probeEntries = new ArrayList<ProbeEntry>();
         probeEntries.add(new ProbeEntry(WifiProbe.class, R.id.buttonWifiProbe,
                 R.id.scheduleWifiProbe, R.id.enabledWifiProbe));
         probeEntries.add(new ProbeEntry(SmsProbe.class, R.id.buttonSmsProbe,
                 R.id.scheduleSmsProbe, R.id.enabledSmsProbe));
+        */
 
         // Runs an archive if pipeline is enabled
         archiveButton = (Button)findViewById(R.id.archiveButton);
@@ -215,26 +204,24 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             }
         });
 
+
+        // ListView item long click listener: register probe
+        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+          @Override
+          public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            if (pipeline.isEnabled()) {
+              mAdapter.getItem(position).getProbe().registerListener(pipeline);
+            } else {
+              Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
+                      Toast.LENGTH_SHORT).show();
+            }
+            return true;
+          }
+        });
+
         // Bind to the service, to create the connection with FunfManager
         bindService(new Intent(this, FunfManager.class), funfManagerConn,
                 BIND_AUTO_CREATE);
-    }
-
-    public void onClickProbeRegister(View v) {
-        if (pipeline.isEnabled()) {
-          // Manually register the pipeline
-          // switch (v.getId()) {
-          int currButtonId = v.getId();
-          for (ProbeEntry probeEntry : probeEntries) {
-            if (currButtonId == probeEntry.getRegisterProbeButton().getId()) {
-              probeEntry.getProbe().registerListener(pipeline);
-              return;
-            }
-          }
-        } else {
-            Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
-                    Toast.LENGTH_SHORT).show();
-        }
     }
 
     // FIXME:
@@ -332,6 +319,24 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             ((TextView)findViewById(R.id.probe_list)).setText("Unknown...");
         }
     }
+
+  private static ArrayList<View> getViewsByTag(ViewGroup root, String tag){
+    ArrayList<View> views = new ArrayList<View>();
+    final int childCount = root.getChildCount();
+    for (int i = 0; i < childCount; i++) {
+      final View child = root.getChildAt(i);
+      if (child instanceof ViewGroup) {
+        views.addAll(getViewsByTag((ViewGroup) child, tag));
+      }
+
+      final Object tagObj = child.getTag();
+      if (tagObj != null && tagObj.equals(tag)) {
+        views.add(child);
+      }
+
+    }
+    return views;
+  }
 
 
     @Override
