@@ -72,8 +72,8 @@
         <!-- Funf Probe Services -->
         <service android:name="edu.mit.media.funf.FunfManager" >
             <meta-data
-                android:name="default"
-                android:value="@string/default_pipeline" />
+                android:name="ohpclient"
+                android:value="@string/ohpclient_pipeline" />
         </service>
 
         <!-- Funf receiver -->

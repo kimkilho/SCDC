@@ -26,7 +26,8 @@
     <string name="probe_disabled">   Disabled</string>
     <string name="wifiProbe_displayname">Nearby Wifi Devices</string>
     <string name="smsProbe_displayname">SMS Log</string>
-    <string name="default_pipeline">        {
+    <string name="default_pipeline">
+        {
             "@type":"edu.mit.media.funf.pipeline.BasicPipeline",
             "name":"default",
             "version":1,
@@ -34,15 +35,29 @@
                 "url": \"http://imlab-ws2.snu.ac.kr:8000/data\",
                 "@schedule": {"interval": 10800}
             }
-        }</string>
-    <string name="temp_space">            "data": [
+        }
+    </string>
+    <string name="ohpclient_pipeline">
+        {
+            "@type":"edu.mit.media.funf.pipeline.BasicPipeline",
+            "name":"ohpclient",
+            "version":1,
+            "upload": {
+                "url": \"http://imlab-ws2.snu.ac.kr:7000/data\",
+                "@schedule": {"interval": 10800}
+            }
+        }
+    </string>
+    <string name="temp_space">
+        "data": [
                 {
                     "@type": "edu.mit.media.funf.probe.builtin.WifiProbe",
                     "@schedule": {
                         "interval": 300
                     }
                 }
-            ]</string>
+            ]
+    </string>
     <string name="title_activity_probe_reschedule">ProbeRescheduleActivity</string>
     <string name="hello_world">Hello world!</string>
 

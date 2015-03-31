@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -53,7 +54,7 @@ import java.util.List;
 
 
 public class LaunchActivity extends ActionBarActivity implements DataListener {
-    public static final String PIPELINE_NAME = "default";
+    public static final String PIPELINE_NAME = "ohpclient";
 
     private Handler handler;
     private FunfManager funfManager = null;
@@ -214,6 +215,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     public void onClickProbeRegister(View v) {
         if (pipeline.isEnabled()) {
             // Manually register the pipeline
+            // switch (v.getId()) {
             switch (v.getId()) {
                 case R.id.buttonWifiProbe:
                     wifiProbe.registerListener(pipeline);
