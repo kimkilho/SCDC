@@ -1,7 +1,6 @@
 package kr.ac.snu.imlab.ohpclient;
 
 import android.support.v7.app.ActionBarActivity;
-// import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
@@ -13,22 +12,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
-import com.google.gson.TypeAdapterFactory;
 
 import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule;
@@ -60,20 +51,45 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     private FunfManager funfManager = null;
     private BasicPipeline pipeline = null;
 
-    // Probes
-    private WifiProbe wifiProbe;
-    private SmsProbe smsProbe;
+    private class ProbeEntry {
+      private Probe.Base probe;
+      private Class probeClass;
+      private Button registerProbeButton;
+      private TextView scheduleTextView;
+      private CheckBox enabledCheckBox;
+
+      public ProbeEntry(Class probeClass, int registerProbeButtonId,
+                        int scheduleTextViewId, int enabledCheckBoxId) {
+        this.probeClass = probeClass;
+        this.registerProbeButton = (Button)findViewById(registerProbeButtonId);
+        this.scheduleTextView = (TextView)findViewById(scheduleTextViewId);
+        scheduleTextView.setText(R.string.probe_disabled);
+        this.enabledCheckBox = (CheckBox)findViewById(enabledCheckBoxId);
+        enabledCheckBox.setEnabled(false);
+      }
+
+      public void setProbe(Gson gson) {
+        this.probe = (Probe.Base)gson.fromJson(new JsonObject(), this.probeClass);
+      }
+
+      public Probe.Base getProbe() {
+        return this.probe;
+      }
+
+      public boolean isChecked() {
+        return this.enabledCheckBox.isChecked();
+      }
+
+      public Button getRegisterProbeButton() {
+        return this.registerProbeButton;
+      }
+    }
+
+    // Probes list
+    private List<ProbeEntry> probeEntries;
 
     // Run Data Collection button
     private ToggleButton enabledToggleButton;
-
-    // Probe schedules
-    TextView scheduleWifiProbe;
-    TextView scheduleSmsProbe;
-
-    // Probe checkboxes
-    private CheckBox enabledWifiProbe;
-    private CheckBox enabledSmsProbe;
 
     private Button archiveButton, updateDataCountButton;
     private TextView dataCountView;
@@ -84,8 +100,9 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             Gson gson = funfManager.getGson();
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
-            wifiProbe = gson.fromJson(new JsonObject(), WifiProbe.class);
-            smsProbe = gson.fromJson(new JsonObject(), SmsProbe.class);
+            for (ProbeEntry probeEntry : probeEntries) {
+              probeEntry.setProbe(gson);
+            }
             // Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
 
             // This checkbox enables or disables the pipeline
@@ -99,28 +116,24 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
                             // Probe probe = getGson().fromJson(wifiProbe.getConfig(), wifiProbe.getClass());
 
-                            if (enabledWifiProbe.isChecked()) {
-                                funfManager.requestData(pipeline, wifiProbe.getConfig().get("@type"), null);
-                                wifiProbe.registerPassiveListener(LaunchActivity.this);
-                                Schedule wifiSchedule = funfManager.getDataRequestSchedule(wifiProbe.getConfig(), pipeline);
-                                scheduleWifiProbe.setText("   Runs every " + wifiSchedule.getInterval() + " seconds \n for " + wifiSchedule.getDuration() + " seconds");
+                          for (ProbeEntry probeEntry : probeEntries) {
+                            Probe.Base probe = probeEntry.getProbe();
+                            if (probeEntry.isChecked()) {
+                              funfManager.requestData(pipeline,
+                                      probe.getConfig().get("@type"), null);
+                              probe.registerPassiveListener(LaunchActivity.this);
+                              Schedule probeSchedule = funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
+                              probeEntry.scheduleTextView.setText("   Runs every " + probeSchedule.getInterval() + " seconds \n for " + probeSchedule.getDuration() + " seconds");
                             } else {
-                                wifiProbe.unregisterPassiveListener(LaunchActivity.this);
+                              probe.unregisterPassiveListener(LaunchActivity.this);
                             }
+                          }
 
-                            if (enabledSmsProbe.isChecked()) {
-                                funfManager.requestData(pipeline, smsProbe.getConfig().get("@type"), null);
-                                smsProbe.registerPassiveListener(LaunchActivity
-                                        .this);
-                                Schedule smsSchedule = funfManager.getDataRequestSchedule(smsProbe.getConfig(), pipeline);
-                                scheduleSmsProbe.setText("   Runs every " + smsSchedule.getInterval() + " seconds \n for " + smsSchedule.getDuration() + " seconds");
-                            } else {
-                                smsProbe.unregisterPassiveListener(LaunchActivity.this);
-                            }
                         } else {
-                            funfManager.disablePipeline(PIPELINE_NAME);
-                            scheduleWifiProbe.setText(R.string.probe_disabled);
-                            scheduleSmsProbe.setText(R.string.probe_disabled);
+                          funfManager.disablePipeline(PIPELINE_NAME);
+                          for (ProbeEntry probeEntry : probeEntries) {
+                            probeEntry.scheduleTextView.setText(R.string.probe_disabled);
+                          }
                         }
                     }
                 }
@@ -130,8 +143,9 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             enabledToggleButton.setEnabled(true);
             archiveButton.setEnabled(true);
             updateDataCountButton.setEnabled(true);
-            enabledWifiProbe.setEnabled(true);
-            enabledSmsProbe.setEnabled(true);
+            for (ProbeEntry probeEntry : probeEntries) {
+              probeEntry.enabledCheckBox.setEnabled(true);
+            }
             reloadProbeList();
         }
 
@@ -155,18 +169,12 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
         enabledToggleButton.setEnabled(false);
 
-        // Wifi Probe : Nearby Wifi Deices
-        enabledWifiProbe = (CheckBox)findViewById(R.id.enabledWifiProbe);
-        enabledWifiProbe.setEnabled(false);
-        scheduleWifiProbe = (TextView)findViewById(R.id.scheduleWifiProbe);
-        scheduleWifiProbe.setText(R.string.probe_disabled);
-
-        // Sms Probe : SMS Log
-        enabledSmsProbe = (CheckBox)findViewById(R.id.enabledSmsProbe);
-        enabledSmsProbe.setEnabled(false);
-        scheduleSmsProbe = (TextView)findViewById(R.id.scheduleSmsProbe);
-        scheduleSmsProbe.setText(R.string.probe_disabled);
-
+        // Add available probes to the probeEntries
+        probeEntries = new ArrayList<ProbeEntry>();
+        probeEntries.add(new ProbeEntry(WifiProbe.class, R.id.buttonWifiProbe,
+                R.id.scheduleWifiProbe, R.id.enabledWifiProbe));
+        probeEntries.add(new ProbeEntry(SmsProbe.class, R.id.buttonSmsProbe,
+                R.id.scheduleSmsProbe, R.id.enabledSmsProbe));
 
         // Runs an archive if pipeline is enabled
         archiveButton = (Button)findViewById(R.id.archiveButton);
@@ -214,18 +222,15 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
     public void onClickProbeRegister(View v) {
         if (pipeline.isEnabled()) {
-            // Manually register the pipeline
-            // switch (v.getId()) {
-            switch (v.getId()) {
-                case R.id.buttonWifiProbe:
-                    wifiProbe.registerListener(pipeline);
-                    break;
-                case R.id.buttonSmsProbe:
-                    smsProbe.registerListener(pipeline);
-                    break;
-                default:
-                    break;
+          // Manually register the pipeline
+          // switch (v.getId()) {
+          int currButtonId = v.getId();
+          for (ProbeEntry probeEntry : probeEntries) {
+            if (currButtonId == probeEntry.getRegisterProbeButton().getId()) {
+              probeEntry.getProbe().registerListener(pipeline);
+              return;
             }
+          }
         } else {
             Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
                     Toast.LENGTH_SHORT).show();
@@ -288,11 +293,12 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
     @Override
     public void onDataCompleted(IJsonObject probeConfig, JsonElement checkpoint) {
-        updateScanCount();
-        // Re-register to keep listening after probe completes.
-        wifiProbe.registerPassiveListener(LaunchActivity.this);
-        smsProbe.registerPassiveListener(LaunchActivity.this);
-//            Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
+      updateScanCount();
+      // Re-register to keep listening after probe completes.
+      for (ProbeEntry probeEntry : probeEntries) {
+        probeEntry.getProbe().registerPassiveListener(LaunchActivity.this);
+      }
+      // Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
     }
 
 
