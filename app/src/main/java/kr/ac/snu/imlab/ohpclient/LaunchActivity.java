@@ -1,5 +1,6 @@
 package kr.ac.snu.imlab.ohpclient;
 
+import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -18,6 +19,8 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
@@ -98,7 +101,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                               probe.registerPassiveListener(LaunchActivity.this);
                               Schedule probeSchedule = funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
                               // FIXME:
-                              ((TextView)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(1)).setText("   Runs every " + probeSchedule.getInterval() + " seconds for " + probeSchedule.getDuration() + " seconds");
+                              ((TextView)((ViewGroup)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(0)).getChildAt(1)).setText("Runs every " + probeSchedule.getInterval() + " seconds for " + probeSchedule.getDuration() + " seconds");
                             } else {
                               probe.unregisterPassiveListener(LaunchActivity.this);
                             }
@@ -145,6 +148,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
         mListView = (ListView)findViewById(R.id.list_view);
         mListView.setAdapter(mAdapter);
+//        mListView.setClickable(true);
 
 
         // Displays the count of rows in the data
@@ -198,19 +202,21 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         updateDataCountButton = (Button)findViewById(R.id.updateDataCountButton);
         updateDataCountButton.setEnabled(false);
         updateDataCountButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                updateScanCount();
-            }
+          @Override
+          public void onClick(View v) {
+            updateScanCount();
+          }
         });
 
-
         // ListView item long click listener: register probe
-        mListView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
           @Override
           public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            Log.w("DEBUG", "onItemLongClick()");
             if (pipeline.isEnabled()) {
               mAdapter.getItem(position).getProbe().registerListener(pipeline);
+              Toast.makeText(getBaseContext(), "Register listener.",
+                      Toast.LENGTH_SHORT).show();
             } else {
               Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
                       Toast.LENGTH_SHORT).show();
@@ -254,17 +260,22 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
      */
     private void updateScanCount() {
         // Query the pipeline db for the count of rows in the data table
+      if (pipeline.isEnabled()) {
         SQLiteDatabase db = pipeline.getDb();
         Cursor mcursor = db.rawQuery(TOTAL_COUNT_SQL, null);
         mcursor.moveToFirst();
         final int count = mcursor.getInt(0);
         // Update interface on main thread
         runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                dataCountView.setText("Data Count: " + count);
-            }
+          @Override
+          public void run() {
+            dataCountView.setText("Data Count: " + count);
+          }
         });
+      } else {
+        Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
+                Toast.LENGTH_SHORT).show();
+      }
     }
 
     @Override

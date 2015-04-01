@@ -1,9 +1,12 @@
 package kr.ac.snu.imlab.ohpclient;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -47,6 +50,11 @@ public class BaseAdapterEx extends BaseAdapter {
   }
 
   @Override
+  public boolean isEnabled(int position) {
+    return true;
+  }
+
+  @Override
   public View getView(final int position, View convertView, ViewGroup parent) {
     View itemLayout = convertView;
     ViewHolder viewHolder = null;
@@ -67,6 +75,13 @@ public class BaseAdapterEx extends BaseAdapter {
       viewHolder = (ViewHolder)itemLayout.getTag();
     }
 
+    itemLayout.setOnLongClickListener(new OnLongClickListener() {
+      @Override
+      public boolean onLongClick(View v) {
+        return false;
+      }
+    });
+
     if (mData.get(position).getProbe() == null) {
       viewHolder.registerProbeTextView.setText("Display Name");
     } else {
@@ -83,6 +98,7 @@ public class BaseAdapterEx extends BaseAdapter {
       }
     });
 
+    itemLayout.setClickable(true);
     return itemLayout;
   }
 }

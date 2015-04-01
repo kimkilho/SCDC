@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="wrap_content"
               android:layout_height="match_parent"
-              android:padding="10dp">
+              android:padding="10dp"
+              android:gravity="left|center" >
 
   <LinearLayout
-      android:orientation="horizontal"
-      android:layout_width="match_parent"
+      android:id="@+id/probe_info"
+      android:orientation="vertical"
+      android:layout_width="wrap_content"
       android:layout_height="wrap_content">
 
     <TextView android:id="@+id/registerProbeTextView"
@@ -16,20 +17,22 @@
             android:textSize="20sp" />
             <!--android:onClick="onClickProbeRegister" /> -->
 
-    <CheckBox android:id="@+id/enabledCheckBox"
-              android:tag="PROBE_CHECKBOX"
+    <TextView android:id="@+id/scheduleTextView"
+              android:tag="PROBE_SCHEDULE"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:gravity="right" />
+              android:textSize="14sp" />
+    <!--android:onClick="onClickProbeReschedule"-->
 
   </LinearLayout>
 
-  <TextView android:id="@+id/scheduleTextView"
-            android:tag="PROBE_SCHEDULE"
-            android:layout_width="match_parent"
+  <CheckBox android:id="@+id/enabledCheckBox"
+            android:tag="PROBE_CHECKBOX"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:clickable="true"
-            android:textSize="14sp" />
-            <!--android:onClick="onClickProbeReschedule"-->
+            android:layout_gravity="center_vertical"
+            android:layout_alignBottom="@id/probe_info"
+            android:layout_alignTop="@id/probe_info"
+            android:layout_alignParentRight="true" />
 
-</LinearLayout>
+</RelativeLayout>

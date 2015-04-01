@@ -5,22 +5,51 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".LaunchActivity">
+
+      <RelativeLayout
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingTop="20dp"
+          android:paddingBottom="20dp"
+          android:gravity="left|center" >
+
+          <TextView android:id="@+id/app_title"
+              android:text="@string/app_title"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textSize="20sp" />
+
+          <ToggleButton android:id="@+id/enabledToggleButton"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_vertical"
+              android:layout_alignTop="@id/app_title"
+              android:layout_alignParentRight="true"
+              android:textOn="설정"
+              android:textOff="해제" />
+
+      </RelativeLayout>
+
       <LinearLayout
           android:layout_width="fill_parent"
-          android:layout_height="wrap_content"
-          android:gravity="left"
-          android:orientation="horizontal">
-          <TextView android:text="@string/app_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="20sp" />
-          <ToggleButton android:id="@+id/enabledToggleButton"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textOn="설정"
-                        android:textOff="해제"
-                        android:layout_marginLeft="40dp" />
+          android:layout_height="wrap_content">
+
+        <TextView android:id="@+id/dataCountText"
+                  android:text="None"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"/>
+
+        <Button android:id="@+id/updateDataCountButton"
+                android:text="Update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
       </LinearLayout>
+
+      <Button android:id="@+id/archiveButton"
+              android:text="Upload data to server"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"/>
 
       <!-- Probe list -->
       <TextView
@@ -34,79 +63,6 @@
           android:id="@+id/list_view"
           android:layout_width="match_parent"
           android:layout_height="match_parent" />
+          <!-- android:background="@color/list_view_item_color_selector"/> -->
 
-      <!-- Test -->
-      <!-- WifiProbe -->
-      <!--
-      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-          <Button android:id="@+id/buttonWifiProbe"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:text="@string/wifiProbe_displayname"
-              android:textSize="12sp"
-              android:layout_gravity="left"
-              android:onClick="onClickProbeRegister" />
-          <TextView android:id="@+id/scheduleWifiProbe"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:clickable="true"
-              android:text="@string/probe_disabled" />
-          android:onClick="onClickProbeReschedule"
-          <CheckBox android:id="@+id/enabledWifiProbe"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_gravity="right" />
-      </LinearLayout>
-      -->
-
-      <!-- SmsProbe -->
-      <!--
-      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-          <Button android:id="@+id/buttonSmsProbe"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:text="@string/smsProbe_displayname"
-                  android:textSize="12sp"
-                  android:layout_gravity="left"
-                  android:onClick="onClickProbeRegister" />
-          <TextView android:id="@+id/scheduleSmsProbe"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:clickable="true"
-              android:text="@string/probe_disabled" />
-          android:onClick="onClickProbeReschedule"
-          <CheckBox android:id="@+id/enabledSmsProbe"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_gravity="right" />
-      </LinearLayout>
-      -->
-
-
-      <LinearLayout
-          android:layout_width="fill_parent"
-          android:layout_height="wrap_content">
-
-          <TextView android:id="@+id/dataCountText"
-              android:text="None"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"/>
-
-          <Button android:id="@+id/updateDataCountButton"
-              android:text="Update"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"/>
-
-      </LinearLayout>
-
-      <Button android:id="@+id/archiveButton"
-              android:text="Upload data to server"
-              android:layout_width="fill_parent"
-              android:layout_height="wrap_content"/>
   </LinearLayout>
