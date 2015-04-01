@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import java.util.ArrayList;
 
 import edu.mit.media.funf.probe.Probe;
+import edu.mit.media.funf.probe.Probe.DisplayName;
 
 public class BaseAdapterEx extends BaseAdapter {
   Context mContext = null;
@@ -47,6 +49,7 @@ public class BaseAdapterEx extends BaseAdapter {
     TextView registerProbeTextView;
     CheckBox enabledCheckBox;
     TextView scheduleTextView;
+    Button changeScheduleButton;
   }
 
   @Override
@@ -69,6 +72,8 @@ public class BaseAdapterEx extends BaseAdapter {
               (CheckBox)itemLayout.findViewById(R.id.enabledCheckBox);
       viewHolder.scheduleTextView =
               (TextView)itemLayout.findViewById(R.id.scheduleTextView);
+      viewHolder.changeScheduleButton =
+              (Button)itemLayout.findViewById(R.id.changeScheduleButton);
 
       itemLayout.setTag(viewHolder);
     } else {
@@ -82,19 +87,20 @@ public class BaseAdapterEx extends BaseAdapter {
       }
     });
 
-    if (mData.get(position).getProbe() == null) {
-      viewHolder.registerProbeTextView.setText("Display Name");
-    } else {
-      viewHolder.registerProbeTextView.setText(mData.get(position).getProbe().getClass()
-              .getAnnotation(Probe.DisplayName.class).value());
-    }
-    // enabledCheckBox.setChecked(mData.get(position).getProbe().getConfig().);
-    // viewHolder.registerProbeTextView.setText("Display Name");
+    viewHolder.registerProbeTextView.setText(mData.get(position)
+            .getProbeClass().getAnnotation(DisplayName.class).value());
     viewHolder.scheduleTextView.setText(R.string.probe_disabled);
     viewHolder.enabledCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
       @Override
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
          mData.get(position).setEnabled(isChecked);
+      }
+    });
+    viewHolder.changeScheduleButton.setOnClickListener(new OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        // TODO: start activity: ProbeRescheduleActivity
+        // by setting an intent and put extras to it
       }
     });
 

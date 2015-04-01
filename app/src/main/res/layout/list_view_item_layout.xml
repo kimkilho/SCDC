@@ -35,4 +35,11 @@
             android:layout_alignTop="@id/probe_info"
             android:layout_alignParentRight="true" />
 
+  <Button android:id="@+id/changeScheduleButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_toLeftOf="@id/enabledCheckBox"
+      android:text="설정"
+      android:textSize="14sp" />
+
 </RelativeLayout>

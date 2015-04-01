@@ -142,14 +142,14 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         probeEntries = new ArrayList<ProbeEntry>();
         probeEntries.add(new ProbeEntry(SmsProbe.class));
         probeEntries.add(new ProbeEntry(WifiProbe.class));
+
+
         Log.w("DEBUG", "probeEntries has number of elements : " + probeEntries.size());
 
         mAdapter = new BaseAdapterEx(this, probeEntries);
 
         mListView = (ListView)findViewById(R.id.list_view);
         mListView.setAdapter(mAdapter);
-//        mListView.setClickable(true);
-
 
         // Displays the count of rows in the data
         dataCountView = (TextView)findViewById(R.id.dataCountText);
@@ -159,15 +159,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
         enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
         enabledToggleButton.setEnabled(false);
-
-        // Add available probes to the probeEntries
-        /*
-        probeEntries = new ArrayList<ProbeEntry>();
-        probeEntries.add(new ProbeEntry(WifiProbe.class, R.id.buttonWifiProbe,
-                R.id.scheduleWifiProbe, R.id.enabledWifiProbe));
-        probeEntries.add(new ProbeEntry(SmsProbe.class, R.id.buttonSmsProbe,
-                R.id.scheduleSmsProbe, R.id.enabledSmsProbe));
-        */
 
         // Runs an archive if pipeline is enabled
         archiveButton = (Button)findViewById(R.id.archiveButton);

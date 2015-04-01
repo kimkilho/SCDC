@@ -1,48 +1,55 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
-                tools:context="kr.ac.snu.imlab.ohpclient.ProbeRescheduleActivity">
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      tools:context=".ProbeRescheduleActivity">
 
     <TextView android:id="@+id/probe_name"
-        android:text="Probe name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
-    
-    <LinearLayout
-        android:layout_width="fill_parent"
+            android:text="Probe name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:gravity="left|center" >
         
-        <TextView
+        <TextView android:id="@+id/probe_interval_tv"
             android:text="Period (in seconds)"
+            android:textSize="16sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
        
         <EditText android:id="@+id/probe_interval"
+            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="80dp"
+            android:maxLength="10"
             android:numeric="integer" />
-    </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="fill_parent"
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:gravity="left|center" >
 
-        <TextView
+        <TextView android:id="@+id/probe_duration_tv"
             android:text="Duration (in seconds)"
+            android:textSize="16sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
         <EditText android:id="@+id/probe_duration"
+            android:layout_alignParentRight="true"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="80dp"
+            android:maxLength="10"
             android:numeric="integer" />
-    </LinearLayout>
+    </RelativeLayout>
 
 
 </LinearLayout>

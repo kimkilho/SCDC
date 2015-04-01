@@ -31,4 +31,8 @@ public class ProbeEntry {
   public boolean isEnabled() {
     return this.isEnabled;
   }
+
+  public Class<Probe.Base> getProbeClass() {
+    return this.probeClass;
+  }
 }
