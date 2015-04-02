@@ -16,6 +16,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="left|center" >
+
+      <TextView android:id="@+id/probe_isEnabled_tv"
+                android:text="Enabled"
+                android:textSize="16sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+      <CheckBox android:id="@+id/probe_isEnabled"
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left|center" >
         
         <TextView android:id="@+id/probe_interval_tv"
             android:text="Period (in seconds)"

@@ -1,6 +1,8 @@
 package kr.ac.snu.imlab.ohpclient;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,8 +101,16 @@ public class BaseAdapterEx extends BaseAdapter {
     viewHolder.changeScheduleButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
-        // TODO: start activity: ProbeRescheduleActivity
-        // by setting an intent and put extras to it
+        Intent rescheduleIntent = new Intent();
+        ComponentName probeRescheduleActivity = new ComponentName(
+                "kr.ac.snu.imlab.ohpclient",
+                "kr.ac.snu.imlab.ohpclient.ProbeRescheduleActivity");
+        rescheduleIntent.setComponent(probeRescheduleActivity);
+        rescheduleIntent.putExtra("PROBE",
+                mData.get(position).getProbeClass().getName());
+        rescheduleIntent.putExtra("IS_ENABLED",
+                mData.get(position).isEnabled());
+        mContext.startActivity(rescheduleIntent);
       }
     });
 
