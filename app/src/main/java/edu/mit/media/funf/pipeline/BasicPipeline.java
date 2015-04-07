@@ -243,6 +243,10 @@ public class BasicPipeline implements Pipeline, DataListener {
   public SQLiteDatabase getDb() {
     return databaseHelper.getReadableDatabase();
   }
+
+  public SQLiteDatabase getWritableDb() {
+    return databaseHelper.getWritableDatabase();
+  }
   
   public List<JsonElement> getDataRequests() {
     return data == null ? null : Collections.unmodifiableList(data);

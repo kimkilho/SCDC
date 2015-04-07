@@ -66,7 +66,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     // Run Data Collection button
     private ToggleButton enabledToggleButton;
 
-    private Button archiveButton, updateDataCountButton;
+    private Button archiveButton, updateDataCountButton, truncateDataButton;
     private TextView dataCountView;
     private ServiceConnection funfManagerConn = new ServiceConnection() {
         @Override
@@ -126,6 +126,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             enabledToggleButton.setEnabled(true);
             archiveButton.setEnabled(true);
             updateDataCountButton.setEnabled(true);
+            truncateDataButton.setEnabled(true);
             ArrayList<View> enabledCheckBoxes = getViewsByTag((ViewGroup)findViewById(R.id.list_view), "PROBE_CHECKBOX");
             for (View enabledCheckBox : enabledCheckBoxes) {
               ((CheckBox)enabledCheckBox).setEnabled(true);
@@ -203,6 +204,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             updateScanCount();
           }
         });
+
+        // Truncate the data
+        truncateDataButton = (Button)findViewById(R.id.truncateDataButton);
+        truncateDataButton.setEnabled(false);
+        truncateDataButton.setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            truncateTable();
+          }
+        });
+
 
         // ListView item long click listener: register probe
         mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
@@ -297,11 +309,27 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             dataCountView.setText("Data Count: " + count);
           }
         });
+        /*
       } else {
         Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
                 Toast.LENGTH_SHORT).show();
+                */
       }
     }
+    // Table truncation SQL statement
+    // FIXME: Change the query below to 'drop' statement if needed
+    private static final String TRUNCATE_SQL = "DELETE FROM " + NameValueDatabaseHelper.DATA_TABLE.name;
+
+    /**
+     * Truncate table of the database of the pipeline.
+     */
+    private void truncateTable() {
+      SQLiteDatabase db = pipeline.getWritableDb();
+      db.execSQL(TRUNCATE_SQL);
+      updateScanCount();
+    }
+
+
 
     @Override
     public void onDataReceived(IJsonObject probeConfig, IJsonObject data) {
