@@ -131,7 +131,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             for (View enabledCheckBox : enabledCheckBoxes) {
               ((CheckBox)enabledCheckBox).setEnabled(true);
             }
-            reloadProbeList();
         }
 
         @Override
@@ -148,7 +147,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         probeEntries = new ArrayList<ProbeEntry>();
         probeEntries.add(new ProbeEntry(SmsProbe.class));
         probeEntries.add(new ProbeEntry(WifiProbe.class));
-
 
         Log.w("DEBUG", "probeEntries has number of elements : " + probeEntries.size());
 
@@ -186,7 +184,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                                 Toast.LENGTH_SHORT).show();
                             updateScanCount();
                         }
-                    // }, 1000L);
                     }, 1000L);
                 } else {
                     Toast.makeText(getBaseContext(), "Pipeline is not enabled",
@@ -350,38 +347,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         probeEntry.getProbe().registerPassiveListener(LaunchActivity.this);
       }
       // Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
-    }
-
-
-    private void reloadProbeList() {
-        // Load probe list view from config
-        if (pipeline != null && pipeline instanceof BasicPipeline) {
-            List<String> names = new ArrayList<String>();
-            for (JsonElement el : ((BasicPipeline)pipeline).getDataRequests()) {
-                String probeClassName = el.isJsonPrimitive() ? el.getAsString() : el.getAsJsonObject().get(RuntimeTypeAdapterFactory.TYPE).getAsString();
-                DisplayName probeDisplayName = null;
-                try {
-                    probeDisplayName = Class.forName(probeClassName).getAnnotation(DisplayName.class);
-                } catch (ClassNotFoundException e) {
-
-                }
-                String name = "Unknown";
-                if (probeDisplayName == null) {
-                    String[] parts = probeClassName.split("\\.");
-                    if (parts.length == 0) {
-                        Log.d(LogUtil.TAG, "Bad probe type: '" + probeClassName + "'");
-                    } else {
-                        name = parts[parts.length - 1].replace("Probe", "");
-                    }
-                } else {
-                    name = probeDisplayName.value();
-                }
-                names.add(name);
-            }
-            ((TextView)findViewById(R.id.probe_list)).setText(StringUtil.join(names, ", "));
-        } else {
-            ((TextView)findViewById(R.id.probe_list)).setText("Unknown...");
-        }
     }
 
   private static ArrayList<View> getViewsByTag(ViewGroup root, String tag){

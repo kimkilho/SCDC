@@ -167,7 +167,7 @@ public class BasicPipeline implements Pipeline, DataListener {
     }
     if (uploader == null) {
       uploader = new UploadService(manager);
-      uploader.start(); // TODO: Why start uploader at this time???
+      // uploader.start(); // FIXME: Why start uploader at this time???
     }
     this.manager = manager;
     reloadDbHelper(manager);
