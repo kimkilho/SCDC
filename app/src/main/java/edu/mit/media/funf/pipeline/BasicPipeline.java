@@ -167,7 +167,7 @@ public class BasicPipeline implements Pipeline, DataListener {
     }
     if (uploader == null) {
       uploader = new UploadService(manager);
-      // uploader.start(); // FIXME: Why start uploader at this time???
+      uploader.start();
     }
     this.manager = manager;
     reloadDbHelper(manager);
@@ -177,11 +177,11 @@ public class BasicPipeline implements Pipeline, DataListener {
     this.handler = new Handler(looper, callback);
     enabled = true;
     for (JsonElement dataRequest : data) {
-      Log.i("DEBUG", "dataRequest.toString=" + dataRequest.toString());
+      // Log.i("DEBUG", "dataRequest.toString=" + dataRequest.toString());
       manager.requestData(this, dataRequest);
     }
     for (Map.Entry<String, Schedule> schedule : schedules.entrySet()) {
-      Log.i("DEBUG", "schedule.getKey()=" + schedule.getKey() + ", schedule.getValue().toString()=" + schedule.getValue().toString());
+      // Log.i("DEBUG", "schedule.getKey()=" + schedule.getKey() + ", schedule.getValue().toString()=" + schedule.getValue().toString());
       manager.registerPipelineAction(this, schedule.getKey(), schedule.getValue());
     }
   }
