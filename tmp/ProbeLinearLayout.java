@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-public class ProbeLinearLayout extends LinearLayout{
+public class ProbeLinearLayout extends LinearLayout {
 
     public ProbeLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);

@@ -101,7 +101,12 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                               probe.registerPassiveListener(LaunchActivity.this);
                               Schedule probeSchedule = funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
                               // FIXME:
-                              ((TextView)((ViewGroup)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(0)).getChildAt(1)).setText("Runs every " + probeSchedule.getInterval() + " seconds for " + probeSchedule.getDuration() + " seconds");
+                              ((TextView)((ViewGroup)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(0)).getChildAt(1))
+                                      .setText("Runs every "
+                                        + String.valueOf(probeSchedule.getInterval().longValue())
+                                        + " seconds for "
+                                        + String.valueOf(probeSchedule.getDuration().longValue())
+                                        + " seconds");
                             } else {
                               probe.unregisterPassiveListener(LaunchActivity.this);
                             }
@@ -236,6 +241,35 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     Toast.LENGTH_LONG).show();
         }
 
+    }
+
+    @Override
+    public void onResume() {
+      super.onResume();
+
+      enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
+      boolean isChecked = enabledToggleButton.isChecked();
+
+      if (funfManager != null) {
+        if (isChecked) {
+          for (int i = 0; i < mAdapter.getCount(); i++) {
+            ProbeEntry probeEntry = mAdapter.getItem(i);
+            Probe.Base probe = probeEntry.getProbe();
+            if (probeEntry.isEnabled()) {
+              Schedule probeSchedule = funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
+              // FIXME:
+              ((TextView)((ViewGroup)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(0)).getChildAt(1))
+                      .setText("Runs every "
+                              + String.valueOf(probeSchedule.getInterval().longValue())
+                              + " seconds for "
+                              + String.valueOf(probeSchedule.getDuration().longValue())
+                              + " seconds");
+            }
+          }
+        }
+      } else {
+        Log.w("DEBUG", "funfManager is null");
+      }
     }
 
     @Override

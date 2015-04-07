@@ -286,7 +286,8 @@ public class FunfManager extends Service {
 				String probeAction = getAction(componentUri);
 				
 				BigDecimal now = TimeUtil.getTimestamp();
-				final Probe probe = getGson().fromJson(probeConfig, Probe.class); 
+				final Probe probe = getGson().fromJson(probeConfig, Probe.class);
+        // Log.w("DEBUG", "probe=" + probe);
 				List<DataRequestInfo> requests = dataRequests.get(probeConfig);
 				
 				// TODO: Need to allow for some listeners to be registered and unregistered on different schedules
