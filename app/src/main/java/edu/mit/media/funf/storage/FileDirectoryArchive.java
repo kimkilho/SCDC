@@ -23,6 +23,8 @@
  */
 package edu.mit.media.funf.storage;
 
+import android.util.Log;
+
 import java.io.File;
 import java.io.FilenameFilter;
 
@@ -62,6 +64,7 @@ public class FileDirectoryArchive implements FileArchive {
 	public boolean add(File item) {
 		this.archiveDir.mkdirs();
 		File archiveFile = new File(archiveDir, nameGenerator.generateName(item.getName()));
+        Log.w("DEBUG", "filename=" + nameGenerator.generateName(item.getName()));
 		boolean result = fileCopier.copy(item, archiveFile);
 		cleaner.clean(archiveDir);
 		return result;

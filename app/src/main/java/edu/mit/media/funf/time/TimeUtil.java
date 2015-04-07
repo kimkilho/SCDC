@@ -44,7 +44,7 @@ public class TimeUtil {
 	}
 
 	/**
-	 * Returns a BigDecimal timestamp in seconds with microsecond precision,
+	 * Returns a BigDecimal timesta`mp in seconds with microsecond precision,
 	 * using System.nanoTime() and uptimeNanosToTimestamp()
 	 * @return
 	 */

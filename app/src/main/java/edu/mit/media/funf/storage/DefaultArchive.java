@@ -32,11 +32,15 @@ import javax.crypto.spec.DESKeySpec;
 import javax.crypto.spec.PBEKeySpec;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+
 import edu.mit.media.funf.Schedule.DefaultSchedule;
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.security.Base64Coder;
 import edu.mit.media.funf.util.FileUtil;
 import edu.mit.media.funf.util.NameGenerator;
+import edu.mit.media.funf.util.NameGenerator.IdentityNameGenerator;
+import edu.mit.media.funf.util.NameGenerator.DatetimeNameGenerator;
 import edu.mit.media.funf.util.NameGenerator.CompositeNameGenerator;
 import edu.mit.media.funf.util.NameGenerator.RequiredSuffixNameGenerator;
 import edu.mit.media.funf.util.NameGenerator.SystemUniqueTimestampNameGenerator;
@@ -50,6 +54,9 @@ import edu.mit.media.funf.util.StringUtil;
  */
 @DefaultSchedule(interval=3600)
 public class DefaultArchive implements FileArchive {
+
+    public static final String OHPCLIENT_PREFS = "kr.ac.snu.imlab.ohpclient";
+    public static final String DEFAULT_USERNAME = "imlab_user";
 
 	private static final String DES_ENCRYPTION = "DES";
 	
@@ -172,8 +179,10 @@ public class DefaultArchive implements FileArchive {
 	}
 
 	static FileDirectoryArchive getTimestampedDbFileArchive(File archiveDir, Context context, SecretKey encryptionKey) {
-    // FIXME: Modify this part below to change the db filename back to normal form
-		NameGenerator nameGenerator = new CompositeNameGenerator(new SystemUniqueTimestampNameGenerator(context), new RequiredSuffixNameGenerator(".db"));
+        // FIXME: Modify this part below to change the db filename back to normal form
+		// NameGenerator nameGenerator = new CompositeNameGenerator(new SystemUniqueTimestampNameGenerator(context), new RequiredSuffixNameGenerator(".db"));
+        SharedPreferences prefs = context.getSharedPreferences(OHPCLIENT_PREFS, Context.MODE_PRIVATE);
+        NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new DatetimeNameGenerator(), new RequiredSuffixNameGenerator(".db"));
 		FileCopier copier = (encryptionKey == null) ? new FileCopier.SimpleFileCopier() : new FileCopier.EncryptedFileCopier(encryptionKey, DES_ENCRYPTION);
 		return new FileDirectoryArchive(archiveDir, nameGenerator, copier, new DirectoryCleaner.KeepAll());
 	}
@@ -199,4 +208,21 @@ public class DefaultArchive implements FileArchive {
 	}
 	
 	
+}
+
+/**
+ * Added by Kilho Kim.
+ */
+class UsernameNameGenerator implements NameGenerator {
+
+    private SharedPreferences prefs;
+
+    public UsernameNameGenerator(SharedPreferences prefs) {
+        this.prefs = prefs;
+    }
+
+    @Override
+    public String generateName(final String name) {
+        return name == null ? null : prefs.getString("userName", "imlab_user") + "_" + name;
+    }
 }

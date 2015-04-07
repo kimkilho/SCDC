@@ -1,5 +1,7 @@
 package kr.ac.snu.imlab.ohpclient;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.content.ComponentName;
@@ -9,6 +11,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -41,6 +45,7 @@ import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
 
 import android.os.IBinder;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,12 +57,19 @@ import java.util.List;
 
 public class LaunchActivity extends ActionBarActivity implements DataListener {
     public static final String PIPELINE_NAME = "ohpclient";
+    public static final String OHPCLIENT_PREFS = "kr.ac.snu.imlab.ohpclient";
+    public static final String DEFAULT_USERNAME = "imlab_user";
 
     private Handler handler;
     private FunfManager funfManager = null;
     private BasicPipeline pipeline = null;
 
+    // Username EditText and Button
+    private EditText userName = null;
+    private Button userNameButton = null;
+    boolean isEdited = false;
 
+    // Probe list View
     private ListView mListView = null;
     private BaseAdapterEx mAdapter = null;
     // Probes list
@@ -143,6 +155,34 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
+
+        // Set current username
+        final SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS, Context.MODE_PRIVATE);
+        userName = (EditText)findViewById(R.id.user_name);
+        userName.setText(prefs.getString("userName", DEFAULT_USERNAME));
+        userName.setEnabled(false);
+        isEdited = false;
+
+        userNameButton = (Button)findViewById(R.id.user_name_btn);
+        userNameButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // If it's currently not being edited now:
+                if (!isEdited) {
+                    userName.setEnabled(true);
+                    isEdited = true;
+                    userNameButton.setText("저장");
+                // If it has just finished being edited:
+                } else {
+                    prefs.edit().putString("userName", userName.getText().toString()).apply();
+                    Log.w("DEBUG", "userName=" + prefs.getString("userName", DEFAULT_USERNAME));
+                    userName.setEnabled(false);
+                    isEdited = false;
+                    userNameButton.setText("수정");
+                }
+            }
+        });
+
 
         probeEntries = new ArrayList<ProbeEntry>();
         probeEntries.add(new ProbeEntry(SmsProbe.class));
@@ -315,14 +355,15 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     }
     // Table truncation SQL statement
     // FIXME: Change the query below to 'drop' statement if needed
-    private static final String TRUNCATE_SQL = "DELETE FROM " + NameValueDatabaseHelper.DATA_TABLE.name;
+    private static final String TRUNCATE_TABLE_SQL = "DELETE FROM " + NameValueDatabaseHelper.DATA_TABLE.name;
+    // private static final String CREATE_TABLE_SQL = "" + NameValueDatabaseHelper.DATA_TABLE.name;
 
     /**
      * Truncate table of the database of the pipeline.
      */
     private void truncateTable() {
       SQLiteDatabase db = pipeline.getWritableDb();
-      db.execSQL(TRUNCATE_SQL);
+      db.execSQL(TRUNCATE_TABLE_SQL);
       updateScanCount();
     }
 
