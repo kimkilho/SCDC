@@ -18,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -105,6 +106,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
                             // Probe probe = getGson().fromJson(wifiProbe.getConfig(), wifiProbe.getClass());
 
+                          Log.w("DEBUG", "mAdapter.getCount()=" + mAdapter.getCount());
                           for (int i = 0; i < mAdapter.getCount(); i++) {
                             ProbeEntry probeEntry = mAdapter.getItem(i);
                             Probe.Base probe = probeEntry.getProbe();
@@ -112,6 +114,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                               funfManager.requestData(pipeline,
                                       probe.getConfig().get("@type"), null);
                               probe.registerPassiveListener(LaunchActivity.this);
+                              /*
                               Schedule probeSchedule = funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
                               // FIXME:
                               ((TextView)((ViewGroup)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(0)).getChildAt(1))
@@ -120,18 +123,30 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                                         + " seconds for "
                                         + String.valueOf(probeSchedule.getDuration().longValue())
                                         + " seconds");
+                                */
                             } else {
                               probe.unregisterPassiveListener(LaunchActivity.this);
                             }
                             // FIXME:
-                            ((Button)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(1)).setEnabled(false);
+                            /*
+                            Log.w("DEBUG", "mListView.getFirstVisiblePosition()=" + (mListView.getFirstVisiblePosition()+i));
+                            Log.w("DEBUG", "mListView.getChildAt(i)=" + (mListView.getChildAt(mListView.getFirstVisiblePosition()+i)));
+                            Log.w("DEBUG", "((ViewGroup)mListView.getChildAt(i)).getChildAt(1)=" + ((ViewGroup)mListView.getChildAt(mListView
+                                    .getFirstVisiblePosition()+i))
+                                    .getChildAt(1));
+                            ((CheckBox)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(1)).setEnabled(false);
+                            */
                           }
                         } else {
                           funfManager.disablePipeline(PIPELINE_NAME);
 
+                          /*
                           for (int i = 0; i < mAdapter.getCount(); i++) {
-                            ((Button)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(1)).setEnabled(true);
+                            // FIXME:
+                            Log.w("DEBUG", "mListView.getChildAt(i).getChildCount()=" + ((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildCount());
+                            ((CheckBox)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(1)).setEnabled(true);
                           }
+                          */
                           ArrayList<View> scheduleTextViews = getViewsByTag((ViewGroup)findViewById(R.id.list_view), "PROBE_SCHEDULE");
                           for (View scheduleTextView : scheduleTextViews) {
                             ((TextView)scheduleTextView).setText(R.string.probe_disabled);
@@ -162,6 +177,10 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
+
+        // Make sure the keyboard only pops up
+        // when a user clicks into an EditText
+        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         // Set current username
         final SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS, Context.MODE_PRIVATE);
@@ -197,11 +216,14 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         });
 
 
+        // The list of probes available
         probeEntries = new ArrayList<ProbeEntry>();
         probeEntries.add(new ProbeEntry(ContactProbe.class));
         probeEntries.add(new ProbeEntry(SmsProbe.class));
         probeEntries.add(new ProbeEntry(BrowserBookmarksProbe.class));
         probeEntries.add(new ProbeEntry(BrowserSearchesProbe.class));
+        probeEntries.add(new ProbeEntry(VideoMediaProbe.class));
+        probeEntries.add(new ProbeEntry(AudioMediaProbe.class));
 
         Log.w("DEBUG", "probeEntries has number of elements : " + probeEntries.size());
 
@@ -423,6 +445,11 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     return views;
   }
 
+
+  // DEBUG:
+  public FunfManager getActivityFunfManager() {
+    return funfManager;
+  }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

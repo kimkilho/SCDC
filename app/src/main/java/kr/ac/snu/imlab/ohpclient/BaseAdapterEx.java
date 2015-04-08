@@ -1,5 +1,6 @@
 package kr.ac.snu.imlab.ohpclient;
 
+import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -15,20 +16,31 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 
+import edu.mit.media.funf.FunfManager;
+import edu.mit.media.funf.Schedule;
+import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 
 public class BaseAdapterEx extends BaseAdapter {
   Context mContext = null;
   ArrayList<ProbeEntry> mData = null;
+  // ArrayList<Boolean> isEnableds = null;
   LayoutInflater mLayoutInflater = null;
+
+  private FunfManager funfManager = null;
+  private BasicPipeline pipeline = null;
+  public static final String PIPELINE_NAME = "ohpclient";
 
   public BaseAdapterEx(Context context, ArrayList<ProbeEntry> data) {
     this.mContext = context;
     this.mData = data;
+    // this.isEnableds = new ArrayList<Boolean>();
+    // for (int i = 0; i < data.size(); i++) isEnableds.add(false);
     this.mLayoutInflater = LayoutInflater.from(this.mContext);
   }
 
@@ -91,7 +103,32 @@ public class BaseAdapterEx extends BaseAdapter {
 
     viewHolder.registerProbeTextView.setText(mData.get(position)
             .getProbeClass().getAnnotation(DisplayName.class).value());
+    // DEBUG: load enabledToggleButton view
+    ToggleButton enabledToggleButton = (ToggleButton)((LaunchActivity)mContext)
+            .findViewById(R.id.enabledToggleButton);
+    // If enabledToggleButton is enabled, disable enabledCheckBox
+    viewHolder.enabledCheckBox.setEnabled(!enabledToggleButton.isChecked());
     viewHolder.scheduleTextView.setText(R.string.probe_disabled);
+
+    funfManager = ((LaunchActivity) mContext).getActivityFunfManager();
+    if (funfManager != null) {
+      if (enabledToggleButton.isChecked()) {
+        pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
+        Probe.Base probe = mData.get(position).getProbe();
+        if (mData.get(position).isEnabled()) {
+          Schedule probeSchedule = funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
+          viewHolder.scheduleTextView
+                  .setText("Runs every "
+                          + String.valueOf(probeSchedule.getInterval().longValue())
+                          + " seconds for "
+                          + String.valueOf(probeSchedule.getDuration().longValue())
+                          + " seconds");
+          // funfManager.requestData(pipeline, probe.getConfig().get("@type"), null);
+          notifyDataSetChanged();
+        }
+      }
+    }
+
     viewHolder.enabledCheckBox.setOnCheckedChangeListener(new OnCheckedChangeListener() {
       @Override
       public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -114,7 +151,14 @@ public class BaseAdapterEx extends BaseAdapter {
       }
     });
 
+
+
+
     itemLayout.setClickable(true);
     return itemLayout;
+  }
+
+  public void setEnabledPipeline() {
+
   }
 }
