@@ -67,6 +67,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     // Username EditText and Button
     private EditText userName = null;
     private Button userNameButton = null;
+    private CheckBox isFemaleCheckBox = null;
     boolean isEdited = false;
 
     // Probe list View
@@ -122,9 +123,15 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             } else {
                               probe.unregisterPassiveListener(LaunchActivity.this);
                             }
+                            // FIXME:
+                            ((Button)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(1)).setEnabled(false);
                           }
                         } else {
                           funfManager.disablePipeline(PIPELINE_NAME);
+
+                          for (int i = 0; i < mAdapter.getCount(); i++) {
+                            ((Button)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(1)).setEnabled(true);
+                          }
                           ArrayList<View> scheduleTextViews = getViewsByTag((ViewGroup)findViewById(R.id.list_view), "PROBE_SCHEDULE");
                           for (View scheduleTextView : scheduleTextViews) {
                             ((TextView)scheduleTextView).setText(R.string.probe_disabled);
@@ -160,7 +167,9 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         final SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS, Context.MODE_PRIVATE);
         userName = (EditText)findViewById(R.id.user_name);
         userName.setText(prefs.getString("userName", DEFAULT_USERNAME));
+        isFemaleCheckBox = (CheckBox)findViewById(R.id.is_female);
         userName.setEnabled(false);
+        isFemaleCheckBox.setEnabled(false);
         isEdited = false;
 
         userNameButton = (Button)findViewById(R.id.user_name_btn);
@@ -170,13 +179,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                 // If it's currently not being edited now:
                 if (!isEdited) {
                     userName.setEnabled(true);
+                    isFemaleCheckBox.setEnabled(true);
                     isEdited = true;
                     userNameButton.setText("저장");
                 // If it has just finished being edited:
                 } else {
                     prefs.edit().putString("userName", userName.getText().toString()).apply();
+                    prefs.edit().putBoolean("isFemale", isFemaleCheckBox.isChecked()).apply();
                     Log.w("DEBUG", "userName=" + prefs.getString("userName", DEFAULT_USERNAME));
+                    Log.w("DEBUG", "isFemale=" + prefs.getBoolean("isFemale", false));
                     userName.setEnabled(false);
+                    isFemaleCheckBox.setEnabled(false);
                     isEdited = false;
                     userNameButton.setText("수정");
                 }
@@ -185,8 +198,10 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
 
         probeEntries = new ArrayList<ProbeEntry>();
+        probeEntries.add(new ProbeEntry(ContactProbe.class));
         probeEntries.add(new ProbeEntry(SmsProbe.class));
-        probeEntries.add(new ProbeEntry(WifiProbe.class));
+        probeEntries.add(new ProbeEntry(BrowserBookmarksProbe.class));
+        probeEntries.add(new ProbeEntry(BrowserSearchesProbe.class));
 
         Log.w("DEBUG", "probeEntries has number of elements : " + probeEntries.size());
 

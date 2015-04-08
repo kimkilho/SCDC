@@ -32,8 +32,20 @@
               android:maxLength="10"
               android:inputType="text" />
 
+          <TextView android:id="@+id/is_female_tv"
+                  android:text="Female?"
+                  android:layout_toRightOf="@id/user_name"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textSize="16sp" />
+
+          <CheckBox android:id="@+id/is_female"
+              android:layout_toRightOf="@id/is_female_tv"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content" />
+
           <Button android:id="@+id/user_name_btn"
-              android:layout_toRightOf="@id/user_name"
+              android:layout_toRightOf="@id/is_female"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="수정" />

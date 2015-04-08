@@ -25,6 +25,8 @@ package edu.mit.media.funf.storage;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -39,11 +41,8 @@ import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.security.Base64Coder;
 import edu.mit.media.funf.util.FileUtil;
 import edu.mit.media.funf.util.NameGenerator;
-import edu.mit.media.funf.util.NameGenerator.IdentityNameGenerator;
-import edu.mit.media.funf.util.NameGenerator.DatetimeNameGenerator;
 import edu.mit.media.funf.util.NameGenerator.CompositeNameGenerator;
 import edu.mit.media.funf.util.NameGenerator.RequiredSuffixNameGenerator;
-import edu.mit.media.funf.util.NameGenerator.SystemUniqueTimestampNameGenerator;
 import edu.mit.media.funf.util.StringUtil;
 
 /**
@@ -70,7 +69,7 @@ public class DefaultArchive implements FileArchive {
 	protected String name = "default";
 	
 	@Configurable
-	protected String password;
+	protected String password = "imlab";
 	
 	@Configurable
 	protected String key;
@@ -182,7 +181,7 @@ public class DefaultArchive implements FileArchive {
         // FIXME: Modify this part below to change the db filename back to normal form
 		// NameGenerator nameGenerator = new CompositeNameGenerator(new SystemUniqueTimestampNameGenerator(context), new RequiredSuffixNameGenerator(".db"));
         SharedPreferences prefs = context.getSharedPreferences(OHPCLIENT_PREFS, Context.MODE_PRIVATE);
-        NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new DatetimeNameGenerator(), new RequiredSuffixNameGenerator(".db"));
+        NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new IsFemaleNameGenerator(prefs), new ShortDatetimeNameGenerator(), new RequiredSuffixNameGenerator(".db"));
 		FileCopier copier = (encryptionKey == null) ? new FileCopier.SimpleFileCopier() : new FileCopier.EncryptedFileCopier(encryptionKey, DES_ENCRYPTION);
 		return new FileDirectoryArchive(archiveDir, nameGenerator, copier, new DirectoryCleaner.KeepAll());
 	}
@@ -211,6 +210,7 @@ public class DefaultArchive implements FileArchive {
 }
 
 /**
+ * New NameGenerator class: UsernameNameGenerator.
  * Added by Kilho Kim.
  */
 class UsernameNameGenerator implements NameGenerator {
@@ -225,4 +225,38 @@ class UsernameNameGenerator implements NameGenerator {
     public String generateName(final String name) {
         return name == null ? null : prefs.getString("userName", "imlab_user") + "_" + name;
     }
+}
+
+
+/**
+ * New NameGenerator class: IsFemaleNameGenerator
+ * Added by Kilho Kim.
+ */
+class IsFemaleNameGenerator implements NameGenerator {
+
+  private SharedPreferences prefs;
+
+  public IsFemaleNameGenerator(SharedPreferences prefs) {
+    this.prefs = prefs;
+  }
+
+  @Override
+  public String generateName(final String name) {
+    return name == null ? null : (prefs.getBoolean("isFemale", false) ? "female" : "male") + "_" + name;
+  }
+}
+
+
+/**
+ * New NameGenerator class: ShortDatetimeNameGenerator.
+ * Added by Kilho Kim.
+ */
+class ShortDatetimeNameGenerator implements NameGenerator {
+  @Override
+  public String generateName(final String name) {
+    // String datetime = java.text.DateFormat.getDateTimeInstance().format(new Date());
+    SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd_HHmmss");
+    String datetime = fmt.format(new Date());
+    return name == null ? null : datetime + "_" + name;
+  }
 }
