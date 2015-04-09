@@ -93,7 +93,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
               ProbeEntry probeEntry = mAdapter.getItem(i);
               probeEntry.setProbe(gson);
             }
-            // Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
 
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setChecked(pipeline.isEnabled());
@@ -299,29 +298,10 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     public void onResume() {
       super.onResume();
 
-      enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
-      boolean isChecked = enabledToggleButton.isChecked();
-
-      if (funfManager != null) {
-        if (isChecked) {
-          for (int i = 0; i < mAdapter.getCount(); i++) {
-            ProbeEntry probeEntry = mAdapter.getItem(i);
-            Probe.Base probe = probeEntry.getProbe();
-            if (probeEntry.isEnabled()) {
-              Schedule probeSchedule = funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
-              // FIXME:
-              ((TextView)((ViewGroup)((ViewGroup)mListView.getChildAt(mListView.getFirstVisiblePosition()+i)).getChildAt(0)).getChildAt(1))
-                      .setText("Runs every "
-                              + String.valueOf(probeSchedule.getInterval().longValue())
-                              + " seconds for "
-                              + String.valueOf(probeSchedule.getDuration().longValue())
-                              + " seconds");
-            }
-          }
-        }
-      } else {
-        Log.w("DEBUG", "funfManager is null");
-      }
+      mAdapter = new BaseAdapterEx(this, probeEntries);
+      mListView = (ListView)findViewById(R.id.list_view);
+      mListView.setAdapter(mAdapter);
+      mAdapter.notifyDataSetChanged();
     }
 
     @Override

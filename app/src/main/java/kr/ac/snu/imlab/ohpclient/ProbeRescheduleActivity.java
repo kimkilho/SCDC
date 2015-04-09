@@ -154,36 +154,6 @@ public class ProbeRescheduleActivity extends ActionBarActivity {
       });
 
 
-      /*
-      try {
-        probeName.setText(Class.forName(probeClassName).getAnnotation(DisplayName.class).value());
-        isEnabledCheckBox.setChecked(isEnabled);
-
-        if (pipeline.isEnabled()) {
-          // TODO: Do I need the following line?
-          // funfManager.requestData(pipeline, probeConfig.get("@type"), null);
-          Schedule probeSchedule = funfManager.getDataRequestSchedule(probeConfig, pipeline);
-          probeInterval.setText(probeSchedule.getInterval().toString());
-          probeDuration.setText(probeSchedule.getDuration().toString());
-
-          // The forms are editable only if the probe is checked as enabled
-          if (isEnabled) {
-            probeInterval.setEnabled(true);
-            probeDuration.setEnabled(true);
-          } else {
-            probeInterval.setEnabled(false);
-            probeDuration.setEnabled(false);
-          }
-        } else {
-          Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
-                  Toast.LENGTH_SHORT).show();
-        }
-
-      } catch (ClassNotFoundException e) {
-        e.printStackTrace();
-      }
-      */
-
       // Bind to the service, to create the connection with FunfManager
       bindService(new Intent(this, FunfManager.class), funfManagerConn,
               BIND_AUTO_CREATE);
