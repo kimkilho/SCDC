@@ -103,13 +103,14 @@ public class BaseAdapterEx extends BaseAdapter {
 
     viewHolder.registerProbeTextView.setText(mData.get(position)
             .getProbeClass().getAnnotation(DisplayName.class).value());
-    // DEBUG: load enabledToggleButton view
+    // Load enabledToggleButton view from LaunchActivity context
     ToggleButton enabledToggleButton = (ToggleButton)((LaunchActivity)mContext)
             .findViewById(R.id.enabledToggleButton);
     // If enabledToggleButton is enabled, disable enabledCheckBox
     viewHolder.enabledCheckBox.setEnabled(!enabledToggleButton.isChecked());
     viewHolder.scheduleTextView.setText(R.string.probe_disabled);
 
+    // Dynamically refresh ListView items by the following code:
     funfManager = ((LaunchActivity) mContext).getActivityFunfManager();
     if (funfManager != null) {
       if (enabledToggleButton.isChecked()) {
@@ -126,6 +127,8 @@ public class BaseAdapterEx extends BaseAdapter {
           // funfManager.requestData(pipeline, probe.getConfig().get("@type"), null);
           notifyDataSetChanged();
         }
+      } else {
+        viewHolder.scheduleTextView.setText(R.string.probe_disabled);
       }
     }
 
@@ -135,6 +138,7 @@ public class BaseAdapterEx extends BaseAdapter {
          mData.get(position).setEnabled(isChecked);
       }
     });
+
     viewHolder.changeScheduleButton.setOnClickListener(new OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -150,8 +154,6 @@ public class BaseAdapterEx extends BaseAdapter {
         mContext.startActivity(rescheduleIntent);
       }
     });
-
-
 
 
     itemLayout.setClickable(true);
