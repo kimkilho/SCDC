@@ -174,6 +174,7 @@ public class BasicPipeline implements Pipeline, DataListener {
     this.manager = manager;
     reloadDbHelper(manager);
     HandlerThread thread = new HandlerThread(getClass().getName());
+    Log.w("DEBUG", "new thread=" + thread.getName());
     thread.start();
     this.looper = thread.getLooper();
     this.handler = new Handler(looper, callback);
