@@ -84,7 +84,14 @@ public class NameValueDatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
 		// Nothing yet
-	}	
+	}
+
+  // ADDED: Kilho Kim
+  // Drop and re-Create 'data' table.
+  public void dropAndCreateDataTable(SQLiteDatabase db) {
+    db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE.name + ";");
+    db.execSQL(DATA_TABLE.getCreateTableSQL());
+  }
 	
 	// TODO: Consider moving these to an external utils class
 	/**

@@ -2,6 +2,7 @@ package kr.ac.snu.imlab.ohpclient;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.content.ComponentName;
@@ -250,7 +251,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         truncateDataButton.setOnClickListener(new View.OnClickListener() {
           @Override
           public void onClick(View v) {
-            truncateTable();
+            dropAndCreateTable();
           }
         });
 
@@ -337,17 +338,20 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
       }
     }
     // Table truncation SQL statement
-    // FIXME: Change the query below to 'drop' statement if needed
+    // FIXME: Change the query below to 'DROP' statement if needed
     private static final String TRUNCATE_TABLE_SQL = "DELETE FROM " + NameValueDatabaseHelper.DATA_TABLE.name;
     // private static final String CREATE_TABLE_SQL = "" + NameValueDatabaseHelper.DATA_TABLE.name;
 
     /**
      * Truncate table of the database of the pipeline.
      */
-    private void truncateTable() {
+    private void dropAndCreateTable() {
       SQLiteDatabase db = pipeline.getWritableDb();
-      db.execSQL(TRUNCATE_TABLE_SQL);
+      NameValueDatabaseHelper databaseHelper = (NameValueDatabaseHelper)pipeline.getDatabaseHelper();
+      databaseHelper.dropAndCreateDataTable(db);
       updateScanCount();
+      Toast.makeText(getBaseContext(), "Dropped and re-created data table.",
+              Toast.LENGTH_LONG).show();
     }
 
 
@@ -368,7 +372,8 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
       updateScanCount();
       // Re-register to keep listening after probe completes.
       for (ProbeEntry probeEntry : probeEntries) {
-        probeEntry.getProbe().registerPassiveListener(LaunchActivity.this);
+        if (probeEntry.isEnabled())
+          probeEntry.getProbe().registerPassiveListener(LaunchActivity.this);
       }
       // Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
     }
