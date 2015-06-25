@@ -112,23 +112,32 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
                           Log.w("DEBUG", "mAdapter.getCount()=" + mAdapter.getCount());
-                          for (int i = 0; i < mAdapter.getCount(); i++) {
+                          for (int i = 0; i < probeEntries.size(); i++) {
                             ProbeEntry probeEntry = probeEntries.get(i);
                             Probe.Base probe = probeEntry.getProbe();
-                            if (probeEntry.isEnabled()) {
+                            // if (probeEntry.isEnabled()) {
                               funfManager.requestData(pipeline,
                                       probe.getConfig().get("@type"), null);
                               probe.registerPassiveListener(LaunchActivity.this);
-                            } else {
-                              probe.unregisterPassiveListener(LaunchActivity.this);
-                            }
+                            // } else {
+                              // probe.unregisterPassiveListener(LaunchActivity
+                                    // .this);
+                            // }
                           }
                         } else {
+                          /*
+                          for (int i = 0; i < probeEntries.size(); i++) {
+                            ProbeEntry probeEntry = probeEntries.get(i);
+                            Probe.Base probe = probeEntry.getProbe();
+                            probe.unregisterPassiveListener(LaunchActivity
+                                    .this);
+                          }
+                          */
                           funfManager.disablePipeline(PIPELINE_NAME);
                         }
                     }
                     // Dynamically refresh the ListView items by calling mAdapter.getView() again.
-                    mAdapter.notifyDataSetChanged();
+                    // mAdapter.notifyDataSetChanged();
                 }
             });
 
@@ -175,7 +184,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     isMaleRadioButton.setEnabled(true);
                     isFemaleRadioButton.setEnabled(true);
                     isEdited = true;
-                    userNameButton.setText("저장");
+                    userNameButton.setText("Save");
                 // If it has just finished being edited:
                 } else {
                     prefs.edit().putString("userName", userName.getText().toString()).apply();
@@ -200,6 +209,9 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         probeEntries.add(new ProbeEntry(BrowserSearchesProbe.class));
         probeEntries.add(new ProbeEntry(VideoMediaProbe.class));
         probeEntries.add(new ProbeEntry(AudioMediaProbe.class));
+        for (int i = 0; i < probeEntries.size(); i++) {
+          probeEntries.get(i).setEnabled(true);
+        }
         // The list of labels available
         labelEntries = new ArrayList<LabelEntry>();
         labelEntries.add(new LabelEntry("Sleeping"));

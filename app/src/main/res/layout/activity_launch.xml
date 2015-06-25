@@ -17,15 +17,14 @@
                   android:layout_height="wrap_content"
                   android:textSize="20sp" />
 
-
         <ToggleButton android:id="@+id/enabledToggleButton"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_gravity="center_vertical"
                       android:layout_alignTop="@id/app_title"
                       android:layout_alignParentRight="true"
-                      android:textOn="설정"
-                      android:textOff="해제" />
+                      android:textOn="On"
+                      android:textOff="Off" />
       </RelativeLayout>
 
 
@@ -56,25 +55,26 @@
               android:layout_height="wrap_content"
               android:orientation="horizontal">
 
-              <RadioButton android:id="@+id/radio_male"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:text="male"
-                   android:checked="true" />
-
               <RadioButton android:id="@+id/radio_female"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:text="female"
+                   android:text="Female"
+                   android:checked="true" />
+
+              <RadioButton android:id="@+id/radio_male"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="Male"
                    android:checked="false" />
+
 
           </RadioGroup>
 
           <Button android:id="@+id/user_name_btn"
-              android:layout_toRightOf="@id/gender_radio"
+              android:layout_alignParentRight="true"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="수정" />
+              android:text="Modify" />
 
       </RelativeLayout>
 
