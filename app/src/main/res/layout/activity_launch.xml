@@ -6,11 +6,28 @@
         android:layout_height="match_parent"
         tools:context=".LaunchActivity">
 
-      <TextView android:id="@+id/app_title"
-          android:text="@string/app_title"
-          android:layout_width="wrap_content"
+      <RelativeLayout
+          android:layout_width="match_parent"
           android:layout_height="wrap_content"
-          android:textSize="20sp" />
+          android:gravity="left|center">
+
+        <TextView android:id="@+id/app_title"
+                  android:text="@string/app_title"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:textSize="20sp" />
+
+
+        <ToggleButton android:id="@+id/enabledToggleButton"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:layout_alignTop="@id/app_title"
+                      android:layout_alignParentRight="true"
+                      android:textOn="설정"
+                      android:textOff="해제" />
+      </RelativeLayout>
+
 
       <RelativeLayout
           android:layout_width="match_parent"
@@ -32,32 +49,32 @@
               android:maxLength="10"
               android:inputType="text" />
 
-          <TextView android:id="@+id/is_female_tv"
-                  android:text="Female?"
-                  android:layout_toRightOf="@id/user_name"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:textSize="16sp" />
-
-          <CheckBox android:id="@+id/is_female"
-              android:layout_toRightOf="@id/is_female_tv"
+          <RadioGroup
+              android:id="@+id/gender_radio"
+              android:layout_toRightOf="@id/user_name"
               android:layout_width="wrap_content"
-              android:layout_height="wrap_content" />
+              android:layout_height="wrap_content"
+              android:orientation="horizontal">
+
+              <RadioButton android:id="@+id/radio_male"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="male"
+                   android:checked="true" />
+
+              <RadioButton android:id="@+id/radio_female"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="female"
+                   android:checked="false" />
+
+          </RadioGroup>
 
           <Button android:id="@+id/user_name_btn"
-              android:layout_toRightOf="@id/is_female"
+              android:layout_toRightOf="@id/gender_radio"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:text="수정" />
-
-          <ToggleButton android:id="@+id/enabledToggleButton"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
-              android:layout_gravity="center_vertical"
-              android:layout_alignTop="@id/user_name"
-              android:layout_alignParentRight="true"
-              android:textOn="설정"
-              android:textOff="해제" />
 
       </RelativeLayout>
 
@@ -91,9 +108,9 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"/>
 
-      <!-- Probe list views -->
+      <!-- Label list views -->
       <ListView
-          android:id="@+id/list_view"
+          android:id="@+id/label_list_view"
           android:layout_width="match_parent"
           android:layout_height="match_parent" />
           <!-- android:background="@color/list_view_item_color_selector"/> -->

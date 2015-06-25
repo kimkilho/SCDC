@@ -49,6 +49,7 @@ import edu.mit.media.funf.util.StringUtil;
 import android.os.IBinder;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -69,14 +70,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     // Username EditText and Button
     private EditText userName = null;
     private Button userNameButton = null;
-    private CheckBox isFemaleCheckBox = null;
+    private RadioButton isMaleRadioButton = null;
+    private RadioButton isFemaleRadioButton = null;
+    // private CheckBox isFemaleCheckBox = null;
     boolean isEdited = false;
 
     // Probe list View
     private ListView mListView = null;
-    private BaseAdapterEx mAdapter = null;
+    private BaseAdapterExLabel mAdapter = null;
     // Probes list
     private ArrayList<ProbeEntry> probeEntries;
+    private ArrayList<LabelEntry> labelEntries;
 
     // Run Data Collection button
     private ToggleButton enabledToggleButton;
@@ -90,10 +94,12 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             Gson gson = funfManager.getGson();
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
+            /*
             for (int i = 0; i < mAdapter.getCount(); i++) {
               ProbeEntry probeEntry = mAdapter.getItem(i);
               probeEntry.setProbe(gson);
             }
+            */
 
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setChecked(pipeline.isEnabled());
@@ -107,7 +113,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
                           Log.w("DEBUG", "mAdapter.getCount()=" + mAdapter.getCount());
                           for (int i = 0; i < mAdapter.getCount(); i++) {
-                            ProbeEntry probeEntry = mAdapter.getItem(i);
+                            ProbeEntry probeEntry = probeEntries.get(i);
                             Probe.Base probe = probeEntry.getProbe();
                             if (probeEntry.isEnabled()) {
                               funfManager.requestData(pipeline,
@@ -152,9 +158,11 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         final SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS, Context.MODE_PRIVATE);
         userName = (EditText)findViewById(R.id.user_name);
         userName.setText(prefs.getString("userName", DEFAULT_USERNAME));
-        isFemaleCheckBox = (CheckBox)findViewById(R.id.is_female);
+        isMaleRadioButton = (RadioButton)findViewById(R.id.radio_male);
+        isFemaleRadioButton = (RadioButton)findViewById(R.id.radio_female);
         userName.setEnabled(false);
-        isFemaleCheckBox.setEnabled(false);
+        isMaleRadioButton.setEnabled(false);
+        isFemaleRadioButton.setEnabled(false);
         isEdited = false;
 
         userNameButton = (Button)findViewById(R.id.user_name_btn);
@@ -164,17 +172,19 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                 // If it's currently not being edited now:
                 if (!isEdited) {
                     userName.setEnabled(true);
-                    isFemaleCheckBox.setEnabled(true);
+                    isMaleRadioButton.setEnabled(true);
+                    isFemaleRadioButton.setEnabled(true);
                     isEdited = true;
                     userNameButton.setText("저장");
                 // If it has just finished being edited:
                 } else {
                     prefs.edit().putString("userName", userName.getText().toString()).apply();
-                    prefs.edit().putBoolean("isFemale", isFemaleCheckBox.isChecked()).apply();
+                    prefs.edit().putBoolean("isFemale", isFemaleRadioButton.isChecked()).apply();
                     Log.w("DEBUG", "userName=" + prefs.getString("userName", DEFAULT_USERNAME));
                     Log.w("DEBUG", "isFemale=" + prefs.getBoolean("isFemale", false));
                     userName.setEnabled(false);
-                    isFemaleCheckBox.setEnabled(false);
+                    isMaleRadioButton.setEnabled(false);
+                    isFemaleRadioButton.setEnabled(false);
                     isEdited = false;
                     userNameButton.setText("수정");
                 }
@@ -190,12 +200,16 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         probeEntries.add(new ProbeEntry(BrowserSearchesProbe.class));
         probeEntries.add(new ProbeEntry(VideoMediaProbe.class));
         probeEntries.add(new ProbeEntry(AudioMediaProbe.class));
+        // The list of labels available
+        labelEntries = new ArrayList<LabelEntry>();
+        labelEntries.add(new LabelEntry("Sleeping"));
+        labelEntries.add(new LabelEntry("In class"));
 
         Log.w("DEBUG", "probeEntries has number of elements : " + probeEntries.size());
 
-        mAdapter = new BaseAdapterEx(this, probeEntries);
+        mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
-        mListView = (ListView)findViewById(R.id.list_view);
+        mListView = (ListView)findViewById(R.id.label_list_view);
         mListView.setAdapter(mAdapter);
 
         // Displays the count of rows in the data
@@ -256,23 +270,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         });
 
 
-        // ListView item long click listener: register probe
-        mListView.setOnItemLongClickListener(new OnItemLongClickListener() {
-          @Override
-          public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            Log.w("DEBUG", "onItemLongClick()");
-            if (pipeline.isEnabled()) {
-              mAdapter.getItem(position).getProbe().registerListener(pipeline);
-              Toast.makeText(getBaseContext(), "Register listener.",
-                      Toast.LENGTH_SHORT).show();
-            } else {
-              Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
-                      Toast.LENGTH_SHORT).show();
-            }
-            return true;
-          }
-        });
-
         // Bind to the service, to create the connection with FunfManager
         bindService(new Intent(this, FunfManager.class), funfManagerConn,
                 BIND_AUTO_CREATE);
@@ -299,8 +296,8 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     public void onResume() {
       super.onResume();
 
-      mAdapter = new BaseAdapterEx(this, probeEntries);
-      mListView = (ListView)findViewById(R.id.list_view);
+      mAdapter = new BaseAdapterExLabel(this, labelEntries);
+      mListView = (ListView)findViewById(R.id.label_list_view);
       mListView.setAdapter(mAdapter);
       mAdapter.notifyDataSetChanged();
     }

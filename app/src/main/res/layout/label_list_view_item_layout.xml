@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:padding="10dp"
+                android:gravity="left|center" >
+
+<LinearLayout
+    android:id="@+id/label_info"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+  <TextView android:id="@+id/logLabelTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp" />
+  <!--android:onClick="onClickProbeRegister" /> -->
+
+  <TextView android:id="@+id/scheduleTextView"
+            android:tag="LABEL_SCHEDULE"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="14sp" />
+  <!--android:onClick="onClickProbeReschedule"-->
+
+</LinearLayout>
+
+<Button android:id="@+id/endLogButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_alignBottom="@id/label_info"
+        android:layout_alignTop="@id/label_info"
+        android:layout_alignParentRight="true"
+        android:text="End"
+        android:textSize="14sp" />
+
+<Button android:id="@+id/startLogButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/label_info"
+        android:layout_alignTop="@id/label_info"
+        android:layout_toLeftOf="@id/endLogButton"
+        android:text="Start"
+        android:textSize="14sp" />
+
+</RelativeLayout>
