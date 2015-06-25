@@ -94,12 +94,10 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             Gson gson = funfManager.getGson();
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
-            /*
-            for (int i = 0; i < mAdapter.getCount(); i++) {
-              ProbeEntry probeEntry = mAdapter.getItem(i);
+            for (int i = 0; i < probeEntries.size(); i++) {
+              ProbeEntry probeEntry = probeEntries.get(i);
               probeEntry.setProbe(gson);
             }
-            */
 
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setChecked(pipeline.isEnabled());
@@ -115,14 +113,13 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                           for (int i = 0; i < probeEntries.size(); i++) {
                             ProbeEntry probeEntry = probeEntries.get(i);
                             Probe.Base probe = probeEntry.getProbe();
-                            // if (probeEntry.isEnabled()) {
+                            if (probeEntry.isEnabled()) {
                               funfManager.requestData(pipeline,
                                       probe.getConfig().get("@type"), null);
                               probe.registerPassiveListener(LaunchActivity.this);
-                            // } else {
-                              // probe.unregisterPassiveListener(LaunchActivity
-                                    // .this);
-                            // }
+                            } else {
+                              probe.unregisterPassiveListener(LaunchActivity.this);
+                            }
                           }
                         } else {
                           /*
@@ -195,7 +192,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     isMaleRadioButton.setEnabled(false);
                     isFemaleRadioButton.setEnabled(false);
                     isEdited = false;
-                    userNameButton.setText("수정");
+                    userNameButton.setText("Modify");
                 }
             }
         });

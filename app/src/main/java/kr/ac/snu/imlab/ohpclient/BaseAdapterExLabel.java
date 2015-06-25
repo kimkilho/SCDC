@@ -53,7 +53,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
   @Override
   public View getView(final int position, View convertView, ViewGroup parent) {
     View itemLayout = convertView;
-    ViewHolder viewHolder = null;
+    final ViewHolder viewHolder;
 
     if (itemLayout == null) {
       itemLayout = mLayoutInflater.inflate(R.layout.label_list_view_item_layout, null);
@@ -88,6 +88,23 @@ public class BaseAdapterExLabel extends BaseAdapter {
     //        .findViewById(R.id.enabledToggleButton);
     // If enabledToggleButton is enabled, disable enabledCheckBox
     viewHolder.scheduleTextView.setText(R.string.probe_disabled);
+
+    viewHolder.startLogButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // TODO: Implement label logging
+            // FIXME:
+            viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for 3 minutes");
+        }
+    });
+
+    viewHolder.endLogButton.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            // TODO:
+            viewHolder.scheduleTextView.setText("Disabled");
+        }
+    });
 
     itemLayout.setClickable(true);
     return itemLayout;
