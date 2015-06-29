@@ -99,6 +99,11 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
               probeEntry.setProbe(gson);
             }
 
+            for (int i = 0; i < labelEntries.size(); i++) {
+              LabelEntry labelEntry = labelEntries.get(i);
+              labelEntry.setProbe(gson);
+            }
+
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setChecked(pipeline.isEnabled());
             enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -120,6 +125,20 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             } else {
                               probe.unregisterPassiveListener(LaunchActivity.this);
                             }
+                          }
+
+                          for (int i = 0; i < labelEntries.size(); i++) {
+                            LabelEntry labelEntry = labelEntries.get(i);
+                            Probe.Base labelProbe = labelEntry.getProbe();
+                            if (labelEntry.isEnabled()) {
+                              funfManager.requestData(pipeline,
+                                      labelProbe.getConfig().get("@type"), null);
+                              Log.w("DEBUG", "LaunchActivity/ @type=" + labelProbe.getConfig().get("@type"));
+                              labelProbe.registerPassiveListener(LaunchActivity.this);
+                            } else {
+                              labelProbe.unregisterPassiveListener(LaunchActivity.this);
+                            }
+                            // labelProbe.getData
                           }
                         } else {
                           /*
@@ -200,6 +219,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
         // The list of probes available
         probeEntries = new ArrayList<ProbeEntry>();
+        /*
         probeEntries.add(new ProbeEntry(ContactProbe.class));
         probeEntries.add(new ProbeEntry(SmsProbe.class));
         probeEntries.add(new ProbeEntry(BrowserBookmarksProbe.class));
@@ -209,12 +229,16 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         for (int i = 0; i < probeEntries.size(); i++) {
           probeEntries.get(i).setEnabled(true);
         }
+        */
         // The list of labels available
         labelEntries = new ArrayList<LabelEntry>();
-        labelEntries.add(new LabelEntry("Sleeping"));
-        labelEntries.add(new LabelEntry("In class"));
+        labelEntries.add(new LabelEntry("Sleeping", LabelProbe.class));
+        labelEntries.add(new LabelEntry("In class", LabelProbe.class));
+        for (int i = 0; i < labelEntries.size(); i++) {
+          labelEntries.get(i).setEnabled(true);
+        }
 
-        Log.w("DEBUG", "probeEntries has number of elements : " + probeEntries.size());
+        Log.w("DEBUG", "labelEntries has number of elements : " + labelEntries.size());
 
         mAdapter = new BaseAdapterExLabel(this, labelEntries);
 

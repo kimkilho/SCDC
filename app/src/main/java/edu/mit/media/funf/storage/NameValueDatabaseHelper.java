@@ -86,8 +86,11 @@ public class NameValueDatabaseHelper extends SQLiteOpenHelper {
 		// Nothing yet
 	}
 
-  // ADDED: Kilho Kim
-  // Drop and re-Create 'data' table.
+  /**
+   * @author Kilho Kim
+   * Drop and re-Create 'data' table.
+   * @param db
+   */
   public void dropAndCreateDataTable(SQLiteDatabase db) {
     db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE.name + ";");
     db.execSQL(DATA_TABLE.getCreateTableSQL());

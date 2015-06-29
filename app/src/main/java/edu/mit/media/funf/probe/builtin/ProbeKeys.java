@@ -456,4 +456,13 @@ public class ProbeKeys {
 	        public static final String META_DATA = "meta_data";
 	    }
 	}
+
+  public static interface LabelKeys {
+      public static final String
+          ACTION_LABEL_LOG = "kr.ac.snu.imlab.ohpclient.Broadcasting.action" +
+              ".LABEL_LOG",
+          LABEL_TYPE = "label_type",
+          IS_LABELLED = "is_labelled";
+  }
+
 }

@@ -1,6 +1,8 @@
 package kr.ac.snu.imlab.ohpclient;
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +10,13 @@ import android.view.View.OnLongClickListener;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.ToggleButton;
+
+import edu.mit.media.funf.probe.Probe;
+import edu.mit.media.funf.Schedule;
+import edu.mit.media.funf.FunfManager;
+import edu.mit.media.funf.pipeline.BasicPipeline;
+import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 
 import java.util.ArrayList;
 
@@ -16,6 +25,10 @@ public class BaseAdapterExLabel extends BaseAdapter {
   ArrayList<LabelEntry> mData = null;
   // ArrayList<Boolean> isEnableds = null;
   LayoutInflater mLayoutInflater = null;
+
+  private FunfManager funfManager = null;
+  private BasicPipeline pipeline = null;
+  public static final String PIPELINE_NAME = "ohpclient";
 
   public BaseAdapterExLabel(Context context, ArrayList<LabelEntry> data) {
     this.mContext = context;
@@ -83,9 +96,6 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.logLabelTextView.setText(mData.get(position).getName());
     // viewHolder.registerProbeTextView.setText(mData.get(position)
     //        .getProbeClass().getAnnotation(DisplayName.class).value());
-    // Load enabledToggleButton view from LaunchActivity context
-    // ToggleButton enabledToggleButton = (ToggleButton)((LaunchActivity)mContext)
-    //        .findViewById(R.id.enabledToggleButton);
     // If enabledToggleButton is enabled, disable enabledCheckBox
     viewHolder.scheduleTextView.setText(R.string.probe_disabled);
 
@@ -93,8 +103,16 @@ public class BaseAdapterExLabel extends BaseAdapter {
         @Override
         public void onClick(View v) {
             // TODO: Implement label logging
+            Intent intent = new Intent();
+            intent.setAction(LabelKeys.ACTION_LABEL_LOG);
+            intent.putExtra(LabelKeys.LABEL_TYPE, mData.get(position).getName
+                    ());
+            intent.putExtra(LabelKeys.IS_LABELLED, true);
+            // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, false));
+            mContext.sendBroadcast(intent);
+
             // FIXME:
-            viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for 3 minutes");
+            viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
         }
     });
 
@@ -102,7 +120,15 @@ public class BaseAdapterExLabel extends BaseAdapter {
         @Override
         public void onClick(View v) {
             // TODO:
-            viewHolder.scheduleTextView.setText("Disabled");
+            Intent intent = new Intent();
+            intent.setAction(LabelKeys.ACTION_LABEL_LOG);
+            intent.putExtra(LabelKeys.LABEL_TYPE, mData.get(position).getName
+                    ());
+            intent.putExtra(LabelKeys.IS_LABELLED, false);
+            // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, true));
+            mContext.sendBroadcast(intent);
+
+            viewHolder.scheduleTextView.setText(R.string.probe_disabled);
         }
     });
 

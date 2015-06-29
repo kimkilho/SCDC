@@ -3,13 +3,12 @@ package kr.ac.snu.imlab.ohpclient;
 /**
  * Created by kilho on 15. 6. 25.
  */
-public class LabelEntry {
+public class LabelEntry extends ProbeEntry {
   private String name;
-  private boolean isEnabled;
 
-  public LabelEntry(String name) {
+  public LabelEntry(String name, Class probeClass) {
+    super(probeClass);
     this.name = name;
-    this.isEnabled = false;
   }
 
   public String getName() {
@@ -17,14 +16,7 @@ public class LabelEntry {
   }
 
   public void setName(String name) {
+
     this.name = name;
-  }
-
-  public boolean isEnabled() {
-    return this.isEnabled;
-  }
-
-  public void setEnabled(boolean isEnabled) {
-    this.isEnabled = isEnabled;
   }
 }
