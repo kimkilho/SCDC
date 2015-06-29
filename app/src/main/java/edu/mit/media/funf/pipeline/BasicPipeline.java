@@ -111,6 +111,7 @@ public class BasicPipeline implements Pipeline, DataListener {
           break;
         case UPDATE:
           if (update != null) {
+            Log.w("DEBUG", "BasicPipeline/ Entered handleMessage: UPDATE");
             update.run(name, manager);
           }
           break;
@@ -212,8 +213,11 @@ public class BasicPipeline implements Pipeline, DataListener {
     } else if (ACTION_UPLOAD.equals(action)) {
       handler.obtainMessage(UPLOAD, config).sendToTarget();
     } else if (ACTION_UPDATE.equals(action)) {
+//      Log.e("DEBUG", "BasicPipeline/ handler=" + handler);
+//      Log.e("DEBUG", "BasicPipeline/ handler.obtainMessage(UPDATE, config)=" +
+//                     handler.obtainMessage(UPDATE, config));
       handler.obtainMessage(UPDATE, config).sendToTarget();
-    } 
+    }
   }
   
   /**

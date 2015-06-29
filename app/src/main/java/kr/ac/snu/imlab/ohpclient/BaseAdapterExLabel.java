@@ -26,9 +26,9 @@ public class BaseAdapterExLabel extends BaseAdapter {
   // ArrayList<Boolean> isEnableds = null;
   LayoutInflater mLayoutInflater = null;
 
-  private FunfManager funfManager = null;
-  private BasicPipeline pipeline = null;
-  public static final String PIPELINE_NAME = "ohpclient";
+//  private FunfManager funfManager = null;
+//  private BasicPipeline pipeline = null;
+//  public static final String PIPELINE_NAME = "ohpclient";
 
   public BaseAdapterExLabel(Context context, ArrayList<LabelEntry> data) {
     this.mContext = context;
@@ -96,39 +96,53 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.logLabelTextView.setText(mData.get(position).getName());
     // viewHolder.registerProbeTextView.setText(mData.get(position)
     //        .getProbeClass().getAnnotation(DisplayName.class).value());
-    // If enabledToggleButton is enabled, disable enabledCheckBox
+    // Load enabledToggleButton view from LaunchActivity context
+    ToggleButton enabledToggleButton = (ToggleButton)((LaunchActivity)mContext).findViewById(R.id.enabledToggleButton);
     viewHolder.scheduleTextView.setText(R.string.probe_disabled);
+    // If enabledToggleButton is enabled, enable startLogButton
+    viewHolder.startLogButton.setEnabled(enabledToggleButton.isChecked());
+    viewHolder.endLogButton.setEnabled(false);
 
     viewHolder.startLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO: Implement label logging
+            mData.get(position).setLogged(true);
+            // Start label logging
             Intent intent = new Intent();
             intent.setAction(LabelKeys.ACTION_LABEL_LOG);
-            intent.putExtra(LabelKeys.LABEL_TYPE, mData.get(position).getName
-                    ());
-            intent.putExtra(LabelKeys.IS_LABELLED, true);
+            for (int i = 0; i < mData.size(); i++) {
+              intent.putExtra(mData.get(i).getName(), mData.get(i).isLogged());
+            }
+//            intent.putExtra(LabelKeys.LABEL_TYPE, mData.get(position).getName());
+//            intent.putExtra(LabelKeys.IS_LABELLED, true);
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, false));
             mContext.sendBroadcast(intent);
 
             // FIXME:
             viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
+            v.setEnabled(false);
+            viewHolder.endLogButton.setEnabled(true);
         }
     });
 
     viewHolder.endLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            // TODO:
+            mData.get(position).setLogged(false);
+            // End label logging
             Intent intent = new Intent();
             intent.setAction(LabelKeys.ACTION_LABEL_LOG);
-            intent.putExtra(LabelKeys.LABEL_TYPE, mData.get(position).getName
-                    ());
-            intent.putExtra(LabelKeys.IS_LABELLED, false);
+            for (int i = 0; i < mData.size(); i++) {
+              intent.putExtra(mData.get(i).getName(), mData.get(i).isLogged());
+            }
+            // intent.putExtra(LabelKeys.LABEL_TYPE, mData.get(position).getName());
+            // intent.putExtra(LabelKeys.IS_LABELLED, false);
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, true));
             mContext.sendBroadcast(intent);
 
             viewHolder.scheduleTextView.setText(R.string.probe_disabled);
+            v.setEnabled(false);
+            viewHolder.startLogButton.setEnabled(true);
         }
     });
 

@@ -1,5 +1,5 @@
 /**
- * 
+ *
  * Funf: Open Sensing Framework
  * Copyright (C) 2010-2011 Nadav Aharony, Wei Pan, Alex Pentland.
  * Acknowledgments: Alan Gardner
@@ -83,6 +83,7 @@ import edu.mit.media.funf.probe.Probe.DataListener;
 import edu.mit.media.funf.probe.Probe.PassiveProbe;
 import edu.mit.media.funf.probe.Probe.State;
 import edu.mit.media.funf.probe.Probe.StateListener;
+import edu.mit.media.funf.probe.builtin.ProbeKeys;
 import edu.mit.media.funf.storage.DefaultArchive;
 import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.HttpArchive;
@@ -205,10 +206,14 @@ public class FunfManager extends Service {
 	  String pipelineConfig = null;
 	  Bundle metadata = getMetadata();
 	  if (prefs.contains(name)) {
+      Log.w("DEBUG", "FunfManager/ Get pipelineConfig from prefs");
 	    pipelineConfig = prefs.getString(name, null);
 	  } else if (metadata.containsKey(name)) {
+      Log.w("DEBUG", "FunfManager/ Get pipelineConfig from metadata");
 	    pipelineConfig = metadata.getString(name);
-	  } 
+	  }
+    Log.w("DEBUG", "FunfManager/ pipeline.name=" + name + ", pipelineConfig=" +
+            pipelineConfig);
 	  if (disabledPipelineNames.contains(name)) {
         // Disabled, so don't load any config
 	    Pipeline disabledPipeline = gson.fromJson(pipelineConfig, Pipeline.class);
@@ -233,21 +238,29 @@ public class FunfManager extends Service {
 	}
 	
 	public boolean save(String name, JsonObject config) {
+    Log.w("DEBUG", "FunfManager/ Entering save()");
 	  try {
         // Check if this is a valid pipeline before saving
-  	    Pipeline pipeline = getGson().fromJson(config, Pipeline.class);
+  	    // Pipeline pipeline = getGson().fromJson(config, Pipeline.class);
+        Log.w("DEBUG", "FunfManager/ About to return save()");
         return prefs.edit().putString(name, config.toString()).commit();
       } catch (Exception e) {
+        Log.w("DEBUG", "FunfManager/ Unable to save config");
+
+        // schedule = gson.fromJson(scheduleObject, Schedule.class);
         Log.e(LogUtil.TAG, "Unable to save config: " + config.toString());
         return false;
       }
 	}
 	
 	public boolean saveAndReload(String name, JsonObject config) {
+    Log.w("DEBUG", "FunfManager/ About to save the new config");
 	  boolean success = save(name, config);
 	  if (success) {
+        Log.w("DEBUG", "FunfManager/ About to run reload()");
         reload(name);
 	  }
+    Log.w("DEBUG", "FunfManager/ About to return saveAndReload()");
 	  return success;
 	}
 
@@ -538,8 +551,8 @@ public class FunfManager extends Service {
 	}
 	
 	private void requestData(DataListener listener, IJsonObject completeProbeConfig, Schedule schedule) {
-        Log.i("DEBUG", "completeProbeConfig=" + completeProbeConfig.toString());
-        Log.i("DEBUG", "schedule.getDuration()=" + schedule.getDuration() + ", schedule.getInterval()=" + schedule.getInterval());
+        // Log.i("DEBUG", "completeProbeConfig=" + completeProbeConfig.toString());
+        // Log.i("DEBUG", "schedule.getDuration()=" + schedule.getDuration() + ", schedule.getInterval()=" + schedule.getInterval());
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener cannot be null");
 		}

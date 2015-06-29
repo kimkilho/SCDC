@@ -58,14 +58,12 @@
               <RadioButton android:id="@+id/radio_female"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:text="Female"
-                   android:checked="true" />
+                   android:text="Female" />
 
               <RadioButton android:id="@+id/radio_male"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:text="Male"
-                   android:checked="false" />
+                   android:text="Male" />
 
 
           </RadioGroup>

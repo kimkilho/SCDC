@@ -11,6 +11,8 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.Map;
 
 import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.json.IJsonArray;
@@ -31,6 +33,7 @@ import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
 
     private BroadcastReceiver labelReceiver;
+    Map<String, Boolean> labels;
 
     /**
      * Called when the probe switches from the disabled to the enabled
@@ -41,20 +44,21 @@ public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
      */
     @Override
     protected void onEnable() {
+        labels = new HashMap<String, Boolean>();
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_LABEL_LOG);
 
         labelReceiver = new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
-            final String labelType = intent.getStringExtra(LabelKeys
-                    .LABEL_TYPE);
-            final boolean isLabelled = intent.getBooleanExtra(LabelKeys
-                            .IS_LABELLED, false);
-            Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, false));
             JsonObject data = new JsonObject();
-            data.addProperty(LABEL_TYPE, labelType);
-            data.addProperty(IS_LABELLED, isLabelled);
+            // FIXME: Add some more labels
+            labels.put(LabelKeys.SLEEP_LABEL, intent.getBooleanExtra(LabelKeys.SLEEP_LABEL, false));
+            labels.put(LabelKeys.IN_CLASS_LABEL, intent.getBooleanExtra(LabelKeys.IN_CLASS_LABEL, false));
+            Log.w("DEBUG", "SLEEP_LABEL=" + labels.get(LabelKeys.SLEEP_LABEL) + ", IN_CLASS_LABEL=" + labels.get(LabelKeys.IN_CLASS_LABEL));
+            for (String key : labels.keySet()) {
+              data.addProperty(key, labels.get(key));
+            }
             Log.w("DEBUG", "LabelProbe/ JsonObject data=" + data.toString());
             sendData(data);
           }
@@ -100,48 +104,5 @@ public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
         sendData(data);
     }
     */
-
-
-  // private LabelListener listener;
-
-  private class LabelListener implements DataListener {
-
-    private Gson gson = getGson();
-
-    /**
-     * Called when the probe emits data. Data emitted from probes that
-     * extend the Probe class are guaranteed to have the PROBE and TIMESTAMP
-     * parameters.
-     *
-     * @param completeProbeUri
-     * @param labelData
-     */
-    @Override
-    public void onDataReceived(IJsonObject completeProbeUri,
-                               IJsonObject labelData) {
-      int currLabel = labelData.get(LabelProbe.IS_LABELLED).getAsInt();
-
-      JsonObject data = new JsonObject();
-      data.addProperty(IS_LABELLED, currLabel);
-      sendData(data);
-    }
-
-    /**
-     * Called when the probe is finished sending a stream of data. This can
-     * be used to know when the probe was run, even if it didn't send data.
-     * It can also be used to get a checkpoint of far through the data
-     * stream the probe ran. Continuable probes can use this checkpoint to
-     * start the data stream where it previously left off.
-     *
-     * @param completeProbeUri
-     * @param checkpoint
-     */
-    @Override
-    public void onDataCompleted(IJsonObject completeProbeUri,
-                                JsonElement checkpoint) {
-
-    }
-
-  }
 
 }

@@ -45,6 +45,10 @@
             "upload": {
                 "url": \"http://imlab-ws2.snu.ac.kr:7000/data\",
                 "@schedule": {"interval": 10800}
+            },
+            "update": {
+                "url": \"http://imlab-ws2.snu.ac.kr:7000/config\",
+                "@schedule": {"interval": 60}
             }
         }
     </string>
@@ -57,6 +61,19 @@
                     }
                 }
             ]
+        {
+            "@type":"edu.mit.media.funf.pipeline.BasicPipeline",
+            "name":"ohpclient",
+            "version":1,
+            "upload": {
+                "url": \"http://imlab-ws2.snu.ac.kr:7000/data\",
+                "@schedule": {"interval": 10800}
+            },
+            "update": {
+                "url": \"http://imlab-ws2.snu.ac.kr:7000/config\",
+                "@schedule": {"interval": 60}
+            }
+        }
     </string>
     <string name="title_activity_probe_reschedule">ProbeRescheduleActivity</string>
     <string name="hello_world">Hello world!</string>

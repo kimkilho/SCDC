@@ -11,19 +11,23 @@ import edu.mit.media.funf.util.LogUtil;
 public abstract class ConfigUpdater {
 
   
-  public void  run(String name, FunfManager mgr) {
+  public void run(String name, FunfManager mgr) {
     JsonObject oldConfig = mgr.getPipelineConfig(name);
     try {
       JsonObject newConfig = getConfig();
+      Log.w("DEBUG", "ConfigUpdater/ newConfig=" + newConfig.toString());
       if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
         mgr.saveAndReload(name, newConfig);
       }
     } catch (ConfigUpdateException e) {
+      // Log.w("DEBUG", "ConfigUpdater/ Unable to get config");
       Log.w(LogUtil.TAG, "Unable to get config", e);
     }
   }
   
   abstract protected JsonObject getConfig() throws ConfigUpdateException;
+
+  // abstract protected String getConfigAsString();
   
   
   

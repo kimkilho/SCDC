@@ -34,6 +34,8 @@ import com.google.gson.JsonObject;
 
 import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule;
+import edu.mit.media.funf.config.ConfigUpdater.ConfigUpdateException;
+import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
 import edu.mit.media.funf.datasource.StartableDataSource;
 import edu.mit.media.funf.json.IJsonObject;
@@ -56,6 +58,7 @@ import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.List;
+import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 
 
 public class LaunchActivity extends ActionBarActivity implements DataListener {
@@ -104,6 +107,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
               labelEntry.setProbe(gson);
             }
 
+
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setChecked(pipeline.isEnabled());
             enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -113,6 +117,17 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                         if (isChecked) {
                             funfManager.enablePipeline(PIPELINE_NAME);
                             pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
+
+                          HttpConfigUpdater hcu = new HttpConfigUpdater();
+                          hcu.setUrl("http://imlab-ws2.snu.ac.kr:7000/config");
+                          pipeline.setUpdate(hcu);
+                          handler.postAtFrontOfQueue(new Runnable() {
+                            @Override
+                            public void run() {
+                              // Update probe schedules of pipeline
+                              pipeline.onRun(BasicPipeline.ACTION_UPDATE, null);
+                            }
+                          });
 
                           Log.w("DEBUG", "mAdapter.getCount()=" + mAdapter.getCount());
                           for (int i = 0; i < probeEntries.size(); i++) {
@@ -127,6 +142,15 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             }
                           }
 
+                          // TODO: DEBUG:
+                          for (int i = 0; i < probeEntries.size(); i++) {
+                            ProbeEntry probeEntry = probeEntries.get(i);
+                            Probe.Base probe = probeEntry.getProbe();
+                            Schedule probeSchedule =
+                                    funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
+                            Log.w("DEBUG", "LaunchActivity/ probe.getConfig()=" + probe.getConfig() + ", interval=" + probeSchedule.getInterval() + ", duration=" + probeSchedule.getDuration());
+                          }
+
                           for (int i = 0; i < labelEntries.size(); i++) {
                             LabelEntry labelEntry = labelEntries.get(i);
                             Probe.Base labelProbe = labelEntry.getProbe();
@@ -138,7 +162,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             } else {
                               labelProbe.unregisterPassiveListener(LaunchActivity.this);
                             }
-                            // labelProbe.getData
                           }
                         } else {
                           /*
@@ -153,7 +176,16 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                         }
                     }
                     // Dynamically refresh the ListView items by calling mAdapter.getView() again.
-                    // mAdapter.notifyDataSetChanged();
+                    mAdapter.notifyDataSetChanged();
+
+                    // Broadcast the initial label log
+                    Intent intent = new Intent();
+                    intent.setAction(LabelKeys.ACTION_LABEL_LOG);
+                    for (int i = 0; i < labelEntries.size(); i++) {
+                      LabelEntry labelEntry = labelEntries.get(i);
+                      intent.putExtra(labelEntry.getName(), labelEntry.isLogged());
+                    }
+                    LaunchActivity.this.sendBroadcast(intent);
                 }
             });
 
@@ -185,6 +217,8 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         userName.setText(prefs.getString("userName", DEFAULT_USERNAME));
         isMaleRadioButton = (RadioButton)findViewById(R.id.radio_male);
         isFemaleRadioButton = (RadioButton)findViewById(R.id.radio_female);
+        isMaleRadioButton.setChecked(!prefs.getBoolean("isFemale", false));
+        isFemaleRadioButton.setChecked(prefs.getBoolean("isFemale", false));
         userName.setEnabled(false);
         isMaleRadioButton.setEnabled(false);
         isFemaleRadioButton.setEnabled(false);
@@ -219,21 +253,30 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
         // The list of probes available
         probeEntries = new ArrayList<ProbeEntry>();
-        /*
-        probeEntries.add(new ProbeEntry(ContactProbe.class));
-        probeEntries.add(new ProbeEntry(SmsProbe.class));
-        probeEntries.add(new ProbeEntry(BrowserBookmarksProbe.class));
-        probeEntries.add(new ProbeEntry(BrowserSearchesProbe.class));
-        probeEntries.add(new ProbeEntry(VideoMediaProbe.class));
-        probeEntries.add(new ProbeEntry(AudioMediaProbe.class));
+          // Device Probes
+          probeEntries.add(new ProbeEntry(BatteryProbe.class));
+          // Environment Probes
+          probeEntries.add(new ProbeEntry(LightSensorProbe.class));
+          probeEntries.add(new ProbeEntry(MagneticFieldSensorProbe.class));
+          probeEntries.add(new ProbeEntry(AudioFeaturesProbe.class));
+          // Motion Probes
+          probeEntries.add(new ProbeEntry(AccelerometerSensorProbe.class));
+          probeEntries.add(new ProbeEntry(GyroscopeSensorProbe.class));
+          probeEntries.add(new ProbeEntry(OrientationSensorProbe.class));
+          // Positioning Probes
+          probeEntries.add(new ProbeEntry(SimpleLocationProbe.class));
+          probeEntries.add(new ProbeEntry(BluetoothProbe.class));
+          // Device Interaction
+          probeEntries.add(new ProbeEntry(RunningApplicationsProbe.class));
+          probeEntries.add(new ProbeEntry(ScreenProbe.class));
         for (int i = 0; i < probeEntries.size(); i++) {
           probeEntries.get(i).setEnabled(true);
         }
-        */
+
         // The list of labels available
         labelEntries = new ArrayList<LabelEntry>();
-        labelEntries.add(new LabelEntry("Sleeping", LabelProbe.class));
-        labelEntries.add(new LabelEntry("In class", LabelProbe.class));
+        labelEntries.add(new LabelEntry(LabelKeys.SLEEP_LABEL, LabelProbe.class));
+        labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL, LabelProbe.class));
         for (int i = 0; i < labelEntries.size(); i++) {
           labelEntries.get(i).setEnabled(true);
         }
@@ -299,6 +342,15 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
           @Override
           public void onClick(View v) {
             dropAndCreateTable();
+
+            // Broadcast the initial label log again
+            Intent intent = new Intent();
+            intent.setAction(LabelKeys.ACTION_LABEL_LOG);
+            for (int i = 0; i < labelEntries.size(); i++) {
+              LabelEntry labelEntry = labelEntries.get(i);
+              intent.putExtra(labelEntry.getName(), labelEntry.isLogged());
+            }
+            LaunchActivity.this.sendBroadcast(intent);
           }
         });
 
@@ -373,6 +425,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     // private static final String CREATE_TABLE_SQL = "" + NameValueDatabaseHelper.DATA_TABLE.name;
 
     /**
+     * @author Kilho Kim
      * Truncate table of the database of the pipeline.
      */
     private void dropAndCreateTable() {
@@ -383,8 +436,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
       Toast.makeText(getBaseContext(), "Dropped and re-created data table.",
               Toast.LENGTH_LONG).show();
     }
-
-
 
     @Override
     public void onDataReceived(IJsonObject probeConfig, IJsonObject data) {
