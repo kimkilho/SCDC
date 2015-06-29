@@ -121,7 +121,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                           HttpConfigUpdater hcu = new HttpConfigUpdater();
                           hcu.setUrl("http://imlab-ws2.snu.ac.kr:7000/config");
                           pipeline.setUpdate(hcu);
-                          handler.postAtFrontOfQueue(new Runnable() {
+                          handler.post(new Runnable() {
                             @Override
                             public void run() {
                               // Update probe schedules of pipeline
@@ -129,7 +129,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                             }
                           });
 
-                          Log.w("DEBUG", "mAdapter.getCount()=" + mAdapter.getCount());
+                          // Log.w("DEBUG", "mAdapter.getCount()=" + mAdapter.getCount());
                           for (int i = 0; i < probeEntries.size(); i++) {
                             ProbeEntry probeEntry = probeEntries.get(i);
                             Probe.Base probe = probeEntry.getProbe();

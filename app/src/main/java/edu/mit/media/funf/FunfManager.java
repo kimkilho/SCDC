@@ -241,7 +241,7 @@ public class FunfManager extends Service {
     Log.w("DEBUG", "FunfManager/ Entering save()");
 	  try {
         // Check if this is a valid pipeline before saving
-  	    // Pipeline pipeline = getGson().fromJson(config, Pipeline.class);
+  	    Pipeline pipeline = getGson().fromJson(config, Pipeline.class);
         Log.w("DEBUG", "FunfManager/ About to return save()");
         return prefs.edit().putString(name, config.toString()).commit();
       } catch (Exception e) {
