@@ -111,7 +111,7 @@ public class BasicPipeline implements Pipeline, DataListener {
           break;
         case UPDATE:
           if (update != null) {
-            Log.w("DEBUG", "BasicPipeline/ Entered handleMessage: UPDATE");
+//            Log.w("DEBUG", "BasicPipeline/ Entered handleMessage: UPDATE");
             update.run(name, manager);
           }
           break;
@@ -180,12 +180,13 @@ public class BasicPipeline implements Pipeline, DataListener {
     this.looper = thread.getLooper();
     this.handler = new Handler(looper, callback);
     enabled = true;
+    // manager.prefs
     for (JsonElement dataRequest : data) {
-      // Log.i("DEBUG", "dataRequest.toString=" + dataRequest.toString());
+//      Log.w("DEBUG", "BasicPipeline/ dataRequest.toString=" + dataRequest.toString());
       manager.requestData(this, dataRequest);
     }
     for (Map.Entry<String, Schedule> schedule : schedules.entrySet()) {
-      // Log.i("DEBUG", "schedule.getKey()=" + schedule.getKey() + ", schedule.getValue().toString()=" + schedule.getValue().toString());
+//      Log.w("DEBUG", "BasicPipeline/ schedule.getKey()=" + schedule.getKey() + ", schedule.getValue().toString()=" + schedule.getValue().toString());
       manager.registerPipelineAction(this, schedule.getKey(), schedule.getValue());
     }
   }

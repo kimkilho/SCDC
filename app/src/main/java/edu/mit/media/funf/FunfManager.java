@@ -74,6 +74,7 @@ import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.config.SingletonTypeAdapterFactory;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.json.JsonUtils;
+import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.pipeline.Pipeline;
 import edu.mit.media.funf.pipeline.PipelineFactory;
 import edu.mit.media.funf.probe.Probe;
@@ -212,16 +213,16 @@ public class FunfManager extends Service {
       Log.w("DEBUG", "FunfManager/ Get pipelineConfig from metadata");
 	    pipelineConfig = metadata.getString(name);
 	  }
-    Log.w("DEBUG", "FunfManager/ pipeline.name=" + name + ", pipelineConfig=" +
-            pipelineConfig);
+//    Log.w("DEBUG", "FunfManager/ pipeline.name=" + name + ", pipelineConfig=" +
+//            pipelineConfig);
 	  if (disabledPipelineNames.contains(name)) {
         // Disabled, so don't load any config
 	    Pipeline disabledPipeline = gson.fromJson(pipelineConfig, Pipeline.class);
 	    disabledPipelines.put(name, disabledPipeline);
 	    pipelineConfig = null;
-      }
+    }
 	  if (pipelineConfig == null) {
-        unregisterPipeline(name);
+      unregisterPipeline(name);
 	  } else {
 	    Pipeline newPipeline = gson.fromJson(pipelineConfig, Pipeline.class);
 	    registerPipeline(name, newPipeline); // Will unregister previous before running
@@ -238,14 +239,14 @@ public class FunfManager extends Service {
 	}
 	
 	public boolean save(String name, JsonObject config) {
-    Log.w("DEBUG", "FunfManager/ Entering save()");
+//    Log.w("DEBUG", "FunfManager/ Entering save()");
 	  try {
         // Check if this is a valid pipeline before saving
   	    Pipeline pipeline = getGson().fromJson(config, Pipeline.class);
-        Log.w("DEBUG", "FunfManager/ About to return save()");
+//        Log.w("DEBUG", "FunfManager/ About to return save()");
         return prefs.edit().putString(name, config.toString()).commit();
       } catch (Exception e) {
-        Log.w("DEBUG", "FunfManager/ Unable to save config");
+//        Log.w("DEBUG", "FunfManager/ Unable to save config");
 
         // schedule = gson.fromJson(scheduleObject, Schedule.class);
         Log.e(LogUtil.TAG, "Unable to save config: " + config.toString());
@@ -254,13 +255,13 @@ public class FunfManager extends Service {
 	}
 	
 	public boolean saveAndReload(String name, JsonObject config) {
-    Log.w("DEBUG", "FunfManager/ About to save the new config");
+//    Log.w("DEBUG", "FunfManager/ About to save the new config");
 	  boolean success = save(name, config);
 	  if (success) {
-        Log.w("DEBUG", "FunfManager/ About to run reload()");
+//        Log.w("DEBUG", "FunfManager/ About to run reload()");
         reload(name);
 	  }
-    Log.w("DEBUG", "FunfManager/ About to return saveAndReload()");
+//    Log.w("DEBUG", "FunfManager/ About to return saveAndReload()");
 	  return success;
 	}
 
@@ -485,6 +486,9 @@ public class FunfManager extends Service {
 		  Log.d(LogUtil.TAG, "Registering pipeline: " + name);
 			unregisterPipeline(name);
 			pipelines.put(name, pipeline);
+//      Log.w("DEBUG", "FunfManager/ Registering pipeline.name=" + name + ", " +
+//              "pipeline.config=" + ((BasicPipeline)pipeline).getDataRequests
+//              ().toString());
 			pipeline.onCreate(this);
 		}
 	}

@@ -31,9 +31,10 @@ import android.widget.AdapterView.OnItemLongClickListener;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import edu.mit.media.funf.FunfManager;
-import edu.mit.media.funf.Schedule;
+import edu.mit.media.funf.Schedule.BasicSchedule;
 import edu.mit.media.funf.config.ConfigUpdater.ConfigUpdateException;
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
@@ -56,8 +57,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 
 
@@ -98,15 +103,12 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
             for (int i = 0; i < probeEntries.size(); i++) {
-              ProbeEntry probeEntry = probeEntries.get(i);
-              probeEntry.setProbe(gson);
+              probeEntries.get(i).setProbe(gson);
             }
 
             for (int i = 0; i < labelEntries.size(); i++) {
-              LabelEntry labelEntry = labelEntries.get(i);
-              labelEntry.setProbe(gson);
+              labelEntries.get(i).setProbe(gson);
             }
-
 
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setChecked(pipeline.isEnabled());
@@ -116,53 +118,94 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                     if (funfManager != null) {
                         if (isChecked) {
                             funfManager.enablePipeline(PIPELINE_NAME);
-                            pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
+                            pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
-                          HttpConfigUpdater hcu = new HttpConfigUpdater();
-                          hcu.setUrl("http://imlab-ws2.snu.ac.kr:7000/config");
-                          pipeline.setUpdate(hcu);
-                          handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                              // Update probe schedules of pipeline
-                              pipeline.onRun(BasicPipeline.ACTION_UPDATE, null);
+                            Log.w("DEBUG", "LaunchActivity/ pipeline.getDataRequests()="
+                                    + pipeline.getDataRequests().toString());
+
+                            // Assigning new schedules to existing probes in
+                            // each probeEntries
+                            Map<String, BasicSchedule> newSchedules =
+                                    new HashMap<String, BasicSchedule>();
+                            List<JsonElement> newDataRequests = pipeline.getDataRequests();
+                            for (int i = 0; i < newDataRequests.size(); i++) {
+                              JsonObject currDataRequests = newDataRequests.get(i).getAsJsonObject();
+                              String currType = currDataRequests.get("@type").getAsString();
+                              JsonObject currSchedule = currDataRequests.get("@schedule").getAsJsonObject();
+                              BasicSchedule newSchedule = new BasicSchedule();
+                              if (currSchedule.get("interval") != null) {
+                                newSchedule.setInterval(new BigDecimal
+                                (currSchedule.get("interval").getAsString()));
+                              }
+                              if (currSchedule.get("duration") != null) {
+                                newSchedule.setDuration(new BigDecimal
+                                (currSchedule.get("duration").getAsString()));
+                              }
+                              if (currSchedule.get("opportunistic") != null) {
+                                newSchedule.setOpportunistic(
+                                currSchedule.get("opportunistic").getAsBoolean());
+                              }
+                              if (currSchedule.get("strict") != null) {
+                                newSchedule.setStrict(
+                                currSchedule.get("strict").getAsBoolean());
+                              }
+                              newSchedules.put(currType, newSchedule);
                             }
-                          });
+                            for (int i = 0; i < probeEntries.size(); i++) {
+                              ProbeEntry probeEntry = probeEntries.get(i);
+                              probeEntry.setSchedule(
+                                  newSchedules.get(probeEntry.getProbeClass()
+                                          .getName()));
+                            }
 
-                          // Log.w("DEBUG", "mAdapter.getCount()=" + mAdapter.getCount());
+                            // Request data from pipeline to normal probes
+                            for (int i = 0; i < probeEntries.size(); i++) {
+                              ProbeEntry probeEntry = probeEntries.get(i);
+                              Probe.Base probe = probeEntry.getProbe();
+                              if (probeEntry.isEnabled()) {
+                                funfManager.requestData(pipeline,
+                                        probe.getConfig().get("@type"),
+                                        probeEntry.getSchedule());
+                                probe.registerPassiveListener(LaunchActivity.this);
+                              } else {
+                                probe.unregisterPassiveListener(LaunchActivity.this);
+                              }
+                            }
+
+                            // Request data from pipeline to label probe
+                            for (int i = 0; i < labelEntries.size(); i++) {
+                              LabelEntry labelEntry = labelEntries.get(i);
+                              Probe.Base labelProbe = labelEntry.getProbe();
+                              if (labelEntry.isEnabled()) {
+                                funfManager.requestData(pipeline,
+                                        labelProbe.getConfig().get("@type"),
+                                        labelEntry.getSchedule());
+                                // Log.w("DEBUG", "LaunchActivity/ @type=" + labelProbe.getConfig().get("@type"));
+                                labelProbe.registerPassiveListener(LaunchActivity.this);
+                              } else {
+                                labelProbe.unregisterPassiveListener(LaunchActivity.this);
+                              }
+                            }
+
+
+
                           for (int i = 0; i < probeEntries.size(); i++) {
                             ProbeEntry probeEntry = probeEntries.get(i);
                             Probe.Base probe = probeEntry.getProbe();
-                            if (probeEntry.isEnabled()) {
-                              funfManager.requestData(pipeline,
-                                      probe.getConfig().get("@type"), null);
-                              probe.registerPassiveListener(LaunchActivity.this);
-                            } else {
-                              probe.unregisterPassiveListener(LaunchActivity.this);
-                            }
+
+                            Log.w("DEBUG", "LaunchActivity/ probe.getConfig()" +
+                                    "=" + probe.getConfig() + ", " +
+                                    "interval=" + probeEntry
+                                    .getSchedule().getInterval() + ", " +
+                                    "duration=" + probeEntry.getSchedule()
+                                    .getDuration());
+                            // Log.w("DEBUG", "LaunchActivity/ probe.getConfig()=" + probe.getConfig() + ", interval=" + probeSchedule.getInterval() + ", duration=" + probeSchedule.getDuration());
                           }
 
-                          // TODO: DEBUG:
-                          for (int i = 0; i < probeEntries.size(); i++) {
-                            ProbeEntry probeEntry = probeEntries.get(i);
-                            Probe.Base probe = probeEntry.getProbe();
-                            Schedule probeSchedule =
-                                    funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
-                            Log.w("DEBUG", "LaunchActivity/ probe.getConfig()=" + probe.getConfig() + ", interval=" + probeSchedule.getInterval() + ", duration=" + probeSchedule.getDuration());
-                          }
 
-                          for (int i = 0; i < labelEntries.size(); i++) {
-                            LabelEntry labelEntry = labelEntries.get(i);
-                            Probe.Base labelProbe = labelEntry.getProbe();
-                            if (labelEntry.isEnabled()) {
-                              funfManager.requestData(pipeline,
-                                      labelProbe.getConfig().get("@type"), null);
-                              Log.w("DEBUG", "LaunchActivity/ @type=" + labelProbe.getConfig().get("@type"));
-                              labelProbe.registerPassiveListener(LaunchActivity.this);
-                            } else {
-                              labelProbe.unregisterPassiveListener(LaunchActivity.this);
-                            }
-                          }
+                          archiveButton.setEnabled(true);
+                          updateDataCountButton.setEnabled(true);
+                          truncateDataButton.setEnabled(false);
                         } else {
                           /*
                           for (int i = 0; i < probeEntries.size(); i++) {
@@ -173,6 +216,9 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                           }
                           */
                           funfManager.disablePipeline(PIPELINE_NAME);
+                          archiveButton.setEnabled(false);
+                          updateDataCountButton.setEnabled(false);
+                          truncateDataButton.setEnabled(true);
                         }
                     }
                     // Dynamically refresh the ListView items by calling mAdapter.getView() again.
@@ -191,9 +237,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
             // Set UI ready to use, by enabling buttons
             enabledToggleButton.setEnabled(true);
-            archiveButton.setEnabled(true);
-            updateDataCountButton.setEnabled(true);
-            truncateDataButton.setEnabled(true);
         }
 
         @Override
@@ -342,6 +385,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
           @Override
           public void onClick(View v) {
             dropAndCreateTable();
+            dataCountView.setText("Data Count: 0");
 
             // Broadcast the initial label log again
             Intent intent = new Intent();
@@ -351,6 +395,18 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
               intent.putExtra(labelEntry.getName(), labelEntry.isLogged());
             }
             LaunchActivity.this.sendBroadcast(intent);
+
+            // Update probe schedules of pipeline
+            HttpConfigUpdater hcu = new HttpConfigUpdater();
+            hcu.setUrl("http://imlab-ws2.snu.ac.kr:7000/config");
+            pipeline.setUpdate(hcu);
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                pipeline.onRun(BasicPipeline.ACTION_UPDATE, null);
+              }
+            });
+
           }
         });
 
