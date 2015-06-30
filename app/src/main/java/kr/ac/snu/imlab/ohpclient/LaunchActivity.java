@@ -2,8 +2,6 @@ package kr.ac.snu.imlab.ohpclient;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Color;
 import android.support.v7.app.ActionBarActivity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -12,42 +10,25 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemLongClickListener;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 
 import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule.BasicSchedule;
-import edu.mit.media.funf.config.ConfigUpdater.ConfigUpdateException;
 import edu.mit.media.funf.config.HttpConfigUpdater;
-import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
-import edu.mit.media.funf.datasource.StartableDataSource;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
-import edu.mit.media.funf.probe.Probe;
-import edu.mit.media.funf.probe.Probe.DataListener;
 import edu.mit.media.funf.probe.builtin.*;
 import edu.mit.media.funf.storage.NameValueDatabaseHelper;
-import edu.mit.media.funf.probe.Probe.DisplayName;
-import edu.mit.media.funf.util.LogUtil;
-import edu.mit.media.funf.util.StringUtil;
 
 import android.os.IBinder;
 import android.widget.EditText;
@@ -67,7 +48,7 @@ import java.util.Map;
 import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 
 
-public class LaunchActivity extends ActionBarActivity implements DataListener {
+public class LaunchActivity extends ActionBarActivity {
   public static final String PIPELINE_NAME = "ohpclient";
   public static final String OHPCLIENT_PREFS = "kr.ac.snu.imlab.ohpclient";
   public static final String DEFAULT_USERNAME = "imlab_user";
@@ -81,7 +62,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
   private Button userNameButton = null;
   private RadioButton isMaleRadioButton = null;
   private RadioButton isFemaleRadioButton = null;
-  // private CheckBox isFemaleCheckBox = null;
   boolean isEdited = false;
 
   // Probe list View
@@ -96,20 +76,12 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
   private Button archiveButton, updateDataCountButton, truncateDataButton;
   private TextView dataCountView;
+
   private ServiceConnection funfManagerConn = new ServiceConnection() {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
       funfManager = ((FunfManager.LocalBinder)service).getManager();
-      Gson gson = funfManager.getGson();
       pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
-
-      for (int i = 0; i < probeEntries.size(); i++) {
-        probeEntries.get(i).setProbe(gson);
-      }
-
-      for (int i = 0; i < labelEntries.size(); i++) {
-        labelEntries.get(i).setProbe(gson);
-      }
 
       // This checkbox enables or disables the pipeline
       enabledToggleButton.setChecked(pipeline.isEnabled());
@@ -121,98 +93,44 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
               funfManager.enablePipeline(PIPELINE_NAME);
               pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
-//              Log.w("DEBUG", "LaunchActivity/ pipeline.getDataRequests()="
-//                      + pipeline.getDataRequests().toString());
-
-              // Assigning new schedules to existing probes in
-              // each probeEntries
-              Map<String, BasicSchedule> newSchedules =
-                      new HashMap<String, BasicSchedule>();
-              List<JsonElement> newDataRequests = pipeline.getDataRequests();
-              for (int i = 0; i < newDataRequests.size(); i++) {
-                JsonObject currDataRequests = newDataRequests.get(i).getAsJsonObject();
-                String currType = currDataRequests.get("@type").getAsString();
-                JsonObject currSchedule = currDataRequests.get("@schedule").getAsJsonObject();
-                BasicSchedule newSchedule = new BasicSchedule();
-                if (currSchedule.get("interval") != null) {
-                  newSchedule.setInterval(new BigDecimal
-                  (currSchedule.get("interval").getAsString()));
-                }
-                if (currSchedule.get("duration") != null) {
-                  newSchedule.setDuration(new BigDecimal
-                  (currSchedule.get("duration").getAsString()));
-                }
-                if (currSchedule.get("opportunistic") != null) {
-                  newSchedule.setOpportunistic(
-                  currSchedule.get("opportunistic").getAsBoolean());
-                }
-                if (currSchedule.get("strict") != null) {
-                  newSchedule.setStrict(
-                  currSchedule.get("strict").getAsBoolean());
-                }
-                newSchedules.put(currType, newSchedule);
-              }
+              // Assigning new schedules to existing probes in each probeEntries
+              Map<JsonElement, BasicSchedule> newSchedules =
+                buildScheduleMap(pipeline);
               for (int i = 0; i < probeEntries.size(); i++) {
                 ProbeEntry probeEntry = probeEntries.get(i);
                 probeEntry.setSchedule(
-                    newSchedules.get(probeEntry.getProbeClass()
-                            .getName()));
+                  newSchedules.get(probeEntry.getProbeConfig())
+                );
               }
 
-              // Request data from pipeline to normal probes
+              // Request data from pipeline(data listener) to normal probes
               for (int i = 0; i < probeEntries.size(); i++) {
                 ProbeEntry probeEntry = probeEntries.get(i);
-                Probe.Base probe = probeEntry.getProbe();
                 if (probeEntry.isEnabled()) {
                   funfManager.requestData(pipeline,
-                          probe.getConfig().get("@type"),
-                          probeEntry.getSchedule());
-                  probe.registerPassiveListener(LaunchActivity.this);
+                    probeEntry.getProbeConfig(), probeEntry.getSchedule());
                 } else {
-                  probe.unregisterPassiveListener(LaunchActivity.this);
+                  funfManager.unrequestData(pipeline,
+                    probeEntry.getProbeConfig());
                 }
               }
 
-              // Request data from pipeline to label probe
+              // Request data from pipeline (data listener) to label probe
               for (int i = 0; i < labelEntries.size(); i++) {
                 LabelEntry labelEntry = labelEntries.get(i);
-                Probe.Base labelProbe = labelEntry.getProbe();
                 if (labelEntry.isEnabled()) {
                   funfManager.requestData(pipeline,
-                          labelProbe.getConfig().get("@type"),
-                          labelEntry.getSchedule());
-                  // Log.w("DEBUG", "LaunchActivity/ @type=" + labelProbe.getConfig().get("@type"));
-                  labelProbe.registerPassiveListener(LaunchActivity.this);
+                    labelEntry.getProbeConfig(), labelEntry.getSchedule());
                 } else {
-                  labelProbe.unregisterPassiveListener(LaunchActivity.this);
+                  funfManager.unrequestData(pipeline,
+                    labelEntry.getProbeConfig());
                 }
-              }
-
-              for (int i = 0; i < probeEntries.size(); i++) {
-                ProbeEntry probeEntry = probeEntries.get(i);
-                Probe.Base probe = probeEntry.getProbe();
-
-//                Log.w("DEBUG", "LaunchActivity/ probe.getConfig()" +
-//                        "=" + probe.getConfig() + ", " +
-//                        "interval=" + probeEntry
-//                        .getSchedule().getInterval() + ", " +
-//                        "duration=" + probeEntry.getSchedule()
-//                        .getDuration());
-                // Log.w("DEBUG", "LaunchActivity/ probe.getConfig()=" + probe.getConfig() + ", interval=" + probeSchedule.getInterval() + ", duration=" + probeSchedule.getDuration());
               }
 
               archiveButton.setEnabled(true);
               updateDataCountButton.setEnabled(true);
               truncateDataButton.setEnabled(false);
             } else {
-              /*
-              for (int i = 0; i < probeEntries.size(); i++) {
-                ProbeEntry probeEntry = probeEntries.get(i);
-                Probe.Base probe = probeEntry.getProbe();
-                probe.unregisterPassiveListener(LaunchActivity
-                        .this);
-              }
-              */
               funfManager.disablePipeline(PIPELINE_NAME);
               archiveButton.setEnabled(false);
               updateDataCountButton.setEnabled(false);
@@ -240,7 +158,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        funfManager = null;
+      funfManager = null;
     }
   };
 
@@ -292,38 +210,31 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
         }
     });
 
-
     // The list of probes available
     probeEntries = new ArrayList<ProbeEntry>();
       // Device Probes
-      probeEntries.add(new ProbeEntry(BatteryProbe.class));
+      probeEntries.add(new ProbeEntry(BatteryProbe.class, null, true));
       // Environment Probes
-      probeEntries.add(new ProbeEntry(LightSensorProbe.class));
-      probeEntries.add(new ProbeEntry(MagneticFieldSensorProbe.class));
-      probeEntries.add(new ProbeEntry(AudioFeaturesProbe.class));
+      probeEntries.add(new ProbeEntry(LightSensorProbe.class, null, true));
+      probeEntries.add(new ProbeEntry(MagneticFieldSensorProbe.class, null, true));
+      probeEntries.add(new ProbeEntry(AudioFeaturesProbe.class, null, true));
       // Motion Probes
-      probeEntries.add(new ProbeEntry(AccelerometerSensorProbe.class));
-      probeEntries.add(new ProbeEntry(GyroscopeSensorProbe.class));
-      probeEntries.add(new ProbeEntry(OrientationSensorProbe.class));
+      probeEntries.add(new ProbeEntry(AccelerometerSensorProbe.class, null, true));
+      probeEntries.add(new ProbeEntry(GyroscopeSensorProbe.class, null, true));
+      probeEntries.add(new ProbeEntry(OrientationSensorProbe.class, null, true));
       // Positioning Probes
-      probeEntries.add(new ProbeEntry(SimpleLocationProbe.class));
-      probeEntries.add(new ProbeEntry(BluetoothProbe.class));
+      probeEntries.add(new ProbeEntry(SimpleLocationProbe.class, null, true));
+      probeEntries.add(new ProbeEntry(BluetoothProbe.class, null, true));
       // Device Interaction
-      probeEntries.add(new ProbeEntry(RunningApplicationsProbe.class));
-      probeEntries.add(new ProbeEntry(ScreenProbe.class));
-    for (int i = 0; i < probeEntries.size(); i++) {
-      probeEntries.get(i).setEnabled(true);
-    }
+      probeEntries.add(new ProbeEntry(RunningApplicationsProbe.class, null, true));
+      probeEntries.add(new ProbeEntry(ScreenProbe.class, null, true));
 
     // The list of labels available
     labelEntries = new ArrayList<LabelEntry>();
-    labelEntries.add(new LabelEntry(LabelKeys.SLEEP_LABEL, LabelProbe.class));
-    labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL, LabelProbe.class));
-    for (int i = 0; i < labelEntries.size(); i++) {
-      labelEntries.get(i).setEnabled(true);
-    }
-
-    Log.w("DEBUG", "labelEntries has number of elements : " + labelEntries.size());
+      labelEntries.add(new LabelEntry(LabelKeys.SLEEP_LABEL,
+              LabelProbe.class, null, true));
+      labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL,
+              LabelProbe.class, null, true));
 
     mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
@@ -343,29 +254,29 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
     archiveButton = (Button)findViewById(R.id.archiveButton);
     archiveButton.setEnabled(false);
     archiveButton.setOnClickListener(new View.OnClickListener() {
-                                   @Override
-                                   public void onClick(View v) {
-            if (pipeline.isEnabled()) {
+      @Override
+      public void onClick(View v) {
+        if (pipeline.isEnabled()) {
 
-                // Wait 1 second for archive to finish, then refresh the UI
-                // (Note: this is kind of a hack since archiving is seamless
-                //         and there are no messages when it occurs)
-                handler.postDelayed(new Runnable() {
-                  @Override
-                  public void run() {
-                    pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
-                    pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-                    Toast.makeText(getBaseContext(), "Archived!",
-                        Toast.LENGTH_SHORT).show();
-                    updateScanCount();
-              }
-            }, 1000L);
-            } else {
-                Toast.makeText(getBaseContext(), "Pipeline is not enabled",
-                        Toast.LENGTH_SHORT).show();
+          // Wait 1 second for archive to finish, then refresh the UI
+          // (Note: this is kind of a hack since archiving is seamless
+          //         and there are no messages when it occurs)
+          handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
+              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
+              Toast.makeText(getBaseContext(), "Archived!",
+                  Toast.LENGTH_SHORT).show();
+              updateScanCount();
             }
-  }
-});
+          }, 1000L);
+        } else {
+          Toast.makeText(getBaseContext(), "Pipeline is not enabled",
+                          Toast.LENGTH_SHORT).show();
+        }
+      }
+    });
 
     // Update the data count
     updateDataCountButton = (Button)findViewById(R.id.updateDataCountButton);
@@ -416,7 +327,7 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
             BIND_AUTO_CREATE);
   }
 
-  // FIXME:
+  // DEPRECATED:
   public void onClickProbeReschedule(View v, IJsonObject probeConfig,
                                      boolean isEnabled) {
       if (!pipeline.isEnabled()) {
@@ -430,7 +341,6 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
                   "Pipeline should be disabled to reschedule the probe.",
                   Toast.LENGTH_LONG).show();
       }
-
   }
 
   @Override
@@ -464,22 +374,14 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
       final int count = mcursor.getInt(0);
       // Update interface on main thread
       runOnUiThread(new Runnable() {
-                  @Override
-                  public void run() {
-          dataCountView.setText("Data Count: " + count + "\n Size: " + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
-      }
-    });
-      /*
-    } else {
-      Toast.makeText(getBaseContext(), "Pipeline is not enabled.",
-              Toast.LENGTH_SHORT).show();
-              */
+        @Override
+        public void run() {
+          dataCountView.setText("Data Count: " + count + "\n Size: "
+                      + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
+        }
+      });
     }
   }
-  // Table truncation SQL statement
-  // FIXME: Change the query below to 'DROP' statement if needed
-  private static final String TRUNCATE_TABLE_SQL = "DELETE FROM " + NameValueDatabaseHelper.DATA_TABLE.name;
-  // private static final String CREATE_TABLE_SQL = "" + NameValueDatabaseHelper.DATA_TABLE.name;
 
   /**
    * @author Kilho Kim
@@ -487,58 +389,47 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
    */
   private void dropAndCreateTable() {
     SQLiteDatabase db = pipeline.getWritableDb();
-    NameValueDatabaseHelper databaseHelper = (NameValueDatabaseHelper)pipeline.getDatabaseHelper();
+    NameValueDatabaseHelper databaseHelper =
+      (NameValueDatabaseHelper)pipeline.getDatabaseHelper();
     databaseHelper.dropAndCreateDataTable(db);
     updateScanCount();
     Toast.makeText(getBaseContext(), "Dropped and re-created data table.",
-            Toast.LENGTH_LONG).show();
+                    Toast.LENGTH_LONG).show();
   }
 
-  @Override
-  public void onDataReceived(IJsonObject probeConfig, IJsonObject data) {
-      // Not doing anything with the data
-      // As an exercise, you could display this to the screen
-      // (Remember to make UI changes on the main thread)
-      // Toast.makeText(getBaseContext(), probeConfig.toString() + " | " + data.toString(),
-              // Toast.LENGTH_LONG).show();
-      // Log.w(LogUtil.TAG, "probeConfig: " + probeConfig + ", data: " + data);
-      updateScanCount();
-  }
-
-  @Override
-  public void onDataCompleted(IJsonObject probeConfig, JsonElement checkpoint) {
-    updateScanCount();
-    // Re-register to keep listening after probe completes.
-    for (ProbeEntry probeEntry : probeEntries) {
-      if (probeEntry.isEnabled())
-        probeEntry.getProbe().registerPassiveListener(LaunchActivity.this);
-    }
-    // Log.w(LogUtil.TAG, "wifiProbe: " + wifiProbe.getConfig() + ", " + wifiProbe.getState());
-  }
-
-  private static ArrayList<View> getViewsByTag(ViewGroup root, String tag){
-    ArrayList<View> views = new ArrayList<View>();
-    final int childCount = root.getChildCount();
-    for (int i = 0; i < childCount; i++) {
-      final View child = root.getChildAt(i);
-      if (child instanceof ViewGroup) {
-        views.addAll(getViewsByTag((ViewGroup) child, tag));
-      }
-
-      final Object tagObj = child.getTag();
-      if (tagObj != null && tagObj.equals(tag)) {
-        views.add(child);
-      }
-
-    }
-    return views;
-  }
-
-
-  // DEBUG:
   public FunfManager getActivityFunfManager() {
-                                                  return funfManager;
-                                                                           }
+    return funfManager;
+  }
+
+  private Map<JsonElement, BasicSchedule> buildScheduleMap(BasicPipeline pipeline) {
+    Map<JsonElement, BasicSchedule> newSchedules = new HashMap<>();
+    List<JsonElement> newDataRequests = pipeline.getDataRequests();
+    for (int i = 0; i < newDataRequests.size(); i++) {
+      JsonObject currDataRequests = newDataRequests.get(i).getAsJsonObject();
+      JsonElement currType = currDataRequests.get("@type");
+      JsonObject currSchedule = currDataRequests.get("@schedule").getAsJsonObject();
+      BasicSchedule newSchedule = new BasicSchedule();
+      if (currSchedule.get("interval") != null) {
+        newSchedule.setInterval(new BigDecimal
+                (currSchedule.get("interval").getAsString()));
+      }
+      if (currSchedule.get("duration") != null) {
+        newSchedule.setDuration(new BigDecimal
+                (currSchedule.get("duration").getAsString()));
+      }
+      if (currSchedule.get("opportunistic") != null) {
+        newSchedule.setOpportunistic(
+                currSchedule.get("opportunistic").getAsBoolean());
+      }
+      if (currSchedule.get("strict") != null) {
+        newSchedule.setStrict(
+                currSchedule.get("strict").getAsBoolean());
+      }
+      newSchedules.put(currType, newSchedule);
+    }
+
+    return newSchedules;
+  }
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -561,5 +452,4 @@ public class LaunchActivity extends ActionBarActivity implements DataListener {
 
       return super.onOptionsItemSelected(item);
   }
-
 }

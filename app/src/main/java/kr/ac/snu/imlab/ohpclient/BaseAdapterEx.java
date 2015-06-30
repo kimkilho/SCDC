@@ -18,10 +18,13 @@ import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ToggleButton;
 
+import com.google.gson.JsonParser;
+
 import java.util.ArrayList;
 
 import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule;
+import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
@@ -111,13 +114,17 @@ public class BaseAdapterEx extends BaseAdapter {
     viewHolder.scheduleTextView.setText(R.string.probe_disabled);
 
     // Dynamically refresh ListView items by the following code:
-    funfManager = ((LaunchActivity) mContext).getActivityFunfManager();
+    funfManager = ((LaunchActivity)mContext).getActivityFunfManager();
     if (funfManager != null) {
       if (enabledToggleButton.isChecked()) {
         pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
-        Probe.Base probe = mData.get(position).getProbe();
+        ProbeEntry probeEntry = mData.get(position);
         if (mData.get(position).isEnabled()) {
-          Schedule probeSchedule = funfManager.getDataRequestSchedule(probe.getConfig(), pipeline);
+          Schedule probeSchedule =
+            funfManager.getDataRequestSchedule(
+              new IJsonObject(new JsonParser().parse(("{\"@type\": " +
+                      "\"" + probeEntry.getProbeClass().getName() + "\"}"))
+                      .getAsJsonObject()), pipeline);
           viewHolder.scheduleTextView
                   .setText("Runs every "
                           + String.valueOf(probeSchedule.getInterval().longValue())

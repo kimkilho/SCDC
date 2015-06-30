@@ -54,6 +54,7 @@ import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
 import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
+import kr.ac.snu.imlab.ohpclient.LaunchActivity;
 
 public class BasicPipeline implements Pipeline, DataListener {
 
@@ -181,7 +182,6 @@ public class BasicPipeline implements Pipeline, DataListener {
     this.looper = thread.getLooper();
     this.handler = new Handler(looper, callback);
     enabled = true;
-    // manager.prefs
     for (JsonElement dataRequest : data) {
 //      Log.w("DEBUG", "BasicPipeline/ dataRequest.toString=" + dataRequest.toString());
       manager.requestData(this, dataRequest);

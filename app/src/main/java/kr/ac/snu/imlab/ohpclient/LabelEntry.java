@@ -1,5 +1,7 @@
 package kr.ac.snu.imlab.ohpclient;
 
+import edu.mit.media.funf.Schedule.BasicSchedule;
+
 /**
  * Created by kilho on 15. 6. 25.
  */
@@ -7,8 +9,8 @@ public class LabelEntry extends ProbeEntry {
   private String name;
   private boolean isLogged;
 
-  public LabelEntry(String name, Class probeClass) {
-    super(probeClass);
+  public LabelEntry(String name, Class probeClass, BasicSchedule schedule, boolean isEnabled) {
+    super(probeClass, schedule, isEnabled);
     this.name = name;
     this.isLogged = false;
   }

@@ -98,7 +98,7 @@ public class TimeUtil {
 				calibrateNanosConversion();
 			}
 		}
-    Log.w("DEBUG", "TimeUtil/ TimeUtil._uptimeNanosToTimestamp(event.timestamp)=" + TimeUtil._uptimeNanosToTimestamp(nanos));
+    // Log.w("DEBUG", "TimeUtil/ TimeUtil._uptimeNanosToTimestamp(event.timestamp)=" + TimeUtil._uptimeNanosToTimestamp(nanos));
 		return TimeUtil._uptimeNanosToTimestamp(nanos);
 	}
 

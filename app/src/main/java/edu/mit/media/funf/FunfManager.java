@@ -555,8 +555,6 @@ public class FunfManager extends Service {
 	}
 	
 	private void requestData(DataListener listener, IJsonObject completeProbeConfig, Schedule schedule) {
-        // Log.i("DEBUG", "completeProbeConfig=" + completeProbeConfig.toString());
-        // Log.i("DEBUG", "schedule.getDuration()=" + schedule.getDuration() + ", schedule.getInterval()=" + schedule.getInterval());
 		if (listener == null) {
 			throw new IllegalArgumentException("Listener cannot be null");
 		}
@@ -667,7 +665,6 @@ public class FunfManager extends Service {
 			// Simple schedule merge for now
 			// TODO: make this more efficient
 			String componentString = completeProbeConfig.toString();
-            // Log.i("DEBUG", "componentString=" + componentString);
 			List<DataRequestInfo> requests = dataRequests.get(completeProbeConfig);
 			if (requests.isEmpty()) {
 				cancelProbe(componentString);
@@ -677,7 +674,6 @@ public class FunfManager extends Service {
 					// Schedule passive listening if opportunistic
 					if (request.schedule.isOpportunistic()) {
 						Probe probe = gson.fromJson(completeProbeConfig, Probe.class);
-                        // Log.i("DEBUG", "completeProbeConfig=" + completeProbeConfig.toString());
 						if (probe instanceof PassiveProbe) {
 							((PassiveProbe)probe).registerPassiveListener(request.listener);
 						}

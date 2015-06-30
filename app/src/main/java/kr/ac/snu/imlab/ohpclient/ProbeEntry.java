@@ -1,30 +1,38 @@
 package kr.ac.snu.imlab.ohpclient;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 
 import edu.mit.media.funf.Schedule.BasicSchedule;
 import edu.mit.media.funf.probe.Probe;
 
 public class ProbeEntry {
-  private Probe.Base probe;
+  private JsonElement probeConfig;
   private Class probeClass;
   private boolean isEnabled;
   private BasicSchedule schedule;
 
-  public ProbeEntry(Class probeClass) {
-    this.probe = null;
+  public ProbeEntry(Class probeClass, BasicSchedule schedule, boolean isEnabled) {
+    this.probeConfig = new JsonParser()
+                      .parse("{\"@type\": \"" +
+                             probeClass.getName() +
+                             "\"}").getAsJsonObject().get("@type");
     this.probeClass = probeClass;
-    this.isEnabled = false;
-    this.schedule = null;
+    this.schedule = schedule;
+    this.isEnabled = isEnabled;
   }
 
-  public void setProbe(Gson gson) {
-    this.probe = (Probe.Base)gson.fromJson(new JsonObject(), this.probeClass);
-  }
+//  public void setProbe(Gson gson) {
+//    this.probe = (Probe.Base)gson.fromJson(new JsonObject(), this.probeClass);
+//  }
 
-  public Probe.Base getProbe() {
-    return this.probe;
+//  public Probe.Base getProbe() {
+//    return this.probe;
+//  }
+
+  public JsonElement getProbeConfig() {
+    return this.probeConfig;
   }
 
   public void setSchedule(BasicSchedule schedule) {
