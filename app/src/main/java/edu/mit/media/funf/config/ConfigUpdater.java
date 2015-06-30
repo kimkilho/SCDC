@@ -15,7 +15,7 @@ public abstract class ConfigUpdater {
     JsonObject oldConfig = mgr.getPipelineConfig(name);
     try {
       JsonObject newConfig = getConfig();
-      Log.w("DEBUG", "ConfigUpdater/ newConfig=" + newConfig.toString());
+      // Log.w("DEBUG", "ConfigUpdater/ newConfig=" + newConfig.toString());
       if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
         mgr.saveAndReload(name, newConfig);
       }

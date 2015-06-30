@@ -23,6 +23,8 @@
  */
 package edu.mit.media.funf.time;
 
+import android.util.Log;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -96,12 +98,14 @@ public class TimeUtil {
 				calibrateNanosConversion();
 			}
 		}
+    Log.w("DEBUG", "TimeUtil/ TimeUtil._uptimeNanosToTimestamp(event.timestamp)=" + TimeUtil._uptimeNanosToTimestamp(nanos));
 		return TimeUtil._uptimeNanosToTimestamp(nanos);
 	}
 
 	// Round to microseconds, because of the inaccuracy associated with our method of syncing the clocks
 	public static BigDecimal _uptimeNanosToTimestamp(long nanos) {
-		return roundToMicroPrecision(BigDecimal.valueOf(nanos, NANO).add(TimeUtil.secondsOffset));
+		// return roundToMicroPrecision(BigDecimal.valueOf(nanos, NANO).add(TimeUtil.secondsOffset));
+    return roundToMicroPrecision(BigDecimal.valueOf(nanos, NANO));
 	}
 
 	public static final double CLOCK_OFFSET_TOLERANCE = 0.002;

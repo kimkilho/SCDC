@@ -109,6 +109,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             mData.get(position).setLogged(true);
             // Start label logging
             Intent intent = new Intent();
+            intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
             intent.setAction(LabelKeys.ACTION_LABEL_LOG);
             for (int i = 0; i < mData.size(); i++) {
               intent.putExtra(mData.get(i).getName(), mData.get(i).isLogged());
@@ -131,6 +132,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             mData.get(position).setLogged(false);
             // End label logging
             Intent intent = new Intent();
+            intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
             intent.setAction(LabelKeys.ACTION_LABEL_LOG);
             for (int i = 0; i < mData.size(); i++) {
               intent.putExtra(mData.get(i).getName(), mData.get(i).isLogged());

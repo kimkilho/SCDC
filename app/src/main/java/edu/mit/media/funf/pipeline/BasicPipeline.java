@@ -137,9 +137,10 @@ public class BasicPipeline implements Pipeline, DataListener {
     // TODO: add check to make sure this is not empty
     File dbFile = new File(db.getPath());
     db.close();
-    if (archive.add(dbFile)) {
-      dbFile.delete();
-    }
+    archive.add(dbFile);
+//    if (archive.add(dbFile)) {
+//      dbFile.delete();
+//    }
     reloadDbHelper(manager);
     databaseHelper.getWritableDatabase(); // Build new database
   }
