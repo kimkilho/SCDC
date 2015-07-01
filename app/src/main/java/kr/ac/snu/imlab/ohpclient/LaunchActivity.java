@@ -81,6 +81,8 @@ public class LaunchActivity extends ActionBarActivity {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
       funfManager = ((FunfManager.LocalBinder)service).getManager();
+      // Added by Kilho Kim
+      funfManager.setCallingActivity(LaunchActivity.this);
       pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
       // This checkbox enables or disables the pipeline
@@ -266,8 +268,8 @@ public class LaunchActivity extends ActionBarActivity {
             public void run() {
               pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
               pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-              Toast.makeText(getBaseContext(), "Archived!",
-                  Toast.LENGTH_SHORT).show();
+//              Toast.makeText(getBaseContext(), "Archived!",
+//                  Toast.LENGTH_SHORT).show();
               updateScanCount();
             }
           }, 1000L);

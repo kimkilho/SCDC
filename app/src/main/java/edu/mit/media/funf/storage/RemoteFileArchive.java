@@ -23,6 +23,9 @@
  */
 package edu.mit.media.funf.storage;
 
+import android.app.Activity;
+import android.content.Context;
+
 import java.io.File;
 
 /**
@@ -36,7 +39,7 @@ public interface RemoteFileArchive {
 	 * @param file the File to upload
 	 * @return true if successfully added, false otherwise
 	 */
-	public boolean add(File file);
+	public boolean add(Activity activity, File file);
 	
 	/**
 	 * @return true if this remote archive is available currently

@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.SQLException;
@@ -54,7 +55,6 @@ import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
 import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
-import kr.ac.snu.imlab.ohpclient.LaunchActivity;
 
 public class BasicPipeline implements Pipeline, DataListener {
 
@@ -88,6 +88,7 @@ public class BasicPipeline implements Pipeline, DataListener {
   protected Map<String, Schedule> schedules = new HashMap<String, Schedule>(); 
   
   private UploadService uploader;
+  private Activity activity;
   
   private boolean enabled;
   private FunfManager manager;
@@ -172,6 +173,8 @@ public class BasicPipeline implements Pipeline, DataListener {
     }
     if (uploader == null) {
       uploader = new UploadService(manager);
+      if (activity != null)
+        uploader.setActivity(activity);
       uploader.start();
     }
     this.manager = manager;
@@ -190,6 +193,14 @@ public class BasicPipeline implements Pipeline, DataListener {
 //      Log.w("DEBUG", "BasicPipeline/ schedule.getKey()=" + schedule.getKey() + ", schedule.getValue().toString()=" + schedule.getValue().toString());
       manager.registerPipelineAction(this, schedule.getKey(), schedule.getValue());
     }
+  }
+
+  /**
+   * @author Kilho Kim
+   * @description Set calling activity for pipeline
+   */
+  public void setActivity(Activity activity) {
+    this.activity = activity;
   }
 
   @Override

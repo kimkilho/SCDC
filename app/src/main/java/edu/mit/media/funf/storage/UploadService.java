@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -47,6 +48,7 @@ public class UploadService {
   private int maxFileRetries = 3;
   
   private Context context;
+  private Activity activity;
   
   private Map<String, Integer> fileFailures;
   private Map<String, Integer> remoteArchiveFailures;
@@ -76,6 +78,10 @@ public class UploadService {
   
   public void setContext(Context context) {
     this.context = context;
+  }
+
+  public void setActivity(Activity activity) {
+    this.activity = activity;
   }
 
   public void start() {
@@ -125,7 +131,7 @@ public class UploadService {
     numRemoteFailures = (numRemoteFailures == null) ? 0 : numRemoteFailures;
     if (numRemoteFailures < maxRemoteRetries && remoteArchive.isAvailable()) {
       Log.i(LogUtil.TAG, "Archiving..." + file.getName());
-      if (remoteArchive.add(file)) {
+      if (remoteArchive.add(activity, file)) {    // upload file
         archive.remove(file);
         filesToUpload.remove(file);
       } else {

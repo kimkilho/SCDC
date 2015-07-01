@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -126,6 +127,9 @@ public class FunfManager extends Service {
 		private BigDecimal lastSatisfied;
 		private JsonElement checkpoint;
 	}
+
+  // Added by Kilho Kim
+  private Activity activity;
 	
 	private StateListener probeStateListener = new StateListener() {
 		@Override
@@ -147,15 +151,31 @@ public class FunfManager extends Service {
 	private Scheduler scheduler;
 
 
-    // TODO: Added getDataRequests method by Kilho Kim
-    public Schedule getDataRequestSchedule(IJsonObject probeConfig, DataListener listener) {
-        for (DataRequestInfo requestInfo : dataRequests.get(probeConfig)) {
-            // Log.i("DEBUG", "requestInfo.listener=" + requestInfo.listener.toString());
-            if (requestInfo.listener == listener)
-                return requestInfo.schedule;
-        }
-        return null;
-    }
+  // TODO: Added getDataRequests method by Kilho Kim
+
+  /**
+   * @author Kilho Kim
+   * @param probeConfig
+   * @param listener
+   * @return
+   * @description Get data request schedules
+   */
+  public Schedule getDataRequestSchedule(IJsonObject probeConfig, DataListener listener) {
+      for (DataRequestInfo requestInfo : dataRequests.get(probeConfig)) {
+          // Log.i("DEBUG", "requestInfo.listener=" + requestInfo.listener.toString());
+          if (requestInfo.listener == listener)
+              return requestInfo.schedule;
+      }
+      return null;
+  }
+
+  /**
+   * @author Kilho Kim
+   * @description Set calling activity for FunfManager service
+   */
+  public void setCallingActivity(Activity activity) {
+    this.activity = activity;
+  }
 
 
 	@Override
@@ -225,6 +245,8 @@ public class FunfManager extends Service {
       unregisterPipeline(name);
 	  } else {
 	    Pipeline newPipeline = gson.fromJson(pipelineConfig, Pipeline.class);
+      // Added by Kilho Kim
+      ((BasicPipeline)newPipeline).setActivity(activity);
 	    registerPipeline(name, newPipeline); // Will unregister previous before running
 	  }
 	}
