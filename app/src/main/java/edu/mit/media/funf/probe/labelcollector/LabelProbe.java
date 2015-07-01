@@ -1,4 +1,4 @@
-package edu.mit.media.funf.probe.builtin;
+package edu.mit.media.funf.probe.labelcollector;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -28,6 +28,7 @@ import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.builtin.*;
+import edu.mit.media.funf.probe.labelcollector.LabelProbe;
 import edu.mit.media.funf.storage.NameValueDatabaseHelper;
 
 import android.os.IBinder;
