@@ -133,6 +133,8 @@ public class LaunchActivity extends ActionBarActivity {
               archiveButton.setEnabled(true);
               updateDataCountButton.setEnabled(true);
               truncateDataButton.setEnabled(false);
+
+
             } else {
               funfManager.disablePipeline(PIPELINE_NAME);
               archiveButton.setEnabled(false);
@@ -143,15 +145,23 @@ public class LaunchActivity extends ActionBarActivity {
           // Dynamically refresh the ListView items by calling mAdapter.getView() again.
           mAdapter.notifyDataSetChanged();
 
-          // Broadcast the initial label log
-          Intent intent = new Intent();
-          intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-          intent.setAction(LabelKeys.ACTION_LABEL_LOG);
-          for (int i = 0; i < labelEntries.size(); i++) {
-            LabelEntry labelEntry = labelEntries.get(i);
-            intent.putExtra(labelEntry.getName(), labelEntry.isLogged());
-          }
-          LaunchActivity.this.sendBroadcast(intent);
+          // Intentionally wait 1 second for label probes to be loaded
+          // then send broadcast
+          handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+              Log.w("DEBUG", "LaunchActivity/ Entering sendBroadcast(intent)");
+              Intent intent = new Intent();
+              intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+              intent.setAction(LabelKeys.ACTION_LABEL_LOG);
+              for (int i = 0; i < labelEntries.size(); i++) {
+                intent.putExtra(labelEntries.get(i).getName(),
+                        labelEntries.get(i).isLogged());
+              }
+              sendBroadcast(intent);
+            }
+          }, 1000L);
+
         }
       });
 
@@ -253,27 +263,32 @@ public class LaunchActivity extends ActionBarActivity {
     enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
     enabledToggleButton.setEnabled(false);
 
+
     // Runs an archive if pipeline is enabled
     archiveButton = (Button)findViewById(R.id.archiveButton);
     archiveButton.setEnabled(false);
     archiveButton.setOnClickListener(new View.OnClickListener() {
       @Override
-      public void onClick(View v) {
+      public void onClick(final View v) {
         if (pipeline.isEnabled()) {
+          v.setEnabled(false);
 
+          pipeline.onRun(BasicPipeline.ACTION_ARCHIVE_AND_UPLOAD, null);
           // Wait 1 second for archive to finish, then refresh the UI
           // (Note: this is kind of a hack since archiving is seamless
           //         and there are no messages when it occurs)
           handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
-              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-//              Toast.makeText(getBaseContext(), "Archived!",
-//                  Toast.LENGTH_SHORT).show();
+//              Toast.makeText(getBaseContext(), "Archived! Will be uploaded " +
+//                              "in a few seconds...",
+//                              Toast.LENGTH_LONG).show();
+//              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
+//              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
               updateScanCount();
+              v.setEnabled(true);
             }
-          }, 1000L);
+          }, 10000L);
         } else {
           Toast.makeText(getBaseContext(), "Pipeline is not enabled",
                           Toast.LENGTH_SHORT).show();
@@ -299,16 +314,6 @@ public class LaunchActivity extends ActionBarActivity {
       public void onClick(View v) {
         dropAndCreateTable();
         dataCountView.setText("Data Count: 0");
-
-        // Broadcast the initial label log again
-        Intent intent = new Intent();
-        intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-        intent.setAction(LabelKeys.ACTION_LABEL_LOG);
-        for (int i = 0; i < labelEntries.size(); i++) {
-          LabelEntry labelEntry = labelEntries.get(i);
-          intent.putExtra(labelEntry.getName(), labelEntry.isLogged());
-        }
-        LaunchActivity.this.sendBroadcast(intent);
 
         // Update probe schedules of pipeline
         HttpConfigUpdater hcu = new HttpConfigUpdater();

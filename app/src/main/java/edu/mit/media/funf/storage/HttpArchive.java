@@ -156,8 +156,7 @@ public class HttpArchive implements RemoteFileArchive {
                                    File file, String uploadurl) {
     boolean isSuccess = true;
     try {
-       new BackgroundUploader(activity, uploadurl,
-               file).execute();
+       new BackgroundUploader(activity, uploadurl, file).execute();
     } catch (Exception e) {
       isSuccess = false;
     }

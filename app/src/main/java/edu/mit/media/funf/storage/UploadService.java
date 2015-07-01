@@ -87,6 +87,7 @@ public class UploadService {
   public void start() {
     HandlerThread thread = new HandlerThread(getClass().getName());
     thread.start();
+    Log.w("DEBUG", "UploadService/ new thread=" + thread.getName());
     looper = thread.getLooper();
     uploadHandler = new Handler(looper);
     fileFailures = new HashMap<String, Integer>();

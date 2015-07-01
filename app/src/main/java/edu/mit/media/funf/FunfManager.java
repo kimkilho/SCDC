@@ -398,9 +398,12 @@ public class FunfManager extends Service {
 				// Handle pipeline action
 				String pipelineName = getComponentName(componentUri);
 				String pipelineAction = getAction(componentUri);
+        Log.w("DEBUG", "FunfManager/ componentUri=" + componentUri);
 				Pipeline pipeline = pipelines.get(pipelineName);
 				if (pipeline != null) {
-					pipeline.onRun(pipelineAction, null);
+          if (pipelineAction.equals(BasicPipeline.ACTION_UPDATE)) {
+            pipeline.onRun(pipelineAction, null);  // BY KILHO KIM
+          }
 				}
 			}
 

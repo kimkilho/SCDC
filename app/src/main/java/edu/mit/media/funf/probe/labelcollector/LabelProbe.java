@@ -51,6 +51,7 @@ public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
         labelReceiver = new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
+            Log.w("DEBUG", "LabelProbe/ Received broadcast");
             JsonObject data = new JsonObject();
             // FIXME: Add some more labels
             labels.put(LabelKeys.SLEEP_LABEL, intent.getBooleanExtra(LabelKeys.SLEEP_LABEL, false));

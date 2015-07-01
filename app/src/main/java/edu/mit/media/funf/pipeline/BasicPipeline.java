@@ -26,11 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -61,9 +64,11 @@ public class BasicPipeline implements Pipeline, DataListener {
   public static final String 
   ACTION_ARCHIVE = "archive",
   ACTION_UPLOAD = "upload",
-  ACTION_UPDATE = "update";
-  
-  protected final int ARCHIVE = 0, UPLOAD = 1, UPDATE = 2, DATA = 3;
+  ACTION_UPDATE = "update",
+  ACTION_ARCHIVE_AND_UPLOAD = "archive_and_upload";
+
+  protected final int ARCHIVE = 0, UPLOAD = 1, UPDATE = 2, DATA = 3,
+          ARCHIVE_AND_UPLOAD = 4;
   
 
   @Configurable
@@ -89,7 +94,7 @@ public class BasicPipeline implements Pipeline, DataListener {
   
   private UploadService uploader;
   private Activity activity;
-  
+
   private boolean enabled;
   private FunfManager manager;
   private SQLiteOpenHelper databaseHelper = null;
@@ -103,14 +108,27 @@ public class BasicPipeline implements Pipeline, DataListener {
       switch (msg.what) {
         case ARCHIVE:
           if (archive != null) {
+            Log.w("DEBUG", "BasicPipeline/ running runArchive()");
             runArchive();
           }
           break;
         case UPLOAD:
           if (archive != null && upload != null && uploader != null) {
+            Log.w("DEBUG", "BasicPipeline/ running uploader.run(archive, " +
+                    "upload)");
+            // uploader.start();
             uploader.run(archive, upload);
           }
           break;
+        // Added by Kilho Kim:
+        case ARCHIVE_AND_UPLOAD:
+          if (archive != null && upload != null && uploader != null) {
+            Log.w("DEBUG", "BasicPipeline/ running runArchived() followed by " +
+                    "uploader.run(archive, upload)");
+            runArchive();
+            // uploader.start();
+            uploader.run(archive, upload);
+          }
         case UPDATE:
           if (update != null) {
 //            Log.w("DEBUG", "BasicPipeline/ Entered handleMessage: UPDATE");
@@ -133,8 +151,10 @@ public class BasicPipeline implements Pipeline, DataListener {
   protected void reloadDbHelper(Context ctx) {
     this.databaseHelper = new NameValueDatabaseHelper(ctx, StringUtil.simpleFilesafe(name), version);
   }
-  
+
+  // Edited by Kilho Kim:
   protected void runArchive() {
+    // new BackgroundArchiver().execute();
     SQLiteDatabase db = databaseHelper.getWritableDatabase();
     // TODO: add check to make sure this is not empty
     File dbFile = new File(db.getPath());
@@ -146,7 +166,7 @@ public class BasicPipeline implements Pipeline, DataListener {
     reloadDbHelper(manager);
     databaseHelper.getWritableDatabase(); // Build new database
   }
-  
+
   protected void writeData(String name, IJsonObject data) {
     SQLiteDatabase db = databaseHelper.getWritableDatabase();
     final double timestamp = data.get(ProbeKeys.BaseProbeKeys.TIMESTAMP).getAsDouble();
@@ -220,16 +240,26 @@ public class BasicPipeline implements Pipeline, DataListener {
 
   @Override
   public void onRun(String action, JsonElement config) {
+    Message message;
     // Run on handler thread
     if (ACTION_ARCHIVE.equals(action)) {
-      handler.obtainMessage(ARCHIVE, config).sendToTarget();
+      message = Message.obtain(handler, ARCHIVE, config);
+      // handler.sendMessageAtFrontOfQueue(message);
+      handler.sendMessage(message);
+      // handler.obtainMessage(ARCHIVE, config).sendToTarget();
     } else if (ACTION_UPLOAD.equals(action)) {
-      handler.obtainMessage(UPLOAD, config).sendToTarget();
+      message = Message.obtain(handler, UPLOAD, config);
+      // handler.sendMessageAtFrontOfQueue(message);
+      handler.sendMessage(message);
+      // handler.obtainMessage(UPLOAD, config).sendToTarget();
     } else if (ACTION_UPDATE.equals(action)) {
-//      Log.e("DEBUG", "BasicPipeline/ handler=" + handler);
-//      Log.e("DEBUG", "BasicPipeline/ handler.obtainMessage(UPDATE, config)=" +
-//                     handler.obtainMessage(UPDATE, config));
-      handler.obtainMessage(UPDATE, config).sendToTarget();
+      message = Message.obtain(handler, UPDATE, config);
+      // handler.sendMessageAtFrontOfQueue(message);
+      handler.sendMessage(message);
+      // handler.obtainMessage(UPDATE, config).sendToTarget();
+    } else if (ACTION_ARCHIVE_AND_UPLOAD.equals(action)) {
+      message = Message.obtain(handler, ARCHIVE_AND_UPLOAD, config);
+      handler.sendMessageAtFrontOfQueue(message);
     }
   }
   
@@ -248,7 +278,7 @@ public class BasicPipeline implements Pipeline, DataListener {
    * @param config the configuration for the action
    */
   protected void onAfterRun(int action, JsonElement config) {
-    
+
   }
   
   protected Handler getHandler() {
@@ -367,7 +397,8 @@ public class BasicPipeline implements Pipeline, DataListener {
     JsonObject record = new JsonObject();
     record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
     record.add("value", data);
-    handler.obtainMessage(DATA, record).sendToTarget();
+    Message message = Message.obtain(handler, DATA, record);
+    handler.sendMessage(message);
   }
 
   @Override
@@ -375,4 +406,62 @@ public class BasicPipeline implements Pipeline, DataListener {
     // TODO Figure out what to do with continuations of probes, if anything
 
   }
+
+
+  /**
+   * @author Kilho Kim
+   * @description Background archiver class
+   */
+  private class BackgroundArchiver extends AsyncTask<Void, Integer, Boolean>
+          implements DialogInterface.OnCancelListener {
+
+    private ProgressDialog progressDialog;
+
+    public BackgroundArchiver() {
+    }
+
+    @Override
+    protected void onPreExecute() {
+      progressDialog = new ProgressDialog(activity);
+      progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+      progressDialog.setMessage("Uploading...");
+      progressDialog.setIndeterminate(false);
+      progressDialog.setCancelable(false);
+      progressDialog.show();
+    }
+
+    @Override
+    protected Boolean doInBackground(Void... v) {
+      SQLiteDatabase db = databaseHelper.getWritableDatabase();
+      // TODO: add check to make sure this is not empty
+      File dbFile = new File(db.getPath());
+      db.close();
+      archive.add(dbFile);
+//    if (archive.add(dbFile)) {
+//      dbFile.delete();
+//    }
+      reloadDbHelper(manager);
+      databaseHelper.getWritableDatabase(); // Build new database
+
+      return true;
+    }
+
+    @Override
+    protected void onProgressUpdate(Integer... progress) {
+
+    }
+
+    @Override
+    protected void onPostExecute(Boolean isSuccess) {
+      progressDialog.dismiss();
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+      cancel(true);
+      dialog.dismiss();
+    }
+
+  }
+
 }
