@@ -413,27 +413,31 @@ public class LaunchActivity extends ActionBarActivity {
     Map<JsonElement, BasicSchedule> newSchedules = new HashMap<>();
     List<JsonElement> newDataRequests = pipeline.getDataRequests();
     for (int i = 0; i < newDataRequests.size(); i++) {
-      JsonObject currDataRequests = newDataRequests.get(i).getAsJsonObject();
-      JsonElement currType = currDataRequests.get("@type");
-      JsonObject currSchedule = currDataRequests.get("@schedule").getAsJsonObject();
-      BasicSchedule newSchedule = new BasicSchedule();
-      if (currSchedule.get("interval") != null) {
-        newSchedule.setInterval(new BigDecimal
-                (currSchedule.get("interval").getAsString()));
-      }
-      if (currSchedule.get("duration") != null) {
-        newSchedule.setDuration(new BigDecimal
-                (currSchedule.get("duration").getAsString()));
-      }
-      if (currSchedule.get("opportunistic") != null) {
-        newSchedule.setOpportunistic(
-                currSchedule.get("opportunistic").getAsBoolean());
-      }
-      if (currSchedule.get("strict") != null) {
-        newSchedule.setStrict(
-                currSchedule.get("strict").getAsBoolean());
-      }
-      newSchedules.put(currType, newSchedule);
+        JsonObject currDataRequests = newDataRequests.get(i).getAsJsonObject();
+        JsonElement currType = currDataRequests.get("@type");
+        try {
+            JsonObject currSchedule = currDataRequests.get("@schedule").getAsJsonObject();
+            BasicSchedule newSchedule = new BasicSchedule();
+            if (currSchedule.get("interval") != null) {
+                newSchedule.setInterval(new BigDecimal
+                        (currSchedule.get("interval").getAsString()));
+            }
+            if (currSchedule.get("duration") != null) {
+                newSchedule.setDuration(new BigDecimal
+                        (currSchedule.get("duration").getAsString()));
+            }
+            if (currSchedule.get("opportunistic") != null) {
+                newSchedule.setOpportunistic(
+                        currSchedule.get("opportunistic").getAsBoolean());
+            }
+            if (currSchedule.get("strict") != null) {
+                newSchedule.setStrict(
+                        currSchedule.get("strict").getAsBoolean());
+            }
+            newSchedules.put(currType, newSchedule);
+        } catch (NullPointerException e) {
+            newSchedules.put(currType, null);
+        }
     }
 
     return newSchedules;
