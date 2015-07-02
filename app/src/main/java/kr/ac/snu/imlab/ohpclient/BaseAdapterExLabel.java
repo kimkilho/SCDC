@@ -2,6 +2,7 @@ package kr.ac.snu.imlab.ohpclient;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,6 +94,15 @@ public class BaseAdapterExLabel extends BaseAdapter {
       }
     });
 
+    final SharedPreferences prefs = mContext.getSharedPreferences(LaunchActivity.OHPCLIENT_PREFS, Context.MODE_PRIVATE);
+
+
+    // FIXME:
+    viewHolder.startLogButton.setEnabled(true);
+    viewHolder.endLogButton.setEnabled(true);
+    // viewHolder.startLogButton.setEnabled(!mData.get(position).isLogged());
+    // viewHolder.endLogButton.setEnabled(mData.get(position).isLogged());
+
     viewHolder.logLabelTextView.setText(mData.get(position).getName());
     // viewHolder.registerProbeTextView.setText(mData.get(position)
     //        .getProbeClass().getAnnotation(DisplayName.class).value());
@@ -100,8 +110,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
     ToggleButton enabledToggleButton = (ToggleButton)((LaunchActivity)mContext).findViewById(R.id.enabledToggleButton);
     viewHolder.scheduleTextView.setText(R.string.probe_disabled);
     // If enabledToggleButton is enabled, enable startLogButton
-    viewHolder.startLogButton.setEnabled(enabledToggleButton.isChecked());
-    viewHolder.endLogButton.setEnabled(false);
+    // viewHolder.startLogButton.setEnabled(enabledToggleButton.isChecked());
+    // viewHolder.endLogButton.setEnabled(false);
 
     viewHolder.startLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
@@ -121,8 +131,9 @@ public class BaseAdapterExLabel extends BaseAdapter {
 
             // FIXME:
             viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
-            v.setEnabled(false);
+            // v.setEnabled(false);
             viewHolder.endLogButton.setEnabled(true);
+            // prefs.edit().putBoolean(mData.get(position).getName(), true).apply();
         }
     });
 
@@ -143,8 +154,9 @@ public class BaseAdapterExLabel extends BaseAdapter {
             mContext.sendBroadcast(intent);
 
             viewHolder.scheduleTextView.setText(R.string.probe_disabled);
-            v.setEnabled(false);
+            // v.setEnabled(false);
             viewHolder.startLogButton.setEnabled(true);
+            // prefs.edit().putBoolean(mData.get(position).getName(), false).apply();
         }
     });
 

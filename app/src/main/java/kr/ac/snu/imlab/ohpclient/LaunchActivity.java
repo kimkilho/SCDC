@@ -167,6 +167,18 @@ public class LaunchActivity extends ActionBarActivity {
 
       // Set UI ready to use, by enabling buttons
       enabledToggleButton.setEnabled(true);
+
+      if (enabledToggleButton.isChecked()) {
+          archiveButton.setEnabled(true);
+          updateDataCountButton.setEnabled(true);
+          truncateDataButton.setEnabled(false);
+      } else {
+          archiveButton.setEnabled(false);
+          updateDataCountButton.setEnabled(false);
+          truncateDataButton.setEnabled(true);
+      }
+
+      mAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -248,6 +260,10 @@ public class LaunchActivity extends ActionBarActivity {
               LabelProbe.class, null, true));
       labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL,
               LabelProbe.class, null, true));
+
+    for (int i = 0; i < labelEntries.size(); i++) {
+      labelEntries.get(i).setLogged(prefs.getBoolean(labelEntries.get(i).getName(), false));
+    }
 
     mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
@@ -355,9 +371,9 @@ public class LaunchActivity extends ActionBarActivity {
   public void onResume() {
     super.onResume();
 
-    mAdapter = new BaseAdapterExLabel(this, labelEntries);
-    mListView = (ListView)findViewById(R.id.label_list_view);
-    mListView.setAdapter(mAdapter);
+//    mAdapter = new BaseAdapterExLabel(this, labelEntries);
+//    mListView = (ListView)findViewById(R.id.label_list_view);
+//    mListView.setAdapter(mAdapter);
     mAdapter.notifyDataSetChanged();
   }
 
