@@ -1,8 +1,14 @@
 package kr.ac.snu.imlab.ohpclient;
 
+import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -126,6 +132,9 @@ public class BaseAdapterExLabel extends BaseAdapter {
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, false));
             mContext.sendBroadcast(intent);
 
+            BaseAdapterExLabel.this.notify(position, "SSC Client",
+                    mData.get(position).getName(), "Label logging");
+
             // FIXME:
             viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
             v.setEnabled(false);
@@ -149,6 +158,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, true));
             mContext.sendBroadcast(intent);
 
+            BaseAdapterExLabel.this.cancelNotify(position);
+
             viewHolder.scheduleTextView.setText(R.string.probe_disabled);
             v.setEnabled(false);
             viewHolder.startLogButton.setEnabled(true);
@@ -157,5 +168,58 @@ public class BaseAdapterExLabel extends BaseAdapter {
 
     itemLayout.setClickable(true);
     return itemLayout;
+  }
+
+  protected void notify(int mId, String title, String message,
+                           String alert) {
+    Log.w("DEBUG", "BaseAdapterExLabel/ Start notification #" + mId + "- " +
+            title + ": " + message);
+
+//    // Create a new notification builder
+//    NotificationCompat.Builder notification =
+//            new NotificationCompat.Builder(this.mContext);
+//    notification.setContentTitle(title);
+//    notification.setContentText(message);
+//    notification.setTicker(alert);
+//    // notification.setSmallIcon(R.drawable.);
+//
+//    // Create an explicit intent for an Activity
+//    Intent resultIntent = new Intent(mContext, LaunchActivity.class);
+//    // Create a new stack builder
+//    TaskStackBuilder stackBuilder = TaskStackBuilder.create(this.mContext);
+//    stackBuilder.addParentStack((Activity)this.mContext);
+//    stackBuilder.addNextIntent(resultIntent);
+//    PendingIntent resultPendingIntent =
+//            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+//    notification.setContentIntent(resultPendingIntent);
+//    notification.setContentIntent(PendingIntent.getActivity(mContext, 0,
+//                                  new Intent(), 0));
+
+    NotificationManager notificationMgr =
+            (NotificationManager)mContext.
+                    getSystemService(Context.NOTIFICATION_SERVICE);
+//    notificationMgr.notify(mId, notification.build());
+
+    @SuppressWarnings("deprecation")
+    Notification notification = new Notification(R.mipmap.ic_launcher, alert,
+            System.currentTimeMillis());
+    notification.setLatestEventInfo(mContext, title, message,
+            PendingIntent.getActivity(mContext, 0, new Intent(), 0));
+    notificationMgr.notify(mId, notification);
+  }
+
+  protected void cancelNotify(int mId) {
+    Log.w("DEBUG", "BaseAdapterExLabel/ Cancel notification #" + mId);
+    NotificationManager notificationMgr =
+            (NotificationManager)mContext.
+                    getSystemService(Context.NOTIFICATION_SERVICE);
+    notificationMgr.cancel(mId);
+  }
+
+  protected void cancelNotifyAll() {
+    NotificationManager notificationMgr =
+            (NotificationManager)mContext.
+                    getSystemService(Context.NOTIFICATION_SERVICE);
+    notificationMgr.cancelAll();
   }
 }
