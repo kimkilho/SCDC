@@ -261,10 +261,6 @@ public class LaunchActivity extends ActionBarActivity {
       labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL,
               LabelProbe.class, null, true));
 
-    for (int i = 0; i < labelEntries.size(); i++) {
-      labelEntries.get(i).setLogged(prefs.getBoolean(labelEntries.get(i).getName(), false));
-    }
-
     mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
     mListView = (ListView)findViewById(R.id.label_list_view);
@@ -367,6 +363,39 @@ public class LaunchActivity extends ActionBarActivity {
       }
   }
 
+  /*
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    Log.w("DEBUG", "LaunchActivity/ Saving current label status");
+
+    // Save current isLogged value of labelEntries
+    for (int i = 0; i < labelEntries.size(); i++) {
+      outState.putBoolean(String.valueOf(i), labelEntries.get(i).isLogged());
+    }
+
+    super.onSaveInstanceState(outState);
+  }
+  */
+
+  /*
+  @Override
+  protected void onRestoreInstanceState(Bundle savedInstanceState) {
+    Log.w("DEBUG", "LaunchActivity/ Restoring the saved label status");
+
+    if (savedInstanceState != null) {
+      // Restore isLogged value of labelEntries
+      for (int i = 0; i < labelEntries.size(); i++) {
+        labelEntries.get(i).setLogged(
+                savedInstanceState.getBoolean(String.valueOf(i)));
+      }
+
+      mAdapter.notifyDataSetChanged();
+    }
+
+    super.onRestoreInstanceState(savedInstanceState);
+  }
+  */
+
   @Override
   public void onResume() {
     super.onResume();
@@ -374,8 +403,30 @@ public class LaunchActivity extends ActionBarActivity {
 //    mAdapter = new BaseAdapterExLabel(this, labelEntries);
 //    mListView = (ListView)findViewById(R.id.label_list_view);
 //    mListView.setAdapter(mAdapter);
+
+    SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS,
+            Context.MODE_PRIVATE);
+    // Restore isLogged value of labelEntries from SharedPreferences
+    for (int i = 0; i < labelEntries.size(); i++) {
+      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
+    }
+
     mAdapter.notifyDataSetChanged();
   }
+
+  @Override
+  public void onPause() {
+    super.onPause();
+
+    SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS,
+            Context.MODE_PRIVATE);
+    // Save current isLogged value of labelEntries from SharedPreferences
+    for (int i = 0; i < labelEntries.size(); i++) {
+      prefs.edit().putBoolean(String.valueOf(i),
+                              labelEntries.get(i).isLogged()).apply();
+    }
+  }
+
 
   @Override
   protected void onDestroy() {
