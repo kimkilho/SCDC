@@ -401,7 +401,8 @@ public class LaunchActivity extends ActionBarActivity {
             Context.MODE_PRIVATE);
     // Restore isLogged value of labelEntries from SharedPreferences
     for (int i = 0; i < labelEntries.size(); i++) {
-      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
+      labelEntries.get(i).startLog(prefs.getLong(String.valueOf(i), -1L));
+//      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
     }
 
     mAdapter.notifyDataSetChanged();
@@ -411,12 +412,13 @@ public class LaunchActivity extends ActionBarActivity {
   public void onPause() {
     super.onPause();
 
-    SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS,
-            Context.MODE_PRIVATE);
+    SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS, Context.MODE_PRIVATE);
     // Save current isLogged value of labelEntries from SharedPreferences
     for (int i = 0; i < labelEntries.size(); i++) {
-      prefs.edit().putBoolean(String.valueOf(i),
-                              labelEntries.get(i).isLogged()).apply();
+//      prefs.edit().putBoolean(String.valueOf(i),
+//                              labelEntries.get(i).isLogged()).apply();
+      prefs.edit().putLong(String.valueOf(i),
+        labelEntries.get(i).getStartLoggingTime());
     }
   }
 

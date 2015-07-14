@@ -1,5 +1,7 @@
 package kr.ac.snu.imlab.ohpclient;
 
+import java.math.BigDecimal;
+
 import edu.mit.media.funf.Schedule.BasicSchedule;
 
 /**
@@ -7,12 +9,12 @@ import edu.mit.media.funf.Schedule.BasicSchedule;
  */
 public class LabelEntry extends ProbeEntry {
   private String name;
-  private boolean isLogged;
+  private long startLoggingTime;
 
   public LabelEntry(String name, Class probeClass, BasicSchedule schedule, boolean isEnabled) {
     super(probeClass, schedule, isEnabled);
     this.name = name;
-    this.isLogged = false;
+    this.startLoggingTime = -1;
   }
 
   public String getName() {
@@ -25,10 +27,33 @@ public class LabelEntry extends ProbeEntry {
   }
 
   public boolean isLogged() {
-    return this.isLogged;
+    if (this.startLoggingTime == -1) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
-  public void setLogged(boolean isLogged) {
-    this.isLogged = isLogged;
+  public void startLog() {
+    if (isLogged()) return;
+    this.startLoggingTime = System.currentTimeMillis();
   }
+
+  public void startLog(long startLoggingTime) {
+    if (isLogged()) return;
+    this.startLoggingTime = startLoggingTime;
+  }
+
+  public void endLog() {
+    if (!isLogged()) return;
+    this.startLoggingTime = -1;
+  }
+
+  public long getStartLoggingTime() {
+    return this.startLoggingTime;
+  }
+
+//  public void setLogged(boolean isLogged) {
+//    this.isLogged = isLogged;
+//  }
 }

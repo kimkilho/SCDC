@@ -29,14 +29,17 @@ import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 
 import java.util.ArrayList;
 import android.os.Handler;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class BaseAdapterExLabel extends BaseAdapter {
   Context mContext = null;
   ArrayList<LabelEntry> mData = null;
-  // ArrayList<Boolean> isEnableds = null;
   LayoutInflater mLayoutInflater = null;
 
   Handler handler;
+//  ArrayList<Timer> mTimers = null;
+//  TimerTask mCountTimerTask = null;
 
 //  private FunfManager funfManager = null;
 //  private BasicPipeline pipeline = null;
@@ -46,6 +49,15 @@ public class BaseAdapterExLabel extends BaseAdapter {
     this.mContext = context;
     this.mData = data;
     this.mLayoutInflater = LayoutInflater.from(this.mContext);
+//    this.mTimers = new ArrayList<Timer>(data.size());
+
+    // Create a new TimerTask
+//    this.mCountTimerTask = new TimerTask() {
+//      @Override
+//      public void run() {
+//
+//      }
+//    };
   }
 
   @Override
@@ -125,7 +137,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.startLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mData.get(position).setLogged(true);
+            // mData.get(position).setLogged(true);
+            mData.get(position).startLog();
             // Start label logging
             Intent intent = new Intent();
             intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
@@ -165,7 +178,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.endLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            mData.get(position).setLogged(false);
+            // mData.get(position).setLogged(false);
+            mData.get(position).endLog();
             // End label logging
             Intent intent = new Intent();
             intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
@@ -203,6 +217,26 @@ public class BaseAdapterExLabel extends BaseAdapter {
     itemLayout.setClickable(true);
     return itemLayout;
   }
+
+
+  /*
+  private void startTimerTask(int i) {
+    // Stop TimerTask if running
+    stopTimerTask();
+
+    // Run TimerTask immediately and repeat on every 1000ms
+    mTimers.get(i).schedule(mCountTimerTask, 0, 1000);
+  }
+
+  private void stopTimerTask() {
+    // Stop all TimerTasks
+    if (mCountTimerTask != null) {
+      mCountTimerTask.cancel();
+      mCountTimerTask = null;
+    }
+  }
+  */
+
 
   protected void notify(int mId, String title, String message,
                            String alert) {
@@ -256,4 +290,6 @@ public class BaseAdapterExLabel extends BaseAdapter {
                     getSystemService(Context.NOTIFICATION_SERVICE);
     notificationMgr.cancelAll();
   }
+
+
 }
