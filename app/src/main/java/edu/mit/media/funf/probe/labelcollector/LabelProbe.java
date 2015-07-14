@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Message;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -23,6 +24,7 @@ import edu.mit.media.funf.probe.Probe.PassiveProbe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 import edu.mit.media.funf.probe.Probe.Description;
 import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
+import edu.mit.media.funf.time.TimeUtil;
 
 /**
  * Created by kilho on 2015. 6. 28..
@@ -92,6 +94,38 @@ public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
     protected void onDisable() {
         // super.onDisable();
         getContext().unregisterReceiver(labelReceiver);
+    }
+
+    @Override
+    protected void sendData(final JsonObject data) {
+      if (data == null || looper == null) {
+        return;
+      } else if (Thread.currentThread() != looper.getThread()) {
+        // Ensure the data send runs on the probe's thread
+        if (handler != null) {
+          Message dataMessage = handler.obtainMessage(SEND_DATA_MESSAGE, data);
+          handler.sendMessageAtFrontOfQueue(dataMessage);
+        }
+      } else {
+        if (!data.has(TIMESTAMP)) {
+          data.addProperty(TIMESTAMP, TimeUtil.getTimestamp());
+        }
+        IJsonObject immutableData = new IJsonObject(data);
+        synchronized (dataListeners) {
+          for (DataListener listener : dataListeners) {
+            listener.onDataReceived(getConfig(), immutableData);
+          }
+        }
+        synchronized (passiveDataListeners) {
+          for (DataListener listener : passiveDataListeners) {
+            if (!dataListeners.contains(listener)) {
+              // Don't send data twice to passive listeners
+              listener.onDataReceived(getConfig(), immutableData);
+            }
+          }
+        }
+      }
+
     }
 
     /*

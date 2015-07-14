@@ -106,6 +106,7 @@ public class LaunchActivity extends ActionBarActivity {
       funfManager.setCallingActivity(LaunchActivity.this);
       pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
 
+
       // This checkbox enables or disables the pipeline
       enabledToggleButton.setChecked(pipeline.isEnabled());
       enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -153,21 +154,32 @@ public class LaunchActivity extends ActionBarActivity {
               archiveButton.setEnabled(false);
               truncateDataButton.setEnabled(false);
 
+              // Intentionally wait 1 second for label probes to be loaded
+              // then send broadcast
+              handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  Log.w("DEBUG", "LaunchActivity/ Entering sendBroadcast(intent)");
+                  Intent intent = new Intent();
+                  intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+                  intent.setAction(LabelKeys.ACTION_LABEL_LOG);
+                  for (int i = 0; i < labelEntries.size(); i++) {
+                    intent.putExtra(labelEntries.get(i).getName(),
+                            labelEntries.get(i).isLogged());
+                  }
+                  sendBroadcast(intent);
+
+                  // Dynamically refresh the ListView items
+                  // by calling mAdapter.getView() again.
+                  mAdapter.notifyDataSetChanged();
+                }
+              }, 1000L);
 
             } else {
-              funfManager.disablePipeline(PIPELINE_NAME);
-              archiveButton.setEnabled(true);
-              truncateDataButton.setEnabled(true);
-            }
-          }
-          // Dynamically refresh the ListView items by calling mAdapter.getView() again.
-          mAdapter.notifyDataSetChanged();
+              // Dynamically refresh the ListView items
+              // by calling mAdapter.getView() again.
+              mAdapter.notifyDataSetChanged();
 
-          // Intentionally wait 1 second for label probes to be loaded
-          // then send broadcast
-          handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
               Log.w("DEBUG", "LaunchActivity/ Entering sendBroadcast(intent)");
               Intent intent = new Intent();
               intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
@@ -177,8 +189,20 @@ public class LaunchActivity extends ActionBarActivity {
                         labelEntries.get(i).isLogged());
               }
               sendBroadcast(intent);
+
+              // Intentionally wait 1 second to send broadcast
+              // then terminate
+              handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  funfManager.disablePipeline(PIPELINE_NAME);
+                  archiveButton.setEnabled(true);
+                  truncateDataButton.setEnabled(true);
+                }
+              }, 1000L);
             }
-          }, 1000L);
+          }
+
 
         }
       });
@@ -195,7 +219,9 @@ public class LaunchActivity extends ActionBarActivity {
       }
 
       mAdapter.notifyDataSetChanged();
-      updateScanCount();
+      if (pipeline.isEnabled()) {
+        updateScanCount();
+      }
     }
 
     @Override
@@ -290,7 +316,7 @@ public class LaunchActivity extends ActionBarActivity {
     handler = new Handler();
 
     enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
-    enabledToggleButton.setEnabled(false);
+    enabledToggleButton.setChecked(false);
 
 
     // Runs an archive if pipeline is enabled
@@ -328,7 +354,7 @@ public class LaunchActivity extends ActionBarActivity {
 //                              Toast.LENGTH_LONG).show();
 //              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
 //              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-            updateScanCount();
+            // updateScanCount();
             if (!enabledToggleButton.isEnabled()) {
               v.setEnabled(true);
             }
@@ -378,9 +404,8 @@ public class LaunchActivity extends ActionBarActivity {
       @Override
       public void onClick(View v) {
         dropAndCreateTable();
-//        dataCountView.setText("Data Count: 0");
-        updateScanCount();
-
+        dataCountView.setText("Data size: 0 MB");
+        // updateScanCount();
 
         // Update probe schedules of pipeline
         HttpConfigUpdater hcu = new HttpConfigUpdater();
@@ -389,10 +414,11 @@ public class LaunchActivity extends ActionBarActivity {
         handler.post(new Runnable() {
           @Override
           public void run() {
-            pipeline.onRun(BasicPipeline.ACTION_UPDATE, null);
+            if (pipeline.getHandler() != null) {
+              pipeline.onRun(BasicPipeline.ACTION_UPDATE, null);
+            }
           }
         });
-
       }
     });
 
@@ -402,6 +428,7 @@ public class LaunchActivity extends ActionBarActivity {
   }
 
   // DEPRECATED:
+  /*
   public void onClickProbeReschedule(View v, IJsonObject probeConfig,
                                      boolean isEnabled) {
       if (!pipeline.isEnabled()) {
@@ -416,6 +443,7 @@ public class LaunchActivity extends ActionBarActivity {
                   Toast.LENGTH_LONG).show();
       }
   }
+  */
 
   @Override
   public void onResume() {
@@ -486,13 +514,15 @@ public class LaunchActivity extends ActionBarActivity {
    * Truncate table of the database of the pipeline.
    */
   private void dropAndCreateTable() {
-    SQLiteDatabase db = pipeline.getWritableDb();
-    NameValueDatabaseHelper databaseHelper =
-      (NameValueDatabaseHelper)pipeline.getDatabaseHelper();
-    databaseHelper.dropAndCreateDataTable(db);
-    updateScanCount();
-    Toast.makeText(getBaseContext(), "Dropped and re-created data table.",
-                    Toast.LENGTH_LONG).show();
+    if (pipeline.getDatabaseHelper() != null) {
+      SQLiteDatabase db = pipeline.getWritableDb();
+      NameValueDatabaseHelper databaseHelper =
+              (NameValueDatabaseHelper) pipeline.getDatabaseHelper();
+      databaseHelper.dropAndCreateDataTable(db);
+      updateScanCount();
+      Toast.makeText(getBaseContext(), "Dropped and re-created data table.",
+              Toast.LENGTH_LONG).show();
+    }
   }
 
   public FunfManager getActivityFunfManager() {

@@ -417,8 +417,10 @@ public interface Probe {
 		/*****************************************
 		 * Probe Data Listeners
 		 *****************************************/
-		private Set<DataListener> dataListeners = Collections.synchronizedSet(new HashSet<DataListener>());
-		private Set<DataListener> passiveDataListeners = Collections.synchronizedSet(new HashSet<DataListener>());
+		protected Set<DataListener> dataListeners = Collections.synchronizedSet(new
+            HashSet<DataListener>());
+		protected Set<DataListener> passiveDataListeners = Collections
+            .synchronizedSet(new HashSet<DataListener>());
 
 		/**
 		 * Returns the set of data listeners. Make sure to synchronize on this
@@ -645,8 +647,8 @@ public interface Probe {
 
 		}
 
-		private volatile Looper looper;
-		private volatile Handler handler;
+		protected volatile Looper looper;
+		protected volatile Handler handler;
 
 		/**
 		 * Access to the probe thread's handler.

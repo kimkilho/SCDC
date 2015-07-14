@@ -19,6 +19,7 @@
 package edu.mit.media.funf.pipeline;
 
 import java.io.File;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.probe.Probe.DataListener;
 import edu.mit.media.funf.probe.builtin.ProbeKeys;
+import edu.mit.media.funf.probe.labelcollector.LabelProbe;
 import edu.mit.media.funf.storage.DefaultArchive;
 import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.NameValueDatabaseHelper;
@@ -115,7 +117,7 @@ public class BasicPipeline implements Pipeline, DataListener {
           break;
         case UPLOAD:
           if (archive != null && upload != null && uploader != null) {
-            Log.w("DEBUG", "BasicPipeline/ running uploader.runarchive, " +
+            Log.w("DEBUG", "BasicPipeline/ running uploader.run(archive, " +
                     "upload)");
             // uploader.start();
             uploader.run(archive, upload);
@@ -124,7 +126,7 @@ public class BasicPipeline implements Pipeline, DataListener {
         // Added by Kilho Kim:
         case ARCHIVE_AND_UPLOAD:
           if (archive != null && upload != null && uploader != null) {
-            Log.w("DEBUG", "BasicPipeline/ running runArchived() followed by " +
+            Log.w("DEBUG", "BasicPipeline/ running runArchive() followed by " +
                     "uploader.run(archive, upload)");
             runArchive();
             // uploader.start();
@@ -282,7 +284,7 @@ public class BasicPipeline implements Pipeline, DataListener {
 
   }
   
-  protected Handler getHandler() {
+  public Handler getHandler() {
     return handler;
   }
   
@@ -398,8 +400,23 @@ public class BasicPipeline implements Pipeline, DataListener {
     JsonObject record = new JsonObject();
     record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
     record.add("value", data);
+//    Log.w("DEBUG", "BasicPipeline.onDataReceived()/ probeConfig.@type=" +
+//                    probeConfig.get(RuntimeTypeAdapterFactory.TYPE) +
+//                   ", data=" + data.toString());
     Message message = Message.obtain(handler, DATA, record);
-    handler.sendMessage(message);
+    // Added by Kilho Kim
+//    Log.w("DEBUG", "probeConfig.get(...).toString()=" + probeConfig.get
+//            (RuntimeTypeAdapterFactory.TYPE).getAsString() + ", " +
+//            "LabelProbe.class.getName()=" + LabelProbe.class.getName());
+    if (probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString()
+                   .equals(LabelProbe.class.getName())) {
+      Log.w("DEBUG", "BasicPipeline.onDataReceived()/ LabelProbe data " +
+              "received");
+
+      handler.sendMessageAtFrontOfQueue(message);
+    } else {
+      handler.sendMessage(message);
+    }
     // Added by Kilho Kim
     if (activity != null && activity instanceof LaunchActivity) {
       ((LaunchActivity)activity).updateScanCount();
@@ -409,63 +426,6 @@ public class BasicPipeline implements Pipeline, DataListener {
   @Override
   public void onDataCompleted(IJsonObject probeConfig, JsonElement checkpoint) {
     // TODO Figure out what to do with continuations of probes, if anything
-
-  }
-
-
-  /**
-   * @author Kilho Kim
-   * @description Background archiver class
-   */
-  private class BackgroundArchiver extends AsyncTask<Void, Integer, Boolean>
-          implements DialogInterface.OnCancelListener {
-
-    private ProgressDialog progressDialog;
-
-    public BackgroundArchiver() {
-    }
-
-    @Override
-    protected void onPreExecute() {
-      progressDialog = new ProgressDialog(activity);
-      progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-      progressDialog.setMessage("Uploading...");
-      progressDialog.setIndeterminate(false);
-      progressDialog.setCancelable(false);
-      progressDialog.show();
-    }
-
-    @Override
-    protected Boolean doInBackground(Void... v) {
-      SQLiteDatabase db = databaseHelper.getWritableDatabase();
-      // TODO: add check to make sure this is not empty
-      File dbFile = new File(db.getPath());
-      db.close();
-      archive.add(dbFile);
-//    if (archive.add(dbFile)) {
-//      dbFile.delete();
-//    }
-      reloadDbHelper(manager);
-      databaseHelper.getWritableDatabase(); // Build new database
-
-      return true;
-    }
-
-    @Override
-    protected void onProgressUpdate(Integer... progress) {
-
-    }
-
-    @Override
-    protected void onPostExecute(Boolean isSuccess) {
-      progressDialog.dismiss();
-    }
-
-    @Override
-    public void onCancel(DialogInterface dialog) {
-      cancel(true);
-      dialog.dismiss();
-    }
 
   }
 
