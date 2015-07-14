@@ -58,6 +58,7 @@ import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
 import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
+import kr.ac.snu.imlab.ohpclient.LaunchActivity;
 
 public class BasicPipeline implements Pipeline, DataListener {
 
@@ -399,6 +400,10 @@ public class BasicPipeline implements Pipeline, DataListener {
     record.add("value", data);
     Message message = Message.obtain(handler, DATA, record);
     handler.sendMessage(message);
+    // Added by Kilho Kim
+    if (activity != null && activity instanceof LaunchActivity) {
+      ((LaunchActivity)activity).updateScanCount();
+    }
   }
 
   @Override

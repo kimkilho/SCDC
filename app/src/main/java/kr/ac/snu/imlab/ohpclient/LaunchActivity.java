@@ -75,7 +75,7 @@ public class LaunchActivity extends ActionBarActivity {
   // Run Data Collection button
   private ToggleButton enabledToggleButton;
 
-  private Button archiveButton, updateDataCountButton, truncateDataButton;
+  private Button archiveButton, truncateDataButton;
   private TextView dataCountView;
 
   private ServiceConnection funfManagerConn = new ServiceConnection() {
@@ -131,14 +131,12 @@ public class LaunchActivity extends ActionBarActivity {
               }
 
               archiveButton.setEnabled(true);
-              updateDataCountButton.setEnabled(true);
               truncateDataButton.setEnabled(false);
 
 
             } else {
               funfManager.disablePipeline(PIPELINE_NAME);
               archiveButton.setEnabled(false);
-              updateDataCountButton.setEnabled(false);
               truncateDataButton.setEnabled(true);
             }
           }
@@ -170,11 +168,9 @@ public class LaunchActivity extends ActionBarActivity {
 
       if (enabledToggleButton.isChecked()) {
           archiveButton.setEnabled(true);
-          updateDataCountButton.setEnabled(true);
           truncateDataButton.setEnabled(false);
       } else {
           archiveButton.setEnabled(false);
-          updateDataCountButton.setEnabled(false);
           truncateDataButton.setEnabled(true);
       }
 
@@ -308,16 +304,6 @@ public class LaunchActivity extends ActionBarActivity {
       }
     });
 
-    // Update the data count
-    updateDataCountButton = (Button)findViewById(R.id.updateDataCountButton);
-    updateDataCountButton.setEnabled(false);
-    updateDataCountButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        updateScanCount();
-      }
-    });
-
     // Truncate the data
     truncateDataButton = (Button)findViewById(R.id.truncateDataButton);
     truncateDataButton.setEnabled(false);
@@ -363,39 +349,6 @@ public class LaunchActivity extends ActionBarActivity {
       }
   }
 
-  /*
-  @Override
-  protected void onSaveInstanceState(Bundle outState) {
-    Log.w("DEBUG", "LaunchActivity/ Saving current label status");
-
-    // Save current isLogged value of labelEntries
-    for (int i = 0; i < labelEntries.size(); i++) {
-      outState.putBoolean(String.valueOf(i), labelEntries.get(i).isLogged());
-    }
-
-    super.onSaveInstanceState(outState);
-  }
-  */
-
-  /*
-  @Override
-  protected void onRestoreInstanceState(Bundle savedInstanceState) {
-    Log.w("DEBUG", "LaunchActivity/ Restoring the saved label status");
-
-    if (savedInstanceState != null) {
-      // Restore isLogged value of labelEntries
-      for (int i = 0; i < labelEntries.size(); i++) {
-        labelEntries.get(i).setLogged(
-                savedInstanceState.getBoolean(String.valueOf(i)));
-      }
-
-      mAdapter.notifyDataSetChanged();
-    }
-
-    super.onRestoreInstanceState(savedInstanceState);
-  }
-  */
-
   @Override
   public void onResume() {
     super.onResume();
@@ -434,25 +387,27 @@ public class LaunchActivity extends ActionBarActivity {
       unbindService(funfManagerConn);
   }
 
-  private static final String TOTAL_COUNT_SQL = "SELECT COUNT(*) FROM " +
-          NameValueDatabaseHelper.DATA_TABLE.name;
+//  private static final String TOTAL_COUNT_SQL = "SELECT COUNT(*) FROM " +
+//          NameValueDatabaseHelper.DATA_TABLE.name;
   /**
    * Queries the database of the pipeline to determine how many rows of data we have recorded so far.
    */
-  private void updateScanCount() {
+  public void updateScanCount() {
       // Query the pipeline db for the count of rows in the data table
     if (pipeline.isEnabled()) {
       SQLiteDatabase db = pipeline.getDb();
       final long dbSize = new File(db.getPath()).length();  // in bytes
-      Cursor mcursor = db.rawQuery(TOTAL_COUNT_SQL, null);
-      mcursor.moveToFirst();
-      final int count = mcursor.getInt(0);
+//      Cursor mcursor = db.rawQuery(TOTAL_COUNT_SQL, null);
+//      mcursor.moveToFirst();
+      // final int count = mcursor.getInt(0);
       // Update interface on main thread
       runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          dataCountView.setText("Data Count: " + count + "\n Size: "
-                      + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
+//          dataCountView.setText("Data Count: " + count + "\n Size: "
+//                      + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
+            dataCountView.setText("Data size: " +
+                    Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
         }
       });
     }
@@ -519,7 +474,7 @@ public class LaunchActivity extends ActionBarActivity {
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-      // Hkandle action bar item clicks here. The action bar will
+      // Handle action bar item clicks here. The action bar will
       // automatically handle clicks on the Home/Up button, so long
       // as you specify a parent activity in AndroidManifest.xml.
       int id = item.getItemId();
