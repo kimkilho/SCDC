@@ -360,40 +360,6 @@ public class LaunchActivity extends ActionBarActivity {
             }
           }
         }, 10000L);
-
-
-
-        /*
-        SQLiteDatabase db = pipeline.getWritableDb();
-        NameValueDatabaseHelper databaseHelper =
-                (NameValueDatabaseHelper)pipeline.getDatabaseHelper();
-                */
-
-        /*
-        if (!pipeline.isEnabled()) {
-          v.setEnabled(false);
-
-          pipeline.onRun(BasicPipeline.ACTION_ARCHIVE_AND_UPLOAD, null);
-          // Wait 1 second for archive to finish, then refresh the UI
-          // (Note: this is kind of a hack since archiving is seamless
-          //         and there are no messages when it occurs)
-          handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-//              Toast.makeText(getBaseContext(), "Archived! Will be uploaded " +
-//                              "in a few seconds...",
-//                              Toast.LENGTH_LONG).show();
-//              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
-//              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-              updateScanCount();
-              v.setEnabled(true);
-            }
-          }, 10000L);
-        } else {
-          Toast.makeText(getBaseContext(), "Pipeline is not enabled",
-                          Toast.LENGTH_SHORT).show();
-        }
-        */
       }
     });
 
@@ -427,31 +393,9 @@ public class LaunchActivity extends ActionBarActivity {
             BIND_AUTO_CREATE);
   }
 
-  // DEPRECATED:
-  /*
-  public void onClickProbeReschedule(View v, IJsonObject probeConfig,
-                                     boolean isEnabled) {
-      if (!pipeline.isEnabled()) {
-          Intent rescheduleIntent = new Intent(this,
-                  ProbeRescheduleActivity.class);
-          rescheduleIntent.putExtra("PROBE", probeConfig.toString());
-          rescheduleIntent.putExtra("IS_ENABLED", isEnabled);
-          startActivity(rescheduleIntent);
-      } else {
-          Toast.makeText(getBaseContext(),
-                  "Pipeline should be disabled to reschedule the probe.",
-                  Toast.LENGTH_LONG).show();
-      }
-  }
-  */
-
   @Override
   public void onResume() {
     super.onResume();
-
-//    mAdapter = new BaseAdapterExLabel(this, labelEntries);
-//    mListView = (ListView)findViewById(R.id.label_list_view);
-//    mListView.setAdapter(mAdapter);
 
     SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS,
             Context.MODE_PRIVATE);
