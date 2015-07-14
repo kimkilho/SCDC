@@ -2,6 +2,7 @@ package kr.ac.snu.imlab.ohpclient;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.ActionBarActivity;
 import android.content.ComponentName;
 import android.content.Intent;
@@ -24,11 +25,15 @@ import com.google.gson.JsonObject;
 
 import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule.BasicSchedule;
+import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.builtin.*;
 import edu.mit.media.funf.probe.labelcollector.LabelProbe;
+import edu.mit.media.funf.storage.DefaultArchive;
+import edu.mit.media.funf.storage.FileArchive;
+import edu.mit.media.funf.storage.HttpArchive;
 import edu.mit.media.funf.storage.NameValueDatabaseHelper;
 
 import android.os.IBinder;
@@ -47,9 +52,24 @@ import java.util.List;
 import java.util.Map;
 
 import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
+import edu.mit.media.funf.storage.RemoteFileArchive;
+import edu.mit.media.funf.storage.UploadService;
+import edu.mit.media.funf.util.StringUtil;
 
 
 public class LaunchActivity extends ActionBarActivity {
+  @Configurable
+  protected String name = "default";
+  @Configurable
+  protected int version = 1;
+  @Configurable
+  protected FileArchive archive = null;
+  @Configurable
+  protected RemoteFileArchive upload = null;
+
+  private UploadService uploader;
+
+
   public static final String PIPELINE_NAME = "ohpclient";
   public static final String OHPCLIENT_PREFS = "kr.ac.snu.imlab.ohpclient";
   public static final String DEFAULT_USERNAME = "imlab_user";
@@ -130,13 +150,13 @@ public class LaunchActivity extends ActionBarActivity {
                 }
               }
 
-              archiveButton.setEnabled(true);
+              archiveButton.setEnabled(false);
               truncateDataButton.setEnabled(false);
 
 
             } else {
               funfManager.disablePipeline(PIPELINE_NAME);
-              archiveButton.setEnabled(false);
+              archiveButton.setEnabled(true);
               truncateDataButton.setEnabled(true);
             }
           }
@@ -167,14 +187,15 @@ public class LaunchActivity extends ActionBarActivity {
       enabledToggleButton.setEnabled(true);
 
       if (enabledToggleButton.isChecked()) {
-          archiveButton.setEnabled(true);
+          archiveButton.setEnabled(false);
           truncateDataButton.setEnabled(false);
       } else {
-          archiveButton.setEnabled(false);
+          archiveButton.setEnabled(true);
           truncateDataButton.setEnabled(true);
       }
 
       mAdapter.notifyDataSetChanged();
+      updateScanCount();
     }
 
     @Override
@@ -274,11 +295,56 @@ public class LaunchActivity extends ActionBarActivity {
 
     // Runs an archive if pipeline is enabled
     archiveButton = (Button)findViewById(R.id.archiveButton);
-    archiveButton.setEnabled(false);
+    archiveButton.setEnabled(true);
     archiveButton.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(final View v) {
-        if (pipeline.isEnabled()) {
+        v.setEnabled(false);
+
+        archive = new DefaultArchive(funfManager, name);
+        uploader = new UploadService(funfManager);
+        uploader.setActivity(LaunchActivity.this);
+        uploader.start();
+
+        SQLiteDatabase db = pipeline.getWritableDb();
+        Log.w("DEBUG", "LaunchActivity/ db.getPath()=" + db.getPath());
+        File dbFile = new File(db.getPath());
+        db.close();
+        archive.add(dbFile);
+        upload = new HttpArchive(funfManager,
+                "http://imlab-ws2.snu.ac.kr:7000/data");
+        uploader.run(archive, upload);
+
+        // uploader.stop();
+
+        // Wait 1 second for archive to finish, then refresh the UI
+        // (Note: this is kind of a hack since archiving is seamless
+        //         and there are no messages when it occurs)
+        handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+//              Toast.makeText(getBaseContext(), "Archived! Will be uploaded " +
+//                              "in a few seconds...",
+//                              Toast.LENGTH_LONG).show();
+//              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
+//              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
+            updateScanCount();
+            if (!enabledToggleButton.isEnabled()) {
+              v.setEnabled(true);
+            }
+          }
+        }, 10000L);
+
+
+
+        /*
+        SQLiteDatabase db = pipeline.getWritableDb();
+        NameValueDatabaseHelper databaseHelper =
+                (NameValueDatabaseHelper)pipeline.getDatabaseHelper();
+                */
+
+        /*
+        if (!pipeline.isEnabled()) {
           v.setEnabled(false);
 
           pipeline.onRun(BasicPipeline.ACTION_ARCHIVE_AND_UPLOAD, null);
@@ -301,6 +367,7 @@ public class LaunchActivity extends ActionBarActivity {
           Toast.makeText(getBaseContext(), "Pipeline is not enabled",
                           Toast.LENGTH_SHORT).show();
         }
+        */
       }
     });
 
@@ -311,7 +378,9 @@ public class LaunchActivity extends ActionBarActivity {
       @Override
       public void onClick(View v) {
         dropAndCreateTable();
-        dataCountView.setText("Data Count: 0");
+//        dataCountView.setText("Data Count: 0");
+        updateScanCount();
+
 
         // Update probe schedules of pipeline
         HttpConfigUpdater hcu = new HttpConfigUpdater();
@@ -326,7 +395,6 @@ public class LaunchActivity extends ActionBarActivity {
 
       }
     });
-
 
     // Bind to the service, to create the connection with FunfManager
     bindService(new Intent(this, FunfManager.class), funfManagerConn,
@@ -407,7 +475,7 @@ public class LaunchActivity extends ActionBarActivity {
 //          dataCountView.setText("Data Count: " + count + "\n Size: "
 //                      + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
             dataCountView.setText("Data size: " +
-                    Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
+                    Math.round((dbSize / (1048576.0)) * 10.0) / 10.0 + " MB");
         }
       });
     }

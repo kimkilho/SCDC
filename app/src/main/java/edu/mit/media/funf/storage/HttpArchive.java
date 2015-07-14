@@ -78,6 +78,7 @@ public class HttpArchive implements RemoteFileArchive {
 	}
 	
 	public HttpArchive(Context context, final String uploadUrl, final String mimeType) {
+    this.context = context;
 		this.url = uploadUrl;
 		this.mimeType = mimeType;
 	}
@@ -85,7 +86,7 @@ public class HttpArchive implements RemoteFileArchive {
 	public void setContext(Context context) {
 	  this.context = context;
 	}
-	
+
 	public void setUrl(String url) {
 	  this.url = url;
 	}
