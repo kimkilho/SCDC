@@ -114,7 +114,7 @@ public class BasicPipeline implements Pipeline, DataListener {
           break;
         case UPLOAD:
           if (archive != null && upload != null && uploader != null) {
-            Log.w("DEBUG", "BasicPipeline/ running uploader.run(archive, " +
+            Log.w("DEBUG", "BasicPipeline/ running uploader.runarchive, " +
                     "upload)");
             // uploader.start();
             uploader.run(archive, upload);
