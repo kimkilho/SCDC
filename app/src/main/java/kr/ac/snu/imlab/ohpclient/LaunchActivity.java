@@ -171,7 +171,16 @@ public class LaunchActivity extends ActionBarActivity {
 
                   // Dynamically refresh the ListView items
                   // by calling mAdapter.getView() again.
+                  // mAdapter.notifyDataSetChanged();
+                }
+              }, 1000L);
+
+              // Dynamically refresh the ListView items
+              handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
                   mAdapter.notifyDataSetChanged();
+                  handler.postDelayed(this, 1000L);
                 }
               }, 1000L);
 
@@ -401,11 +410,20 @@ public class LaunchActivity extends ActionBarActivity {
             Context.MODE_PRIVATE);
     // Restore isLogged value of labelEntries from SharedPreferences
     for (int i = 0; i < labelEntries.size(); i++) {
-      labelEntries.get(i).startLog(prefs.getLong(String.valueOf(i), -1L));
+      mAdapter.getItem(i).startLog(prefs.getLong(String.valueOf(i), -1L));
 //      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
+      Log.w("DEBUG", "LaunchActivity/ labelEntries(" + i + ")=" +
+                      labelEntries.get(i).getStartLoggingTime());
     }
 
-    mAdapter.notifyDataSetChanged();
+    // Dynamically refresh the ListView items
+    handler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        mAdapter.notifyDataSetChanged();
+        handler.postDelayed(this, 1000L);
+      }
+    }, 1000L);
   }
 
   @Override
@@ -418,7 +436,7 @@ public class LaunchActivity extends ActionBarActivity {
 //      prefs.edit().putBoolean(String.valueOf(i),
 //                              labelEntries.get(i).isLogged()).apply();
       prefs.edit().putLong(String.valueOf(i),
-        labelEntries.get(i).getStartLoggingTime());
+        labelEntries.get(i).getStartLoggingTime()).apply();
     }
   }
 

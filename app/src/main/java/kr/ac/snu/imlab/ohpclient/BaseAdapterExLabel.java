@@ -117,7 +117,6 @@ public class BaseAdapterExLabel extends BaseAdapter {
       }
     });
 
-
     viewHolder.logLabelTextView.setText(mData.get(position).getName());
 
     // Load enabledToggleButton view from LaunchActivity context
@@ -127,13 +126,20 @@ public class BaseAdapterExLabel extends BaseAdapter {
                                          enabledToggleButton.isChecked());
     viewHolder.endLogButton.setEnabled(mData.get(position).isLogged() &&
                                        enabledToggleButton.isChecked());
-    if (viewHolder.endLogButton.isEnabled()) {
-      viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
+
+    handler = new Handler();
+
+    // Refresh the elapsed time if the label is logged
+    if (mData.get(position).isLogged()) {
+      String elapsedTime =
+        getElapsedTimeUntilNow(mData.get(position).getStartLoggingTime());
+      viewHolder.scheduleTextView.setText(
+              "Currently " + mData.get(position).getName() +
+              " for " + elapsedTime);
     } else {
       viewHolder.scheduleTextView.setText(R.string.probe_disabled);
     }
 
-    handler = new Handler();
     viewHolder.startLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
@@ -154,8 +160,13 @@ public class BaseAdapterExLabel extends BaseAdapter {
             BaseAdapterExLabel.this.notify(position, "SSC Client",
                     mData.get(position).getName(), "Label logging");
 
-            // FIXME:
-            viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
+            // FIXME: Update the elapsed time
+            handler.postDelayed(new Runnable() {
+              @Override
+              public void run() {
+              }
+            }, 1000L);
+//            viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
             v.setEnabled(false);
             viewHolder.endLogButton.setEnabled(true);
 
@@ -172,6 +183,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
                 enabledToggleButton.setEnabled(true);
               }
             }, 5000L);
+
         }
     });
 
@@ -194,7 +206,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
 
             BaseAdapterExLabel.this.cancelNotify(position);
 
-            viewHolder.scheduleTextView.setText(R.string.probe_disabled);
+//            viewHolder.scheduleTextView.setText(R.string.probe_disabled);
             v.setEnabled(false);
             viewHolder.startLogButton.setEnabled(true);
 
@@ -218,6 +230,29 @@ public class BaseAdapterExLabel extends BaseAdapter {
     return itemLayout;
   }
 
+  private String getElapsedTimeUntilNow(long startTime) {
+    if (startTime == -1) return null;
+
+    long timeDelta = System.currentTimeMillis() - startTime;
+    String elapsedTime = null;
+
+    long secondsInMillis = 1000;
+    long minutesInMillis = secondsInMillis * 60;
+    long hoursInMillis = minutesInMillis * 60;
+    long daysInMillis = hoursInMillis * 24;
+
+    if (timeDelta < minutesInMillis) {
+      elapsedTime = String.valueOf(timeDelta / secondsInMillis) + " seconds";
+    } else if (timeDelta < hoursInMillis) {
+      elapsedTime = String.valueOf(timeDelta / minutesInMillis) + " minutes";
+    } else if (timeDelta < daysInMillis) {
+      elapsedTime = String.valueOf(timeDelta / hoursInMillis) + " hours";
+    } else {
+      elapsedTime = String.valueOf(timeDelta / daysInMillis) + " hours";
+    }
+
+    return elapsedTime;
+  }
 
   /*
   private void startTimerTask(int i) {
