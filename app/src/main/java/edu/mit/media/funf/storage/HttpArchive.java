@@ -235,6 +235,8 @@ public class HttpArchive implements RemoteFileArchive {
         conn.setDoOutput(true);
         // Don't use a cached copy.
         conn.setUseCaches(false);
+        // Added by Kilho Kim: to prevent outOfMemoryError
+        conn.setChunkedStreamingMode(1024);
         // set timeout
         conn.setConnectTimeout(60000);
         conn.setReadTimeout(60000);
