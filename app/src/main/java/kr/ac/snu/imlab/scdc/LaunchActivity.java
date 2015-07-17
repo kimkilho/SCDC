@@ -67,7 +67,7 @@ public class LaunchActivity extends ActionBarActivity {
 
 
   public static final String PIPELINE_NAME = "scdc";
-  public static final String OHPCLIENT_PREFS = "kr.ac.snu.imlab.scdc";
+  public static final String SCDC_PREFS = "kr.ac.snu.imlab.scdc";
   public static final String DEFAULT_USERNAME = "imlab_user";
 
   private Handler handler;
@@ -245,7 +245,8 @@ public class LaunchActivity extends ActionBarActivity {
     this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
     // Set current username
-    final SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS, Context.MODE_PRIVATE);
+    final SharedPreferences prefs = getSharedPreferences(SCDC_PREFS,
+            Context.MODE_PRIVATE);
     userName = (EditText)findViewById(R.id.user_name);
     userName.setText(prefs.getString("userName", DEFAULT_USERNAME));
     isMaleRadioButton = (RadioButton)findViewById(R.id.radio_male);
@@ -402,7 +403,7 @@ public class LaunchActivity extends ActionBarActivity {
   public void onResume() {
     super.onResume();
 
-    SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS,
+    SharedPreferences prefs = getSharedPreferences(SCDC_PREFS,
             Context.MODE_PRIVATE);
     // Restore isLogged value of labelEntries from SharedPreferences
     for (int i = 0; i < labelEntries.size(); i++) {
@@ -426,7 +427,8 @@ public class LaunchActivity extends ActionBarActivity {
   public void onPause() {
     super.onPause();
 
-    SharedPreferences prefs = getSharedPreferences(OHPCLIENT_PREFS, Context.MODE_PRIVATE);
+    SharedPreferences prefs = getSharedPreferences(SCDC_PREFS,
+            Context.MODE_PRIVATE);
     // Save current isLogged value of labelEntries from SharedPreferences
     for (int i = 0; i < labelEntries.size(); i++) {
 //      prefs.edit().putBoolean(String.valueOf(i),
