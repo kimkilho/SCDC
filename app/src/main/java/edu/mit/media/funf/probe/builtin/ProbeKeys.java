@@ -459,7 +459,7 @@ public class ProbeKeys {
 
   public static interface LabelKeys {
       public static final String
-          ACTION_LABEL_LOG = "kr.ac.snu.imlab.ohpclient.Broadcasting.action" +
+          ACTION_LABEL_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action" +
               ".LABEL_LOG",
           SLEEP_LABEL = "sleeping",
           IN_CLASS_LABEL = "in_class";

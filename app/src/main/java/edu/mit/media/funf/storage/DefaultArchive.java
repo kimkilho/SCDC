@@ -54,7 +54,7 @@ import edu.mit.media.funf.util.StringUtil;
 @DefaultSchedule(interval=3600)
 public class DefaultArchive implements FileArchive {
 
-    public static final String OHPCLIENT_PREFS = "kr.ac.snu.imlab.ohpclient";
+    public static final String OHPCLIENT_PREFS = "kr.ac.snu.imlab.scdc";
     public static final String DEFAULT_USERNAME = "imlab_user";
 
 	private static final String DES_ENCRYPTION = "DES";

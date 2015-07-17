@@ -1,6 +1,5 @@
-package kr.ac.snu.imlab.ohpclient;
+package kr.ac.snu.imlab.scdc;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 

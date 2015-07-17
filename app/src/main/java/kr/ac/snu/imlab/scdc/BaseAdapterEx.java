@@ -1,10 +1,8 @@
-package kr.ac.snu.imlab.ohpclient;
+package kr.ac.snu.imlab.scdc;
 
-import android.app.Activity;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +24,6 @@ import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
-import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 
 public class BaseAdapterEx extends BaseAdapter {
@@ -37,7 +34,7 @@ public class BaseAdapterEx extends BaseAdapter {
 
   private FunfManager funfManager = null;
   private BasicPipeline pipeline = null;
-  public static final String PIPELINE_NAME = "ohpclient";
+  public static final String PIPELINE_NAME = "scdc";
 
   public BaseAdapterEx(Context context, ArrayList<ProbeEntry> data) {
     this.mContext = context;
@@ -151,8 +148,8 @@ public class BaseAdapterEx extends BaseAdapter {
       public void onClick(View v) {
         Intent rescheduleIntent = new Intent();
         ComponentName probeRescheduleActivity = new ComponentName(
-                "kr.ac.snu.imlab.ohpclient",
-                "kr.ac.snu.imlab.ohpclient.ProbeRescheduleActivity");
+                "kr.ac.snu.imlab.scdc",
+                "kr.ac.snu.imlab.scdc.ProbeRescheduleActivity");
         rescheduleIntent.setComponent(probeRescheduleActivity);
         rescheduleIntent.putExtra("PROBE",
                 mData.get(position).getProbeClass().getName());

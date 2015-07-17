@@ -5,11 +5,11 @@ android {
     buildToolsVersion "21.0.1"
 
     defaultConfig {
-        applicationId "kr.ac.snu.imlab.ohpclient"
+        applicationId "kr.ac.snu.imlab.scdc"
         minSdkVersion 16
         targetSdkVersion 18
         versionCode 1
-        versionName "0.1.4"
+        versionName "0.2.0"
     }
     buildTypes {
         release {

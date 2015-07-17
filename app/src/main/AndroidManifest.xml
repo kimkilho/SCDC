@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="kr.ac.snu.imlab.ohpclient"
+    package="kr.ac.snu.imlab.scdc"
     android:versionCode="1"
     android:versionName="1.0.1" >
 
@@ -71,7 +71,7 @@
 
         <!-- Activity -->
         <activity
-            android:name=".LaunchActivity"
+            android:name="kr.ac.snu.imlab.scdc.LaunchActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -80,15 +80,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ProbeRescheduleActivity"
+            android:name="kr.ac.snu.imlab.scdc.ProbeRescheduleActivity"
             android:label="@string/title_activity_probe_reschedule" >
         </activity>
 
         <!-- Funf Probe Services -->
         <service android:name="edu.mit.media.funf.FunfManager" >
             <meta-data
-                android:name="ohpclient"
-                android:value="@string/ohpclient_pipeline" />
+                android:name="scdc"
+                android:value="@string/scdc_pipeline" />
         </service>
 
         <!-- Funf receiver -->

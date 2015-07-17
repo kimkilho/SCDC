@@ -1,6 +1,4 @@
-package kr.ac.snu.imlab.ohpclient;
-
-import java.math.BigDecimal;
+package kr.ac.snu.imlab.scdc;
 
 import edu.mit.media.funf.Schedule.BasicSchedule;
 

@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.ohpclient;
+package kr.ac.snu.imlab.scdc;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -16,7 +16,6 @@ import android.os.Handler;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.JsonParser;
 
@@ -32,7 +31,7 @@ import edu.mit.media.funf.probe.Probe.DisplayName;
 
 
 public class ProbeRescheduleActivity extends ActionBarActivity {
-    public static final String PIPELINE_NAME = "ohpclient";
+    public static final String PIPELINE_NAME = "scdc";
 
     private Handler handler;
     private FunfManager funfManager = null;

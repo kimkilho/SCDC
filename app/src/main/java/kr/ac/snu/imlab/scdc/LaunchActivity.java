@@ -1,13 +1,11 @@
-package kr.ac.snu.imlab.ohpclient;
+package kr.ac.snu.imlab.scdc;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.support.v7.app.ActionBarActivity;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,7 +25,6 @@ import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule.BasicSchedule;
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.HttpConfigUpdater;
-import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.builtin.*;
 import edu.mit.media.funf.probe.labelcollector.LabelProbe;
@@ -54,7 +51,6 @@ import java.util.Map;
 import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
-import edu.mit.media.funf.util.StringUtil;
 
 
 public class LaunchActivity extends ActionBarActivity {
@@ -70,8 +66,8 @@ public class LaunchActivity extends ActionBarActivity {
   private UploadService uploader;
 
 
-  public static final String PIPELINE_NAME = "ohpclient";
-  public static final String OHPCLIENT_PREFS = "kr.ac.snu.imlab.ohpclient";
+  public static final String PIPELINE_NAME = "scdc";
+  public static final String OHPCLIENT_PREFS = "kr.ac.snu.imlab.scdc";
   public static final String DEFAULT_USERNAME = "imlab_user";
 
   private Handler handler;

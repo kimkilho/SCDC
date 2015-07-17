@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.ohpclient;
+package kr.ac.snu.imlab.scdc;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

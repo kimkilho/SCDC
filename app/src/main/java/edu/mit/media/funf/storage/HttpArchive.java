@@ -30,7 +30,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.concurrent.ExecutionException;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
@@ -41,15 +40,11 @@ import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import edu.mit.media.funf.Schedule.DefaultSchedule;
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.util.IOUtil;
 import edu.mit.media.funf.util.LogUtil;
-import kr.ac.snu.imlab.ohpclient.LaunchActivity;
-import kr.ac.snu.imlab.ohpclient.R;
 
 /**
  * Archives a file to the url specified using POST HTTP method.

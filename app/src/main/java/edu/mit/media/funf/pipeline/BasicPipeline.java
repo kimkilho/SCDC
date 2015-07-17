@@ -19,7 +19,6 @@
 package edu.mit.media.funf.pipeline;
 
 import java.io.File;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -27,14 +26,10 @@ import java.util.List;
 import java.util.Map;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -58,9 +53,8 @@ import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.NameValueDatabaseHelper;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
-import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
-import kr.ac.snu.imlab.ohpclient.LaunchActivity;
+import kr.ac.snu.imlab.scdc.LaunchActivity;
 
 public class BasicPipeline implements Pipeline, DataListener {
 
