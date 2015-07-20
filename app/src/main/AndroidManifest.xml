@@ -71,7 +71,7 @@
 
         <!-- Activity -->
         <activity
-            android:name="kr.ac.snu.imlab.scdc.LaunchActivity"
+            android:name=".LaunchActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -80,7 +80,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="kr.ac.snu.imlab.scdc.ProbeRescheduleActivity"
+            android:name=".ProbeRescheduleActivity"
             android:label="@string/title_activity_probe_reschedule" >
         </activity>
 

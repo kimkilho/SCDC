@@ -35,6 +35,7 @@ import javax.crypto.spec.PBEKeySpec;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import edu.mit.media.funf.Schedule.DefaultSchedule;
 import edu.mit.media.funf.config.Configurable;
@@ -54,8 +55,7 @@ import edu.mit.media.funf.util.StringUtil;
 @DefaultSchedule(interval=3600)
 public class DefaultArchive implements FileArchive {
 
-    public static final String SCDC_PREFS = "kr.ac.snu.imlab.scdc";
-    public static final String DEFAULT_USERNAME = "imlab_user";
+  public static final String SCDC_PREFS = "kr.ac.snu.imlab.scdc";
 
 	private static final String DES_ENCRYPTION = "DES";
 	
@@ -72,9 +72,9 @@ public class DefaultArchive implements FileArchive {
 	protected String password = "imlab";
 	
 	@Configurable
-	protected String key;
+	protected String key = null;
 	
-    protected Context context;
+  protected Context context;
 	
 	public DefaultArchive() {
 	}
@@ -98,17 +98,19 @@ public class DefaultArchive implements FileArchive {
 	 * @param encryptionPassword
 	 */
 	public void setEncryptionPassword(char[] encryptionPassword) { // Uses char[] instead of String to prevent caching
+    Log.w("DEBUG", "DefaultArchive.setEncryptionPassword()/ " +
+            "encryptionPassword=" + new String(encryptionPassword));
 	  if (encryptionPassword == null || encryptionPassword.length == 0) {
 	    setEncryptionKey(null);
 	  } else {
-		PBEKeySpec keySpec = new PBEKeySpec(encryptionPassword, SALT, ITERATION_COUNT);
-		try {
-			SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
-			SecretKey secretKey = factory.generateSecret(keySpec);
-			setEncryptionKey(secretKey.getEncoded());
-		} catch (GeneralSecurityException e) {
-			throw new RuntimeException("Unable to encrypt data files.", e);
-		} 
+      PBEKeySpec keySpec = new PBEKeySpec(encryptionPassword, SALT, ITERATION_COUNT);
+      try {
+        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBEWithMD5AndDES");
+        SecretKey secretKey = factory.generateSecret(keySpec);
+        setEncryptionKey(secretKey.getEncoded());
+      } catch (GeneralSecurityException e) {
+        throw new RuntimeException("Unable to encrypt data files.", e);
+      }
 	  }
 	}
 	
@@ -119,6 +121,7 @@ public class DefaultArchive implements FileArchive {
 		try {
 			DESKeySpec des = new DESKeySpec(encryptionKey);
 			SecretKey key = SecretKeyFactory.getInstance(DES_ENCRYPTION).generateSecret(des);
+      Log.w("DEBUG", "DefaultArchive/ key=" + key.toString());
 			saveKey(key);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException("Unable to build key for encryption", e);
@@ -133,6 +136,7 @@ public class DefaultArchive implements FileArchive {
 	    if (key != null) {
 	      setEncryptionKey(Base64Coder.decode(key.toCharArray()));
 	    } else if (password != null) {
+        Log.w("DEBUG", "DefaultArchive.getSecretKey()/ password=" + password);
 	      setEncryptionPassword(password.toCharArray());
 	    } 
 	  }
@@ -183,6 +187,7 @@ public class DefaultArchive implements FileArchive {
         SharedPreferences prefs = context.getSharedPreferences(SCDC_PREFS,
                 Context.MODE_PRIVATE);
         NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new IsFemaleNameGenerator(prefs), new ShortDatetimeNameGenerator(), new RequiredSuffixNameGenerator(".db"));
+    Log.w("DEBUG", "DefaultArchive/ encryptionKey=" + encryptionKey.toString());
 		FileCopier copier = (encryptionKey == null) ? new FileCopier.SimpleFileCopier() : new FileCopier.EncryptedFileCopier(encryptionKey, DES_ENCRYPTION);
 		return new FileDirectoryArchive(archiveDir, nameGenerator, copier, new DirectoryCleaner.KeepAll());
 	}
