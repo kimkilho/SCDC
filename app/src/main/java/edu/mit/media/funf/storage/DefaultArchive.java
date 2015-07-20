@@ -187,7 +187,7 @@ public class DefaultArchive implements FileArchive {
         SharedPreferences prefs = context.getSharedPreferences(SCDC_PREFS,
                 Context.MODE_PRIVATE);
         NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new IsFemaleNameGenerator(prefs), new ShortDatetimeNameGenerator(), new RequiredSuffixNameGenerator(".db"));
-    Log.w("DEBUG", "DefaultArchive/ encryptionKey=" + encryptionKey.toString());
+    Log.w("DEBUG", "DefaultArchive/ encryptionKey=" + encryptionKey);
 		FileCopier copier = (encryptionKey == null) ? new FileCopier.SimpleFileCopier() : new FileCopier.EncryptedFileCopier(encryptionKey, DES_ENCRYPTION);
 		return new FileDirectoryArchive(archiveDir, nameGenerator, copier, new DirectoryCleaner.KeepAll());
 	}
