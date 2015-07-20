@@ -58,6 +58,9 @@ public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
             // FIXME: Add some more labels
             labels.put(LabelKeys.SLEEP_LABEL, intent.getBooleanExtra(LabelKeys.SLEEP_LABEL, false));
             labels.put(LabelKeys.IN_CLASS_LABEL, intent.getBooleanExtra(LabelKeys.IN_CLASS_LABEL, false));
+            labels.put(LabelKeys.EATING_LABEL, intent.getBooleanExtra(LabelKeys.EATING_LABEL, false));
+            labels.put(LabelKeys.STUDYING_LABEL, intent.getBooleanExtra(LabelKeys.STUDYING_LABEL, false));
+            labels.put(LabelKeys.DRINKING_LABEL, intent.getBooleanExtra(LabelKeys.DRINKING_LABEL, false));
             // Log.w("DEBUG", "SLEEP_LABEL=" + labels.get(LabelKeys.SLEEP_LABEL) + ", IN_CLASS_LABEL=" + labels.get(LabelKeys.IN_CLASS_LABEL));
             for (String key : labels.keySet()) {
               data.addProperty(key, labels.get(key));

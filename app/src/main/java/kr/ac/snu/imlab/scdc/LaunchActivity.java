@@ -309,6 +309,13 @@ public class LaunchActivity extends ActionBarActivity {
               LabelProbe.class, null, true));
       labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL,
               LabelProbe.class, null, true));
+      labelEntries.add(new LabelEntry(LabelKeys.EATING_LABEL,
+              LabelProbe.class, null, true));
+      labelEntries.add(new LabelEntry(LabelKeys.STUDYING_LABEL,
+              LabelProbe.class, null, true));
+      labelEntries.add(new LabelEntry(LabelKeys.DRINKING_LABEL,
+              LabelProbe.class, null, true));
+
 
     mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
