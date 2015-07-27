@@ -34,7 +34,7 @@ public class ZipArchive extends DefaultArchive {
   private static final String SCDC_PREFS = "kr.ac.snu.imlab.scdc";
 
   @Configurable
-  protected String name = "default";
+  protected String name;
 
   public ZipArchive() {
   }
@@ -70,8 +70,7 @@ public class ZipArchive extends DefaultArchive {
     SharedPreferences prefs = context.getSharedPreferences(SCDC_PREFS,
             Context.MODE_PRIVATE);
     // NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new IsFemaleNameGenerator(prefs), new ShortDatetimeNameGenerator(), new RequiredSuffixNameGenerator(".db"));
-    NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new IsFemaleNameGenerator(prefs), new ShortDatetimeNameGenerator(),
-            new RequiredSuffixNameGenerator(".zip"));
+    NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new IsFemaleNameGenerator(prefs), new ShortDatetimeNameGenerator());
     // Use non-encrypting FileCopier
     FileCopier copier = new FileCopier.SimpleFileCopier();
     return new FileDirectoryArchive(archiveDir, nameGenerator, copier, new DirectoryCleaner.KeepAll());
@@ -86,13 +85,14 @@ public class ZipArchive extends DefaultArchive {
             originalFile.getAbsolutePath());
 
     try {
-      File compressedFile = new File(originalFile.getAbsolutePath());
+      File compressedFile = new File(originalFile.getAbsolutePath() + "_" +
+                                      ran + ".zip");
 
       BufferedInputStream origin = null;
-      FileOutputStream dest = new FileOutputStream(compressedFile);
+      FileOutputStream fos = new FileOutputStream(compressedFile);
       CheckedOutputStream checksum =
-              new CheckedOutputStream(dest, new Adler32());
-      ZipOutputStream out =
+              new CheckedOutputStream(fos, new Adler32());
+      ZipOutputStream zos =
               new ZipOutputStream(new BufferedOutputStream(checksum));
 
       byte[] data = new byte[BUFFER];
@@ -100,18 +100,18 @@ public class ZipArchive extends DefaultArchive {
       FileInputStream fis = new FileInputStream(originalFile);
       origin = new BufferedInputStream(fis, BUFFER);
 
-      ZipEntry entry = new ZipEntry(ran + "_" + originalFile.getName() + "" +
-              ".sqlite");
-      out.putNextEntry(entry);
+      ZipEntry entry = new ZipEntry(originalFile.getName() + ".db");
+      zos.putNextEntry(entry);
 
       int count;
       while ((count = origin.read(data, 0, BUFFER)) != -1) {
-        out.write(data, 0, count);
+        zos.write(data, 0, count);
       }
-      out.flush();
+      zos.flush();
 
+      fis.close();
       origin.close();
-      out.close();
+      zos.close();
 
       Log.i(TAG, "ZipArchive.compressFile()/ Funf archive: " + compressedFile);
       Log.i(TAG, "ZipArchive.compressFile()/ File Zipped Length: " +
