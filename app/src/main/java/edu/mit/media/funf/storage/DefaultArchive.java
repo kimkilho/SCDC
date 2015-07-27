@@ -44,6 +44,7 @@ import edu.mit.media.funf.util.FileUtil;
 import edu.mit.media.funf.util.NameGenerator;
 import edu.mit.media.funf.util.NameGenerator.CompositeNameGenerator;
 import edu.mit.media.funf.util.NameGenerator.RequiredSuffixNameGenerator;
+import edu.mit.media.funf.util.NameGenerator.SystemUniqueTimestampNameGenerator;
 import edu.mit.media.funf.util.StringUtil;
 
 /**
@@ -55,8 +56,6 @@ import edu.mit.media.funf.util.StringUtil;
 @DefaultSchedule(interval=3600)
 public class DefaultArchive implements FileArchive {
 
-  public static final String SCDC_PREFS = "kr.ac.snu.imlab.scdc";
-
 	private static final String DES_ENCRYPTION = "DES";
 	
 	private final static byte[] SALT = {
@@ -67,10 +66,10 @@ public class DefaultArchive implements FileArchive {
 	
 	@Configurable
 	protected String name = "default";
-	
+
 	@Configurable
 	protected String password = "imlab";
-	
+
 	@Configurable
 	protected String key = null;
 	
@@ -182,12 +181,7 @@ public class DefaultArchive implements FileArchive {
 	}
 
 	static FileDirectoryArchive getTimestampedDbFileArchive(File archiveDir, Context context, SecretKey encryptionKey) {
-        // FIXME: Modify this part below to change the db filename back to normal form
-		// NameGenerator nameGenerator = new CompositeNameGenerator(new SystemUniqueTimestampNameGenerator(context), new RequiredSuffixNameGenerator(".db"));
-        SharedPreferences prefs = context.getSharedPreferences(SCDC_PREFS,
-                Context.MODE_PRIVATE);
-        NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new IsFemaleNameGenerator(prefs), new ShortDatetimeNameGenerator(), new RequiredSuffixNameGenerator(".db"));
-    Log.w("DEBUG", "DefaultArchive/ encryptionKey=" + encryptionKey);
+		NameGenerator nameGenerator = new CompositeNameGenerator(new SystemUniqueTimestampNameGenerator(context), new RequiredSuffixNameGenerator(".db"));
 		FileCopier copier = (encryptionKey == null) ? new FileCopier.SimpleFileCopier() : new FileCopier.EncryptedFileCopier(encryptionKey, DES_ENCRYPTION);
 		return new FileDirectoryArchive(archiveDir, nameGenerator, copier, new DirectoryCleaner.KeepAll());
 	}
@@ -213,56 +207,4 @@ public class DefaultArchive implements FileArchive {
 	}
 	
 	
-}
-
-/**
- * New NameGenerator class: UsernameNameGenerator.
- * Added by Kilho Kim.
- */
-class UsernameNameGenerator implements NameGenerator {
-
-    private SharedPreferences prefs;
-
-    public UsernameNameGenerator(SharedPreferences prefs) {
-        this.prefs = prefs;
-    }
-
-    @Override
-    public String generateName(final String name) {
-        return name == null ? null : prefs.getString("userName", "imlab_user") + "_" + name;
-    }
-}
-
-
-/**
- * New NameGenerator class: IsFemaleNameGenerator
- * Added by Kilho Kim.
- */
-class IsFemaleNameGenerator implements NameGenerator {
-
-  private SharedPreferences prefs;
-
-  public IsFemaleNameGenerator(SharedPreferences prefs) {
-    this.prefs = prefs;
-  }
-
-  @Override
-  public String generateName(final String name) {
-    return name == null ? null : (prefs.getBoolean("isFemale", false) ? "female" : "male") + "_" + name;
-  }
-}
-
-
-/**
- * New NameGenerator class: ShortDatetimeNameGenerator.
- * Added by Kilho Kim.
- */
-class ShortDatetimeNameGenerator implements NameGenerator {
-  @Override
-  public String generateName(final String name) {
-    // String datetime = java.text.DateFormat.getDateTimeInstance().format(new Date());
-    SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd_HHmmss");
-    String datetime = fmt.format(new Date());
-    return name == null ? null : datetime + "_" + name;
-  }
 }

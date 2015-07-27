@@ -51,11 +51,10 @@ import java.util.Map;
 import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
+import edu.mit.media.funf.storage.ZipArchive;
 
 
 public class LaunchActivity extends ActionBarActivity {
-  @Configurable
-  protected String name = "default";
   @Configurable
   protected int version = 1;
   @Configurable
@@ -340,7 +339,7 @@ public class LaunchActivity extends ActionBarActivity {
       public void onClick(final View v) {
         v.setEnabled(false);
 
-        archive = new DefaultArchive(funfManager, name);
+        archive = new ZipArchive(funfManager, PIPELINE_NAME);
         uploader = new UploadService(funfManager);
         uploader.setActivity(LaunchActivity.this);
         uploader.start();
