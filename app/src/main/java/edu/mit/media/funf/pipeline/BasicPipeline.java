@@ -61,12 +61,9 @@ public class BasicPipeline implements Pipeline, DataListener {
   public static final String 
   ACTION_ARCHIVE = "archive",
   ACTION_UPLOAD = "upload",
-  ACTION_UPDATE = "update",
-  ACTION_ARCHIVE_AND_UPLOAD = "archive_and_upload";
+  ACTION_UPDATE = "update";
 
-  protected final int ARCHIVE = 0, UPLOAD = 1, UPDATE = 2, DATA = 3,
-          ARCHIVE_AND_UPLOAD = 4;
-  
+  protected final int ARCHIVE = 0, UPLOAD = 1, UPDATE = 2, DATA = 3;
 
   @Configurable
   protected String name = "default";
@@ -117,15 +114,6 @@ public class BasicPipeline implements Pipeline, DataListener {
             uploader.run(archive, upload);
           }
           break;
-        // Added by Kilho Kim:
-        case ARCHIVE_AND_UPLOAD:
-          if (archive != null && upload != null && uploader != null) {
-            Log.w("DEBUG", "BasicPipeline/ running runArchive() followed by " +
-                    "uploader.run(archive, upload)");
-            runArchive();
-            // uploader.start();
-            uploader.run(archive, upload);
-          }
         case UPDATE:
           if (update != null) {
 //            Log.w("DEBUG", "BasicPipeline/ Entered handleMessage: UPDATE");
@@ -203,11 +191,9 @@ public class BasicPipeline implements Pipeline, DataListener {
     this.handler = new Handler(looper, callback);
     enabled = true;
     for (JsonElement dataRequest : data) {
-//      Log.w("DEBUG", "BasicPipeline/ dataRequest.toString=" + dataRequest.toString());
       manager.requestData(this, dataRequest);
     }
     for (Map.Entry<String, Schedule> schedule : schedules.entrySet()) {
-//      Log.w("DEBUG", "BasicPipeline/ schedule.getKey()=" + schedule.getKey() + ", schedule.getValue().toString()=" + schedule.getValue().toString());
       manager.registerPipelineAction(this, schedule.getKey(), schedule.getValue());
     }
   }
@@ -241,22 +227,13 @@ public class BasicPipeline implements Pipeline, DataListener {
     // Run on handler thread
     if (ACTION_ARCHIVE.equals(action)) {
       message = Message.obtain(handler, ARCHIVE, config);
-      // handler.sendMessageAtFrontOfQueue(message);
       handler.sendMessage(message);
-      // handler.obtainMessage(ARCHIVE, config).sendToTarget();
     } else if (ACTION_UPLOAD.equals(action)) {
       message = Message.obtain(handler, UPLOAD, config);
-      // handler.sendMessageAtFrontOfQueue(message);
       handler.sendMessage(message);
-      // handler.obtainMessage(UPLOAD, config).sendToTarget();
     } else if (ACTION_UPDATE.equals(action)) {
       message = Message.obtain(handler, UPDATE, config);
-      // handler.sendMessageAtFrontOfQueue(message);
       handler.sendMessage(message);
-      // handler.obtainMessage(UPDATE, config).sendToTarget();
-    } else if (ACTION_ARCHIVE_AND_UPLOAD.equals(action)) {
-      message = Message.obtain(handler, ARCHIVE_AND_UPLOAD, config);
-      handler.sendMessageAtFrontOfQueue(message);
     }
   }
   
@@ -394,14 +371,7 @@ public class BasicPipeline implements Pipeline, DataListener {
     JsonObject record = new JsonObject();
     record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
     record.add("value", data);
-//    Log.w("DEBUG", "BasicPipeline.onDataReceived()/ probeConfig.@type=" +
-//                    probeConfig.get(RuntimeTypeAdapterFactory.TYPE) +
-//                   ", data=" + data.toString());
     Message message = Message.obtain(handler, DATA, record);
-    // Added by Kilho Kim
-//    Log.w("DEBUG", "probeConfig.get(...).toString()=" + probeConfig.get
-//            (RuntimeTypeAdapterFactory.TYPE).getAsString() + ", " +
-//            "LabelProbe.class.getName()=" + LabelProbe.class.getName());
     if (probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString()
                    .equals(LabelProbe.class.getName())) {
       Log.w("DEBUG", "BasicPipeline.onDataReceived()/ LabelProbe data " +

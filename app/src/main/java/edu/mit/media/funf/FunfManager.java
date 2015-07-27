@@ -162,7 +162,6 @@ public class FunfManager extends Service {
    */
   public Schedule getDataRequestSchedule(IJsonObject probeConfig, DataListener listener) {
       for (DataRequestInfo requestInfo : dataRequests.get(probeConfig)) {
-          // Log.i("DEBUG", "requestInfo.listener=" + requestInfo.listener.toString());
           if (requestInfo.listener == listener)
               return requestInfo.schedule;
       }
@@ -227,14 +226,10 @@ public class FunfManager extends Service {
 	  String pipelineConfig = null;
 	  Bundle metadata = getMetadata();
 	  if (prefs.contains(name)) {
-      Log.w("DEBUG", "FunfManager/ Get pipelineConfig from prefs");
 	    pipelineConfig = prefs.getString(name, null);
 	  } else if (metadata.containsKey(name)) {
-      Log.w("DEBUG", "FunfManager/ Get pipelineConfig from metadata");
 	    pipelineConfig = metadata.getString(name);
 	  }
-//    Log.w("DEBUG", "FunfManager/ pipeline.name=" + name + ", pipelineConfig=" +
-//            pipelineConfig);
 	  if (disabledPipelineNames.contains(name)) {
         // Disabled, so don't load any config
 	    Pipeline disabledPipeline = gson.fromJson(pipelineConfig, Pipeline.class);
@@ -261,29 +256,21 @@ public class FunfManager extends Service {
 	}
 	
 	public boolean save(String name, JsonObject config) {
-//    Log.w("DEBUG", "FunfManager/ Entering save()");
 	  try {
         // Check if this is a valid pipeline before saving
   	    Pipeline pipeline = getGson().fromJson(config, Pipeline.class);
-//        Log.w("DEBUG", "FunfManager/ About to return save()");
         return prefs.edit().putString(name, config.toString()).commit();
       } catch (Exception e) {
-//        Log.w("DEBUG", "FunfManager/ Unable to save config");
-
-        // schedule = gson.fromJson(scheduleObject, Schedule.class);
         Log.e(LogUtil.TAG, "Unable to save config: " + config.toString());
         return false;
       }
 	}
 	
 	public boolean saveAndReload(String name, JsonObject config) {
-//    Log.w("DEBUG", "FunfManager/ About to save the new config");
 	  boolean success = save(name, config);
 	  if (success) {
-//        Log.w("DEBUG", "FunfManager/ About to run reload()");
         reload(name);
 	  }
-//    Log.w("DEBUG", "FunfManager/ About to return saveAndReload()");
 	  return success;
 	}
 
@@ -323,7 +310,6 @@ public class FunfManager extends Service {
 				
 				BigDecimal now = TimeUtil.getTimestamp();
 				final Probe probe = getGson().fromJson(probeConfig, Probe.class);
-        // Log.w("DEBUG", "probe=" + probe);
 				List<DataRequestInfo> requests = dataRequests.get(probeConfig);
 				
 				// TODO: Need to allow for some listeners to be registered and unregistered on different schedules
@@ -398,7 +384,6 @@ public class FunfManager extends Service {
 				// Handle pipeline action
 				String pipelineName = getComponentName(componentUri);
 				String pipelineAction = getAction(componentUri);
-        Log.w("DEBUG", "FunfManager/ componentUri=" + componentUri);
 				Pipeline pipeline = pipelines.get(pipelineName);
 				if (pipeline != null) {
           if (pipelineAction.equals(BasicPipeline.ACTION_UPDATE)) {
@@ -511,9 +496,6 @@ public class FunfManager extends Service {
 		  Log.d(LogUtil.TAG, "Registering pipeline: " + name);
 			unregisterPipeline(name);
 			pipelines.put(name, pipeline);
-//      Log.w("DEBUG", "FunfManager/ Registering pipeline.name=" + name + ", " +
-//              "pipeline.config=" + ((BasicPipeline)pipeline).getDataRequests
-//              ().toString());
 			pipeline.onCreate(this);
 		}
 	}
@@ -572,7 +554,6 @@ public class FunfManager extends Service {
 			if (probeConfig.isJsonObject() && probeConfig.getAsJsonObject().has(PipelineFactory.SCHEDULE)) {
 				JsonUtils.deepCopyOnto(probeConfig.getAsJsonObject().get(PipelineFactory.SCHEDULE).getAsJsonObject(), scheduleObject, true);
 			}
-            // Log.i("DEBUG", "scheduleObject=" + scheduleObject.toString());
 			schedule = gson.fromJson(scheduleObject, Schedule.class);
 		}
 		IJsonObject completeProbeConfig = (IJsonObject)JsonUtils.immutable(gson.toJsonTree(probe));  // Make sure probe config is complete and consistent
