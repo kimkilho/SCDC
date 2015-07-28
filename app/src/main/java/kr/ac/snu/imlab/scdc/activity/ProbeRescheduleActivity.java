@@ -29,6 +29,7 @@ import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 import kr.ac.snu.imlab.scdc.R;
+import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
 
 
 public class ProbeRescheduleActivity extends ActionBarActivity {
@@ -36,7 +37,7 @@ public class ProbeRescheduleActivity extends ActionBarActivity {
 
     private Handler handler;
     private FunfManager funfManager = null;
-    private BasicPipeline pipeline = null;
+    private SCDCPipeline pipeline = null;
 
     private Probe probe;
     private String probeClassName;

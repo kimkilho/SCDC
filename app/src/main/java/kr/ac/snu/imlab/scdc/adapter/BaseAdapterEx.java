@@ -28,6 +28,7 @@ import edu.mit.media.funf.probe.Probe.DisplayName;
 import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
+import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
 
 public class BaseAdapterEx extends BaseAdapter {
   Context mContext = null;
@@ -36,7 +37,7 @@ public class BaseAdapterEx extends BaseAdapter {
   LayoutInflater mLayoutInflater = null;
 
   private FunfManager funfManager = null;
-  private BasicPipeline pipeline = null;
+  private SCDCPipeline pipeline = null;
   public static final String PIPELINE_NAME = "scdc";
 
   public BaseAdapterEx(Context context, ArrayList<ProbeEntry> data) {

@@ -27,6 +27,7 @@ import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.builtin.*;
+import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
 import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.HttpArchive;
@@ -78,7 +79,7 @@ public class LaunchActivity extends ActionBarActivity {
 
   private Handler handler;
   private FunfManager funfManager = null;
-  private BasicPipeline pipeline = null;
+  private SCDCPipeline pipeline = null;
 
   // Username EditText and Button
   private EditText userName = null;
@@ -509,7 +510,8 @@ public class LaunchActivity extends ActionBarActivity {
     return funfManager;
   }
 
-  private Map<JsonElement, BasicSchedule> buildScheduleMap(BasicPipeline pipeline) {
+  private Map<JsonElement, BasicSchedule> buildScheduleMap(SCDCPipeline
+                                                                   pipeline) {
     Map<JsonElement, BasicSchedule> newSchedules = new HashMap<>();
     List<JsonElement> newDataRequests = pipeline.getDataRequests();
     for (int i = 0; i < newDataRequests.size(); i++) {
