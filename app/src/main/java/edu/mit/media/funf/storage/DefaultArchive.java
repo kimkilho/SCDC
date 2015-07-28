@@ -97,8 +97,6 @@ public class DefaultArchive implements FileArchive {
 	 * @param encryptionPassword
 	 */
 	public void setEncryptionPassword(char[] encryptionPassword) { // Uses char[] instead of String to prevent caching
-    Log.w("DEBUG", "DefaultArchive.setEncryptionPassword()/ " +
-            "encryptionPassword=" + new String(encryptionPassword));
 	  if (encryptionPassword == null || encryptionPassword.length == 0) {
 	    setEncryptionKey(null);
 	  } else {
@@ -120,7 +118,6 @@ public class DefaultArchive implements FileArchive {
 		try {
 			DESKeySpec des = new DESKeySpec(encryptionKey);
 			SecretKey key = SecretKeyFactory.getInstance(DES_ENCRYPTION).generateSecret(des);
-      Log.w("DEBUG", "DefaultArchive/ key=" + key.toString());
 			saveKey(key);
 		} catch (GeneralSecurityException e) {
 			throw new RuntimeException("Unable to build key for encryption", e);
@@ -135,7 +132,6 @@ public class DefaultArchive implements FileArchive {
 	    if (key != null) {
 	      setEncryptionKey(Base64Coder.decode(key.toCharArray()));
 	    } else if (password != null) {
-        Log.w("DEBUG", "DefaultArchive.getSecretKey()/ password=" + password);
 	      setEncryptionPassword(password.toCharArray());
 	    } 
 	  }
