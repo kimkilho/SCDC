@@ -178,8 +178,6 @@ public class BasicPipeline implements Pipeline, DataListener {
     }
     if (uploader == null) {
       uploader = new UploadService(manager);
-      if (activity != null)
-        uploader.setActivity(activity);
       uploader.start();
     }
     this.manager = manager;

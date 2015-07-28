@@ -48,8 +48,7 @@ public class UploadService {
   private int maxFileRetries = 3;
   
   private Context context;
-  private Activity activity;
-  
+
   private Map<String, Integer> fileFailures;
   private Map<String, Integer> remoteArchiveFailures;
   private Set<File> filesToUpload;
@@ -80,14 +79,9 @@ public class UploadService {
     this.context = context;
   }
 
-  public void setActivity(Activity activity) {
-    this.activity = activity;
-  }
-
   public void start() {
     HandlerThread thread = new HandlerThread(getClass().getName());
     thread.start();
-    Log.w("DEBUG", "UploadService/ new thread=" + thread.getName());
     looper = thread.getLooper();
     uploadHandler = new Handler(looper);
     fileFailures = new HashMap<String, Integer>();
@@ -132,7 +126,7 @@ public class UploadService {
     numRemoteFailures = (numRemoteFailures == null) ? 0 : numRemoteFailures;
     if (numRemoteFailures < maxRemoteRetries && remoteArchive.isAvailable()) {
       Log.i(LogUtil.TAG, "Archiving..." + file.getName());
-      if (remoteArchive.add(activity, file)) {    // upload file
+      if (remoteArchive.add(file)) {
         archive.remove(file);
         filesToUpload.remove(file);
       } else {
