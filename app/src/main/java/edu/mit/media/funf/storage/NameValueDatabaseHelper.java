@@ -1,25 +1,25 @@
 /**
- * 
+ *
  * Funf: Open Sensing Framework
  * Copyright (C) 2010-2011 Nadav Aharony, Wei Pan, Alex Pentland.
  * Acknowledgments: Alan Gardner
  * Contact: nadav@media.mit.edu
- * 
+ *
  * This file is part of Funf.
- * 
+ *
  * Funf is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as
  * published by the Free Software Foundation, either version 3 of
  * the License, or (at your option) any later version.
- * 
+ *
  * Funf is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
  * See the GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with Funf. If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  */
 package edu.mit.media.funf.storage;
 
@@ -39,28 +39,28 @@ import edu.mit.media.funf.util.UuidUtil;
 public class NameValueDatabaseHelper extends SQLiteOpenHelper {
 
 	public static final int CURRENT_VERSION = 1;
-	
+
 	public static final String COLUMN_NAME = "name";
 	public static final String COLUMN_TIMESTAMP = "timestamp";
 	public static final String COLUMN_VALUE = "value";
-	public static final Table DATA_TABLE = new Table("data", 
+	public static final Table DATA_TABLE = new Table("data",
 			Arrays.asList(new Column(COLUMN_NAME, "TEXT"), // ACTION from data broadcast
 					      new Column(COLUMN_TIMESTAMP, "FLOAT"), // TIMESTAMP in data broadcast
-					      new Column(COLUMN_VALUE, "TEXT"))); // JSON representing 
+					      new Column(COLUMN_VALUE, "TEXT"))); // JSON representing
 	public static final String COLUMN_DATABASE_NAME= "dbname";
 	public static final String COLUMN_INSTALLATION = "device";
 	public static final String COLUMN_UUID = "uuid";
 	public static final String COLUMN_CREATED = "created";
-	public static final Table FILE_INFO_TABLE = new Table("file_info", 
+	public static final Table FILE_INFO_TABLE = new Table("file_info",
 			Arrays.asList(new Column(COLUMN_DATABASE_NAME, "TEXT"), // Name of this database
-						  new Column(COLUMN_INSTALLATION, "TEXT"), // Universally Unique Id for device installation 
-				      	  new Column(COLUMN_UUID, "TEXT"), // Universally Unique Id for file 
+						  new Column(COLUMN_INSTALLATION, "TEXT"), // Universally Unique Id for device installation
+				      	  new Column(COLUMN_UUID, "TEXT"), // Universally Unique Id for file
 					      new Column(COLUMN_CREATED, "FLOAT"))); // TIMESTAMP in data broadcast
-	
-	
+
+
 	private final Context context;
 	private final String databaseName;
-	
+
 	public NameValueDatabaseHelper(Context context, String name, int version) {
 		super(context, name, null, version);
 		this.context = context;
@@ -75,8 +75,8 @@ public class NameValueDatabaseHelper extends SQLiteOpenHelper {
 		String installationUuid = UuidUtil.getInstallationId(context);
 		String fileUuid = UUID.randomUUID().toString();
 		double createdTime = TimeUtil.getTimestamp().doubleValue();
-		db.execSQL(String.format(Locale.US, "insert into %s (%s, %s, %s, %s) values ('%s', '%s', '%s', %f)", 
-				FILE_INFO_TABLE.name, 
+		db.execSQL(String.format(Locale.US, "insert into %s (%s, %s, %s, %s) values ('%s', '%s', '%s', %f)",
+				FILE_INFO_TABLE.name,
 				COLUMN_DATABASE_NAME, COLUMN_INSTALLATION, COLUMN_UUID, COLUMN_CREATED,
 				databaseName, installationUuid, fileUuid, createdTime));
 	}
@@ -86,16 +86,6 @@ public class NameValueDatabaseHelper extends SQLiteOpenHelper {
 		// Nothing yet
 	}
 
-  /**
-   * @author Kilho Kim
-   * Drop and re-Create 'data' table.
-   * @param db
-   */
-  public void dropAndCreateDataTable(SQLiteDatabase db) {
-    db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE.name + ";");
-    db.execSQL(DATA_TABLE.getCreateTableSQL());
-  }
-	
 	// TODO: Consider moving these to an external utils class
 	/**
 	 * Immutable Table Definition
