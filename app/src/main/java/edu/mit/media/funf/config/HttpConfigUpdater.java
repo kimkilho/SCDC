@@ -20,18 +20,13 @@ public class HttpConfigUpdater extends ConfigUpdater {
   @Override
   public JsonObject getConfig() throws ConfigUpdateException {
     try {
-      Log.w("DEBUG", "HttpConfigUpdater/ url=" + url);
-      String content = null; 
+      String content = null;
       if (IOUtil.isValidUrl(url)) {
         content = IOUtil.httpGet(url, null);
-        // Log.w("DEBUG", "HttpConfigUpdater/ content=" + content);
       }
       if (content == null) {
         throw new ConfigUpdateException("Unable to download configuration.");
       }
-//      Log.w("DEBUG", "HttpConfigUpdater/ return=" +
-//                      new JsonParser().parse(content).getAsJsonObject()
-//                              .toString());
       return new JsonParser().parse(content).getAsJsonObject();
     } catch (JsonSyntaxException e) {
       throw new ConfigUpdateException("Bad json in configuration.", e);
@@ -39,27 +34,6 @@ public class HttpConfigUpdater extends ConfigUpdater {
       throw new ConfigUpdateException("Bad json in configuration.", e);
     }
   }
-
-  /**
-   * @author Kilho Kim
-   * @return
-   * @throws ConfigUpdateException
-   */
-  /*
-  @Override
-  public String getConfigAsString(){
-    Log.w("DEBUG", "HttpConfigUpdater/ url=" + url);
-    String content = null;
-    if (IOUtil.isValidUrl(url)) {
-      content = IOUtil.httpGet(url, null);
-      // Log.w("DEBUG", "HttpConfigUpdater/ content=" + content);
-    }
-//      Log.w("DEBUG", "HttpConfigUpdater/ return=" +
-//                      new JsonParser().parse(content).getAsJsonObject()
-//                              .toString());
-    return content;
-  }
-  */
 
   public String getUrl() {
     return url;

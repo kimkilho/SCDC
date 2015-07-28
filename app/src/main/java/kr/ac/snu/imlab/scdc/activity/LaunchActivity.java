@@ -47,10 +47,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
+import kr.ac.snu.imlab.scdc.service.probe.SCDCKeys.LabelKeys;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
 import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
+import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
 import kr.ac.snu.imlab.scdc.service.storage.SCDCHttpArchive;
 import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
 import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
@@ -495,8 +496,8 @@ public class LaunchActivity extends ActionBarActivity {
   private void dropAndCreateTable() {
     if (pipeline.getDatabaseHelper() != null) {
       SQLiteDatabase db = pipeline.getWritableDb();
-      NameValueDatabaseHelper databaseHelper =
-              (NameValueDatabaseHelper) pipeline.getDatabaseHelper();
+      SCDCDatabaseHelper databaseHelper =
+              (SCDCDatabaseHelper) pipeline.getDatabaseHelper();
       databaseHelper.dropAndCreateDataTable(db);
       updateScanCount();
       Toast.makeText(getBaseContext(), "Dropped and re-created data table.",

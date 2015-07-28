@@ -7,23 +7,18 @@ import android.content.IntentFilter;
 import android.os.Message;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
 import edu.mit.media.funf.Schedule;
-import edu.mit.media.funf.json.IJsonArray;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.probe.Probe.Base;
 import edu.mit.media.funf.probe.Probe.ContinuousProbe;
-import edu.mit.media.funf.probe.Probe.PassiveProbe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 import edu.mit.media.funf.probe.Probe.Description;
-import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
+import kr.ac.snu.imlab.scdc.service.probe.SCDCKeys.LabelKeys;
 import edu.mit.media.funf.time.TimeUtil;
 
 /**

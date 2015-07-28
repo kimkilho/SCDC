@@ -72,7 +72,9 @@ public abstract class SensorProbe extends Base implements ContinuousProbe, Senso
 			@Override
 			public void onSensorChanged(SensorEvent event) {
 				JsonObject data = new JsonObject();
+        // FIXME: TIMESTAMP for all SensorProbe's
 				// data.addProperty(TIMESTAMP, TimeUtil.uptimeNanosToTimestamp(event.timestamp));
+        data.addProperty(TIMESTAMP, TimeUtil.getTimestamp());
 				data.addProperty(ACCURACY, event.accuracy);
 				int valuesLength = Math.min(event.values.length, valueNames.length);
 				for (int i = 0; i < valuesLength; i++) {
