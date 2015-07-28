@@ -1,4 +1,4 @@
-package edu.mit.media.funf.storage;
+package kr.ac.snu.imlab.scdc.service.storage;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,6 +20,13 @@ import java.util.zip.ZipOutputStream;
 import javax.crypto.SecretKey;
 
 import edu.mit.media.funf.config.Configurable;
+import edu.mit.media.funf.storage.BackedUpArchive;
+import edu.mit.media.funf.storage.CompositeFileArchive;
+import edu.mit.media.funf.storage.DefaultArchive;
+import edu.mit.media.funf.storage.DirectoryCleaner;
+import edu.mit.media.funf.storage.FileArchive;
+import edu.mit.media.funf.storage.FileCopier;
+import edu.mit.media.funf.storage.FileDirectoryArchive;
 import edu.mit.media.funf.util.NameGenerator;
 import edu.mit.media.funf.util.NameGenerator.CompositeNameGenerator;
 import edu.mit.media.funf.util.NameGenerator.RequiredSuffixNameGenerator;

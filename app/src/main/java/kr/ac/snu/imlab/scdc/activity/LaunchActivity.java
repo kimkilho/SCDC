@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc;
+package kr.ac.snu.imlab.scdc.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,8 +27,7 @@ import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.builtin.*;
-import edu.mit.media.funf.probe.labelcollector.LabelProbe;
-import edu.mit.media.funf.storage.DefaultArchive;
+import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.HttpArchive;
 import edu.mit.media.funf.storage.NameValueDatabaseHelper;
@@ -51,7 +50,11 @@ import java.util.Map;
 import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
-import edu.mit.media.funf.storage.ZipArchive;
+import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
+import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExLabel;
+import kr.ac.snu.imlab.scdc.entry.LabelEntry;
+import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
+import kr.ac.snu.imlab.scdc.R;
 
 
 public class LaunchActivity extends ActionBarActivity {

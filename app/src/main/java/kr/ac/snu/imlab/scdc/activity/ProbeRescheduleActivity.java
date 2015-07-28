@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc;
+package kr.ac.snu.imlab.scdc.activity;
 
 import android.content.ComponentName;
 import android.content.Intent;
@@ -28,6 +28,7 @@ import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
+import kr.ac.snu.imlab.scdc.R;
 
 
 public class ProbeRescheduleActivity extends ActionBarActivity {

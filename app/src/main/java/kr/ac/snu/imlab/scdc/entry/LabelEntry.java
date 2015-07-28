@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc;
+package kr.ac.snu.imlab.scdc.entry;
 
 import edu.mit.media.funf.Schedule.BasicSchedule;
 

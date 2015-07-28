@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc;
+package kr.ac.snu.imlab.scdc.entry;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;

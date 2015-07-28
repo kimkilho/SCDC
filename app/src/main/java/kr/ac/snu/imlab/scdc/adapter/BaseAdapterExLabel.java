@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc;
+package kr.ac.snu.imlab.scdc.adapter;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -17,6 +17,9 @@ import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
+import kr.ac.snu.imlab.scdc.entry.LabelEntry;
+import kr.ac.snu.imlab.scdc.R;
+import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 
 import java.util.ArrayList;
 import android.os.Handler;

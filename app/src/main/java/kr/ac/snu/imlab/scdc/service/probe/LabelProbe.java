@@ -1,4 +1,4 @@
-package edu.mit.media.funf.probe.labelcollector;
+package kr.ac.snu.imlab.scdc.service.probe;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc;
+package kr.ac.snu.imlab.scdc.adapter;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -25,6 +25,9 @@ import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.Probe.DisplayName;
+import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
+import kr.ac.snu.imlab.scdc.R;
+import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 
 public class BaseAdapterEx extends BaseAdapter {
   Context mContext = null;
@@ -149,7 +152,7 @@ public class BaseAdapterEx extends BaseAdapter {
         Intent rescheduleIntent = new Intent();
         ComponentName probeRescheduleActivity = new ComponentName(
                 "kr.ac.snu.imlab.scdc",
-                "kr.ac.snu.imlab.scdc.ProbeRescheduleActivity");
+                "kr.ac.snu.imlab.scdc.activity.ProbeRescheduleActivity");
         rescheduleIntent.setComponent(probeRescheduleActivity);
         rescheduleIntent.putExtra("PROBE",
                 mData.get(position).getProbeClass().getName());
