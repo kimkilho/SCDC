@@ -17,6 +17,12 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    packagingOptions {
+      exclude 'META-INF/LICENSE'
+      exclude 'META-INF/NOTICE'
+      exclude 'META-INF/DEPENDENCIES'
+    }
 }
 
 repositories {
@@ -28,8 +34,8 @@ dependencies {
     compile 'com.android.support:appcompat-v7:21.0.3'
     compile files('libs/gson-2.1.funf.jar')
     compile files('libs/actionbarsherlock-4.4.0.jar')
-    compile 'org.apache.james:apache-mime4j:0.6.1'
-    compile 'org.apache.httpcomponents:httpclient:4.1'
-    compile 'org.apache.httpcomponents:httpcore:4.1'
-    compile 'org.apache.httpcomponents:httpmime:4.1'
+    compile 'org.apache.james:apache-mime4j:0.7.2'
+    compile 'org.apache.httpcomponents:httpclient:4.2.1'
+    compile 'org.apache.httpcomponents:httpmime:4.3.1'
+    compile 'org.apache.httpcomponents:httpcore:4.3'
 }

@@ -50,6 +50,9 @@ import java.util.Map;
 import edu.mit.media.funf.probe.builtin.ProbeKeys.LabelKeys;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
+import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
+import kr.ac.snu.imlab.scdc.service.storage.SCDCHttpArchive;
+import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
 import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
 import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExLabel;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
@@ -63,9 +66,9 @@ public class LaunchActivity extends ActionBarActivity {
   @Configurable
   protected FileArchive archive = null;
   @Configurable
-  protected RemoteFileArchive upload = null;
+  protected MultipartEntityArchive upload = null;
 
-  private UploadService uploader;
+  private SCDCUploadService uploader;
 
 
   public static final String PIPELINE_NAME = "scdc";
@@ -343,8 +346,8 @@ public class LaunchActivity extends ActionBarActivity {
         v.setEnabled(false);
 
         archive = new ZipArchive(funfManager, PIPELINE_NAME);
-        uploader = new UploadService(funfManager);
-        uploader.setActivity(LaunchActivity.this);
+        uploader = new SCDCUploadService(funfManager);
+        uploader.setContext(LaunchActivity.this);
         uploader.start();
 
         SQLiteDatabase db = pipeline.getWritableDb();
@@ -352,9 +355,14 @@ public class LaunchActivity extends ActionBarActivity {
         File dbFile = new File(db.getPath());
         db.close();
         archive.add(dbFile);
-        upload = new HttpArchive(funfManager,
-                "http://imlab-ws2.snu.ac.kr:7000/data");
+        upload = new MultipartEntityArchive(funfManager,
+        // upload = new SCDCHttpArchive(funfManager,
+                "http://imlab-ws2.snu.ac.kr:7000/data",
+                LaunchActivity.this);
         uploader.run(archive, upload);
+        if (dbFile.exists()) {
+          archive.remove(dbFile);
+        }
 
         // uploader.stop();
 
