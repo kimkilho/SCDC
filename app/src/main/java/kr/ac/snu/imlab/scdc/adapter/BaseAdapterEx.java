@@ -118,7 +118,8 @@ public class BaseAdapterEx extends BaseAdapter {
     funfManager = ((LaunchActivity)mContext).getActivityFunfManager();
     if (funfManager != null) {
       if (enabledToggleButton.isChecked()) {
-        pipeline = (BasicPipeline) funfManager.getRegisteredPipeline(PIPELINE_NAME);
+        pipeline = (SCDCPipeline) funfManager.getRegisteredPipeline
+                (PIPELINE_NAME);
         ProbeEntry probeEntry = mData.get(position);
         if (mData.get(position).isEnabled()) {
           Schedule probeSchedule =

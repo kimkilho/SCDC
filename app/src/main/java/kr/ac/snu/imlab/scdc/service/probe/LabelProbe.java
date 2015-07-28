@@ -18,7 +18,7 @@ import edu.mit.media.funf.probe.Probe.Base;
 import edu.mit.media.funf.probe.Probe.ContinuousProbe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 import edu.mit.media.funf.probe.Probe.Description;
-import kr.ac.snu.imlab.scdc.service.probe.SCDCKeys.LabelKeys;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
 import edu.mit.media.funf.time.TimeUtil;
 
 /**

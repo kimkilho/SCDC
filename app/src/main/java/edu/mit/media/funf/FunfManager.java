@@ -93,6 +93,8 @@ import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.time.TimeUtil;
 import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys;
+import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
 
 public class FunfManager extends Service {
 	
@@ -128,9 +130,6 @@ public class FunfManager extends Service {
 		private JsonElement checkpoint;
 	}
 
-  // Added by Kilho Kim
-  private Activity activity;
-	
 	private StateListener probeStateListener = new StateListener() {
 		@Override
 		public void onStateChanged(Probe probe, State previousState) {
@@ -152,7 +151,6 @@ public class FunfManager extends Service {
 
 
   // TODO: Added getDataRequests method by Kilho Kim
-
   /**
    * @author Kilho Kim
    * @param probeConfig
@@ -166,14 +164,6 @@ public class FunfManager extends Service {
               return requestInfo.schedule;
       }
       return null;
-  }
-
-  /**
-   * @author Kilho Kim
-   * @description Set calling activity for FunfManager service
-   */
-  public void setCallingActivity(Activity activity) {
-    this.activity = activity;
   }
 
 
@@ -240,8 +230,6 @@ public class FunfManager extends Service {
       unregisterPipeline(name);
 	  } else {
 	    Pipeline newPipeline = gson.fromJson(pipelineConfig, Pipeline.class);
-      // Added by Kilho Kim
-      ((BasicPipeline)newPipeline).setActivity(activity);
 	    registerPipeline(name, newPipeline); // Will unregister previous before running
 	  }
 	}

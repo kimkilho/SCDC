@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -28,30 +29,32 @@ import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.pipeline.BasicPipeline;
+import edu.mit.media.funf.pipeline.Pipeline;
+import edu.mit.media.funf.probe.Probe.DataListener;
 import edu.mit.media.funf.probe.builtin.ProbeKeys;
 import edu.mit.media.funf.storage.DefaultArchive;
 import edu.mit.media.funf.storage.FileArchive;
-import edu.mit.media.funf.storage.NameValueDatabaseHelper;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
 import edu.mit.media.funf.util.StringUtil;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
+import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
 
 /**
  * Created by kilho on 15. 7. 28.
  */
-public class SCDCPipeline extends BasicPipeline {
+public class SCDCPipeline implements Pipeline, DataListener {
 
   public static final String
-          ACTION_ARCHIVE = "archive",
-          ACTION_UPLOAD = "upload",
-          ACTION_UPDATE = "update";
+    ACTION_ARCHIVE = "archive",
+    ACTION_UPLOAD = "upload",
+    ACTION_UPDATE = "update";
 
   protected final int ARCHIVE = 0, UPLOAD = 1, UPDATE = 2, DATA = 3;
 
   @Configurable
-  protected String name = "default";
+  protected String name = "scdc";
 
   @Configurable
   protected int version = 1;
@@ -119,7 +122,8 @@ public class SCDCPipeline extends BasicPipeline {
   };
 
   protected void reloadDbHelper(Context ctx) {
-    this.databaseHelper = new NameValueDatabaseHelper(ctx, StringUtil.simpleFilesafe(name), version);
+    this.databaseHelper = new SCDCDatabaseHelper(ctx, StringUtil.simpleFilesafe
+            (name), version);
   }
 
   // Edited by Kilho Kim:
@@ -149,10 +153,15 @@ public class SCDCPipeline extends BasicPipeline {
     }
     */
     ContentValues cv = new ContentValues();
-    cv.put(NameValueDatabaseHelper.COLUMN_NAME, name);
-    cv.put(NameValueDatabaseHelper.COLUMN_VALUE, value);
-    cv.put(NameValueDatabaseHelper.COLUMN_TIMESTAMP, timestamp);
-    db.insertOrThrow(NameValueDatabaseHelper.DATA_TABLE.name, "", cv);
+    cv.put(SCDCDatabaseHelper.COLUMN_NAME, name);
+    cv.put(SCDCDatabaseHelper.COLUMN_VALUE, value);
+    cv.put(SCDCDatabaseHelper.COLUMN_TIMESTAMP, timestamp);
+    // Added by Kilho Kim: When the data table is suddenly truncated:
+    try {
+      db.insertOrThrow(SCDCDatabaseHelper.DATA_TABLE.name, "", cv);
+    } catch (SQLiteException e) {
+      // Do nothing
+    }
   }
 
 

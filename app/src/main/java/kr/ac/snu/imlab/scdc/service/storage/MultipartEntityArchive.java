@@ -135,7 +135,6 @@ public class MultipartEntityArchive extends HttpArchive {
   }
 
 
-
   /**
    * @author Kilho Kim
    * @description Background uploader class
@@ -150,7 +149,6 @@ public class MultipartEntityArchive extends HttpArchive {
     private File file;
 
     public BackgroundUploader(Activity activity, String uploadurl, File file) {
-      // Log.w("DEBUG", "HttpArchive/constructor activity=" + activity);
       this.activity = activity;
       this.uploadurl = uploadurl;
       this.file = file;
@@ -158,7 +156,6 @@ public class MultipartEntityArchive extends HttpArchive {
 
     @Override
     protected void onPreExecute() {
-      // Log.w("DEBUG", "HttpArchive/onPreExecute() activity=" + activity);
       progressDialog = new ProgressDialog(activity);
       progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
       progressDialog.setMessage("Uploading...");
@@ -278,104 +275,6 @@ public class MultipartEntityArchive extends HttpArchive {
         isSuccess = false;
       }
 
-
-      /*
-      HttpURLConnection conn = null;
-      DataOutputStream dos = null;
-      //DataInputStream inStream = null;
-
-      String lineEnd = "\r\n";
-      String twoHyphens = "--";
-      String boundary =  "*****";
-
-
-      int bytesRead, bytesAvailable, bufferSize, progress;
-      byte[] buffer;
-      int maxBufferSize = 64*1024; //old value 1024*1024
-
-      try
-      {
-        //------------------ CLIENT REQUEST
-        FileInputStream fileInputStream = null;
-        //Log.i("FNF","UploadService Runnable: 1");
-        try {
-          fileInputStream = new FileInputStream(file);
-        }catch (FileNotFoundException e) {
-          e.printStackTrace();
-          Log.e(LogUtil.TAG, "file not found");
-        }
-        // open a URL connection to the Servlet
-        URL url = new URL(uploadurl);
-        // Open a HTTP connection to the URL
-        conn = (HttpURLConnection) url.openConnection();
-        // Allow Inputs
-        conn.setDoInput(true);
-        // Allow Outputs
-        conn.setDoOutput(true);
-        // Don't use a cached copy.
-        conn.setUseCaches(false);
-        // Added by Kilho Kim: to prevent outOfMemoryError
-        // conn.setChunkedStreamingMode(1024);
-        // set timeout
-        conn.setConnectTimeout(60000);
-        conn.setReadTimeout(60000);
-        // Use a post method.
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Connection", "Keep-Alive");
-        conn.setRequestProperty("Content-Type", "multipart/form-data;boundary="+boundary);
-
-        dos = new DataOutputStream( conn.getOutputStream() );
-        dos.writeBytes(twoHyphens + boundary + lineEnd);
-        dos.writeBytes("Content-Disposition: form-data; name=\"uploadedfile\";filename=\"" + file.getName() +"\"" + lineEnd);
-        dos.writeBytes(lineEnd);
-
-        //Log.i("FNF","UploadService Runnable:Headers are written");
-
-        // create a buffer of maximum size
-        bytesAvailable = fileInputStream.available();
-        bufferSize = Math.min(bytesAvailable, maxBufferSize);
-        buffer = new byte[bufferSize];
-
-        // read file and write it into form...
-        progress = 0;   // initialize progress
-        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-        while (bytesRead > 0)
-        {
-          dos.write(buffer, 0, bufferSize);
-          bytesAvailable = fileInputStream.available();
-          bufferSize = Math.min(bytesAvailable, maxBufferSize);
-          bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-          progress += bytesRead;
-          publishProgress(progress);    // update progress bar
-        }
-
-        // send multipart form data necesssary after file data...
-        dos.writeBytes(lineEnd);
-        dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-        // close streams
-        //Log.i("FNF","UploadService Runnable:File is written");
-        fileInputStream.close();
-        dos.flush();
-        dos.close();
-      }
-      catch (Exception e)
-      {
-        Log.e("FNF", "UploadService Runnable:Client Request error", e);
-        isSuccess = false;
-      }
-
-      //------------------ read the SERVER RESPONSE
-      try {
-        if (conn.getResponseCode() != 200) {
-          isSuccess = false;
-        }
-      } catch (IOException e) {
-        Log.e("FNF", "Connection error", e);
-        isSuccess = false;
-      }
-      */
-
       return isSuccess;
     }
 
@@ -389,6 +288,7 @@ public class MultipartEntityArchive extends HttpArchive {
     @Override
     protected void onPostExecute(Boolean isSuccess) {
       progressDialog.dismiss();
+      file.delete();
     }
 
     @Override
@@ -398,7 +298,6 @@ public class MultipartEntityArchive extends HttpArchive {
     }
 
   }
-
 
   public static String getContent(HttpResponse response) throws IOException {
     BufferedReader rd = new BufferedReader(

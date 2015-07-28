@@ -2,6 +2,7 @@ package kr.ac.snu.imlab.scdc.service.storage;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +10,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 
-import edu.mit.media.funf.storage.NameValueDatabaseHelper;
 import edu.mit.media.funf.time.TimeUtil;
 import edu.mit.media.funf.util.StringUtil;
 import edu.mit.media.funf.util.UuidUtil;
@@ -17,7 +17,7 @@ import edu.mit.media.funf.util.UuidUtil;
 /**
  * Created by kilho on 15. 7. 28.
  */
-public class SCDCDatabaseHelper extends NameValueDatabaseHelper {
+public class SCDCDatabaseHelper extends SQLiteOpenHelper {
 
   public static final int CURRENT_VERSION = 1;
 
@@ -43,7 +43,7 @@ public class SCDCDatabaseHelper extends NameValueDatabaseHelper {
   private final String databaseName;
 
   public SCDCDatabaseHelper(Context context, String name, int version) {
-    super(context, name, version);
+    super(context, name, null, version);
     this.context = context;
     this.databaseName = name;
   }

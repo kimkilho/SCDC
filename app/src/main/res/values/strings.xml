@@ -21,7 +21,7 @@
     </string>
     <string name="scdc_pipeline">
       {
-        "@type":"edu.mit.media.funf.pipeline.BasicPipeline",
+        "@type":"kr.ac.snu.imlab.scdc.service.SCDCPipeline",
         "name":"scdc",
         "version": 1,
         "upload": {

@@ -29,11 +29,11 @@ import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 import kr.ac.snu.imlab.scdc.R;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
 
 
 public class ProbeRescheduleActivity extends ActionBarActivity {
-    public static final String PIPELINE_NAME = "scdc";
 
     private Handler handler;
     private FunfManager funfManager = null;
@@ -53,7 +53,8 @@ public class ProbeRescheduleActivity extends ActionBarActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
           funfManager = ((FunfManager.LocalBinder)service).getManager();
-          pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
+          pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
+                  (Config.PIPELINE_NAME);
 
           try {
             probeName.setText(Class.forName(probeClassName).getAnnotation(DisplayName.class).value());

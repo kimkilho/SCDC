@@ -27,11 +27,10 @@ import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.builtin.*;
+import edu.mit.media.funf.storage.NameValueDatabaseHelper;
 import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
 import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import edu.mit.media.funf.storage.FileArchive;
-import edu.mit.media.funf.storage.HttpArchive;
-import edu.mit.media.funf.storage.NameValueDatabaseHelper;
 
 import android.os.IBinder;
 import android.widget.EditText;
@@ -48,12 +47,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import kr.ac.snu.imlab.scdc.service.probe.SCDCKeys.LabelKeys;
-import edu.mit.media.funf.storage.RemoteFileArchive;
-import edu.mit.media.funf.storage.UploadService;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
 import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
-import kr.ac.snu.imlab.scdc.service.storage.SCDCHttpArchive;
 import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
 import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
 import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExLabel;
@@ -63,6 +62,7 @@ import kr.ac.snu.imlab.scdc.R;
 
 
 public class LaunchActivity extends ActionBarActivity {
+
   @Configurable
   protected int version = 1;
   @Configurable
@@ -71,11 +71,6 @@ public class LaunchActivity extends ActionBarActivity {
   protected MultipartEntityArchive upload = null;
 
   private SCDCUploadService uploader;
-
-
-  public static final String PIPELINE_NAME = "scdc";
-  public static final String SCDC_PREFS = "kr.ac.snu.imlab.scdc";
-  public static final String DEFAULT_USERNAME = "imlab_user";
 
   private Handler handler;
   private FunfManager funfManager = null;
@@ -105,9 +100,10 @@ public class LaunchActivity extends ActionBarActivity {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
       funfManager = ((FunfManager.LocalBinder)service).getManager();
-      // Added by Kilho Kim
-      funfManager.setCallingActivity(LaunchActivity.this);
-      pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
+      // funfManager.setCallingActivity(LaunchActivity.this);
+      pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
+              (Config.PIPELINE_NAME);
+      pipeline.setActivity(LaunchActivity.this);
 
 
       // This checkbox enables or disables the pipeline
@@ -117,8 +113,7 @@ public class LaunchActivity extends ActionBarActivity {
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
           if (funfManager != null) {
             if (isChecked) {
-              funfManager.enablePipeline(PIPELINE_NAME);
-              pipeline = (BasicPipeline)funfManager.getRegisteredPipeline(PIPELINE_NAME);
+              funfManager.enablePipeline(pipeline.getName());
 
               // Assigning new schedules to existing probes in each probeEntries
               Map<JsonElement, BasicSchedule> newSchedules =
@@ -162,7 +157,8 @@ public class LaunchActivity extends ActionBarActivity {
               handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                  Log.w("DEBUG", "LaunchActivity/ Entering sendBroadcast(intent)");
+                  Log.w(LogKeys.DEBUG, "LaunchActivity/ Entering " +
+                          "sendBroadcast(intent)");
                   Intent intent = new Intent();
                   intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
                   intent.setAction(LabelKeys.ACTION_LABEL_LOG);
@@ -192,7 +188,8 @@ public class LaunchActivity extends ActionBarActivity {
               // by calling mAdapter.getView() again.
               mAdapter.notifyDataSetChanged();
 
-              Log.w("DEBUG", "LaunchActivity/ Entering sendBroadcast(intent)");
+              Log.w(LogKeys.DEBUG, "LaunchActivity/ Entering sendBroadcast" +
+                      "(intent)");
               Intent intent = new Intent();
               intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
               intent.setAction(LabelKeys.ACTION_LABEL_LOG);
@@ -207,7 +204,7 @@ public class LaunchActivity extends ActionBarActivity {
               handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                  funfManager.disablePipeline(PIPELINE_NAME);
+                  // funfManager.disablePipeline(Config.PIPELINE_NAME);
                   archiveButton.setEnabled(true);
                   truncateDataButton.setEnabled(true);
                 }
@@ -231,9 +228,7 @@ public class LaunchActivity extends ActionBarActivity {
       }
 
       mAdapter.notifyDataSetChanged();
-      if (pipeline.isEnabled()) {
-        updateScanCount();
-      }
+      updateScanCount();
     }
 
     @Override
@@ -249,17 +244,21 @@ public class LaunchActivity extends ActionBarActivity {
 
     // Make sure the keyboard only pops up
     // when a user clicks into an EditText
-    this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+    this.getWindow().setSoftInputMode(
+            WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
     // Set current username
-    final SharedPreferences prefs = getSharedPreferences(SCDC_PREFS,
+    final SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
             Context.MODE_PRIVATE);
     userName = (EditText)findViewById(R.id.user_name);
-    userName.setText(prefs.getString("userName", DEFAULT_USERNAME));
+    userName.setText(prefs.getString(SharedPrefs.USERNAME,
+                                     Config.DEFAULT_USERNAME));
     isMaleRadioButton = (RadioButton)findViewById(R.id.radio_male);
     isFemaleRadioButton = (RadioButton)findViewById(R.id.radio_female);
-    isMaleRadioButton.setChecked(!prefs.getBoolean("isFemale", false));
-    isFemaleRadioButton.setChecked(prefs.getBoolean("isFemale", false));
+    isMaleRadioButton.setChecked(
+            !prefs.getBoolean(SharedPrefs.IS_FEMALE, false));
+    isFemaleRadioButton.setChecked(
+            prefs.getBoolean(SharedPrefs.IS_FEMALE, false));
     userName.setEnabled(false);
     isMaleRadioButton.setEnabled(false);
     isFemaleRadioButton.setEnabled(false);
@@ -278,10 +277,10 @@ public class LaunchActivity extends ActionBarActivity {
                 userNameButton.setText("Save");
             // If it has just finished being edited:
             } else {
-                prefs.edit().putString("userName", userName.getText().toString()).apply();
-                prefs.edit().putBoolean("isFemale", isFemaleRadioButton.isChecked()).apply();
-                Log.w("DEBUG", "userName=" + prefs.getString("userName", DEFAULT_USERNAME));
-                Log.w("DEBUG", "isFemale=" + prefs.getBoolean("isFemale", false));
+                prefs.edit().putString(SharedPrefs.USERNAME,
+                                       userName.getText().toString()).apply();
+                prefs.edit().putBoolean(SharedPrefs.IS_FEMALE,
+                        isFemaleRadioButton.isChecked()).apply();
                 userName.setEnabled(false);
                 isMaleRadioButton.setEnabled(false);
                 isFemaleRadioButton.setEnabled(false);
@@ -323,7 +322,6 @@ public class LaunchActivity extends ActionBarActivity {
       labelEntries.add(new LabelEntry(LabelKeys.DRINKING_LABEL,
               LabelProbe.class, null, true));
 
-
     mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
     mListView = (ListView)findViewById(R.id.label_list_view);
@@ -347,13 +345,13 @@ public class LaunchActivity extends ActionBarActivity {
       public void onClick(final View v) {
         v.setEnabled(false);
 
-        archive = new ZipArchive(funfManager, PIPELINE_NAME);
+        archive = new ZipArchive(funfManager, Config.PIPELINE_NAME);
         uploader = new SCDCUploadService(funfManager);
         uploader.setContext(LaunchActivity.this);
         uploader.start();
 
         SQLiteDatabase db = pipeline.getWritableDb();
-        Log.w("DEBUG", "LaunchActivity/ db.getPath()=" + db.getPath());
+        Log.w(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
         File dbFile = new File(db.getPath());
         db.close();
         archive.add(dbFile);
@@ -379,7 +377,7 @@ public class LaunchActivity extends ActionBarActivity {
 //                              Toast.LENGTH_LONG).show();
 //              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
 //              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-            // updateScanCount();
+            updateScanCount();
             if (!enabledToggleButton.isEnabled()) {
               v.setEnabled(true);
             }
@@ -395,7 +393,7 @@ public class LaunchActivity extends ActionBarActivity {
       @Override
       public void onClick(View v) {
         dropAndCreateTable();
-        dataCountView.setText("Data size: 0 MB");
+        dataCountView.setText("Data size: 0.0 MB");
         // updateScanCount();
 
         // Update probe schedules of pipeline
@@ -406,7 +404,7 @@ public class LaunchActivity extends ActionBarActivity {
           @Override
           public void run() {
             if (pipeline.getHandler() != null) {
-              pipeline.onRun(BasicPipeline.ACTION_UPDATE, null);
+              pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
             }
           }
         });
@@ -422,13 +420,13 @@ public class LaunchActivity extends ActionBarActivity {
   public void onResume() {
     super.onResume();
 
-    SharedPreferences prefs = getSharedPreferences(SCDC_PREFS,
+    SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
             Context.MODE_PRIVATE);
     // Restore isLogged value of labelEntries from SharedPreferences
     for (int i = 0; i < labelEntries.size(); i++) {
       mAdapter.getItem(i).startLog(prefs.getLong(String.valueOf(i), -1L));
 //      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
-      Log.w("DEBUG", "LaunchActivity/ labelEntries(" + i + ")=" +
+      Log.w(LogKeys.DEBUG, "LaunchActivity/ labelEntries(" + i + ")=" +
                       labelEntries.get(i).getStartLoggingTime());
     }
 
@@ -446,7 +444,7 @@ public class LaunchActivity extends ActionBarActivity {
   public void onPause() {
     super.onPause();
 
-    SharedPreferences prefs = getSharedPreferences(SCDC_PREFS,
+    SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
             Context.MODE_PRIVATE);
     // Save current isLogged value of labelEntries from SharedPreferences
     for (int i = 0; i < labelEntries.size(); i++) {
@@ -460,8 +458,8 @@ public class LaunchActivity extends ActionBarActivity {
 
   @Override
   protected void onDestroy() {
-      super.onDestroy();
-      unbindService(funfManagerConn);
+    unbindService(funfManagerConn);
+    super.onDestroy();
   }
 
 //  private static final String TOTAL_COUNT_SQL = "SELECT COUNT(*) FROM " +
@@ -470,24 +468,22 @@ public class LaunchActivity extends ActionBarActivity {
    * Queries the database of the pipeline to determine how many rows of data we have recorded so far.
    */
   public void updateScanCount() {
-      // Query the pipeline db for the count of rows in the data table
-    if (pipeline.isEnabled()) {
-      SQLiteDatabase db = pipeline.getDb();
-      final long dbSize = new File(db.getPath()).length();  // in bytes
+    // Query the pipeline db for the count of rows in the data table
+    SQLiteDatabase db = pipeline.getDb();
+    final long dbSize = new File(db.getPath()).length();  // in bytes
 //      Cursor mcursor = db.rawQuery(TOTAL_COUNT_SQL, null);
 //      mcursor.moveToFirst();
-      // final int count = mcursor.getInt(0);
-      // Update interface on main thread
-      runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
+    // final int count = mcursor.getInt(0);
+    // Update interface on main thread
+    runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
 //          dataCountView.setText("Data Count: " + count + "\n Size: "
 //                      + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
-            dataCountView.setText("Data size: " +
-                    Math.round((dbSize / (1048576.0)) * 10.0) / 10.0 + " MB");
-        }
-      });
-    }
+          dataCountView.setText("Data size: " +
+                  Math.round((dbSize / (1048576.0)) * 10.0) / 10.0 + " MB");
+      }
+    });
   }
 
   /**
@@ -498,7 +494,7 @@ public class LaunchActivity extends ActionBarActivity {
     if (pipeline.getDatabaseHelper() != null) {
       SQLiteDatabase db = pipeline.getWritableDb();
       SCDCDatabaseHelper databaseHelper =
-              (SCDCDatabaseHelper) pipeline.getDatabaseHelper();
+              (SCDCDatabaseHelper)pipeline.getDatabaseHelper();
       databaseHelper.dropAndCreateDataTable(db);
       updateScanCount();
       Toast.makeText(getBaseContext(), "Dropped and re-created data table.",
@@ -510,8 +506,8 @@ public class LaunchActivity extends ActionBarActivity {
     return funfManager;
   }
 
-  private Map<JsonElement, BasicSchedule> buildScheduleMap(SCDCPipeline
-                                                                   pipeline) {
+  private Map<JsonElement, BasicSchedule>
+    buildScheduleMap(SCDCPipeline pipeline) {
     Map<JsonElement, BasicSchedule> newSchedules = new HashMap<>();
     List<JsonElement> newDataRequests = pipeline.getDataRequests();
     for (int i = 0; i < newDataRequests.size(); i++) {
