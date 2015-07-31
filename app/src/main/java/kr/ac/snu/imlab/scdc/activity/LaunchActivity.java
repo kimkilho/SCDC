@@ -167,10 +167,6 @@ public class LaunchActivity extends ActionBarActivity {
                             labelEntries.get(i).isLogged());
                   }
                   sendBroadcast(intent);
-
-                  // Dynamically refresh the ListView items
-                  // by calling mAdapter.getView() again.
-                  // mAdapter.notifyDataSetChanged();
                 }
               }, 1000L);
 
@@ -199,16 +195,16 @@ public class LaunchActivity extends ActionBarActivity {
               }
               sendBroadcast(intent);
 
-              // Intentionally wait 1 second to send broadcast
+              // Intentionally wait 2 seconds to send broadcast
               // then terminate
               handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                  // funfManager.disablePipeline(Config.PIPELINE_NAME);
                   archiveButton.setEnabled(true);
                   truncateDataButton.setEnabled(true);
+                  funfManager.disablePipeline(Config.PIPELINE_NAME);
                 }
-              }, 1000L);
+              }, 2000L);
             }
           }
 
