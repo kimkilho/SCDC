@@ -159,7 +159,14 @@ public class MultipartEntityArchive extends HttpArchive {
       progressDialog = new ProgressDialog(activity);
       progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
       progressDialog.setMessage("Uploading...");
-      progressDialog.setCancelable(false);
+      progressDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
+              new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                  cancel(true);
+                  dialog.dismiss();
+                }
+              });
       progressDialog.setMax((int)file.length());
       progressDialog.show();
     }
