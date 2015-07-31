@@ -345,6 +345,8 @@ public class LaunchActivity extends ActionBarActivity {
       public void onClick(final View v) {
         v.setEnabled(false);
 
+        Toast.makeText(getBaseContext(), "Compressing DB file. Please wait...",
+                Toast.LENGTH_LONG).show();
         archive = new ZipArchive(funfManager, Config.PIPELINE_NAME);
         uploader = new SCDCUploadService(funfManager);
         uploader.setContext(LaunchActivity.this);
@@ -356,7 +358,6 @@ public class LaunchActivity extends ActionBarActivity {
         db.close();
         archive.add(dbFile);
         upload = new MultipartEntityArchive(funfManager,
-        // upload = new SCDCHttpArchive(funfManager,
                 "http://imlab-ws2.snu.ac.kr:7000/data",
                 LaunchActivity.this);
         uploader.run(archive, upload);
@@ -382,7 +383,7 @@ public class LaunchActivity extends ActionBarActivity {
               v.setEnabled(true);
             }
           }
-        }, 10000L);
+        }, 5000L);
       }
     });
 
