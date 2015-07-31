@@ -64,7 +64,6 @@ public class FileDirectoryArchive implements FileArchive {
 	public boolean add(File item) {
 		this.archiveDir.mkdirs();
 		File archiveFile = new File(archiveDir, nameGenerator.generateName(item.getName()));
-        Log.w("DEBUG", "FileDirectoryArchive/ filename=" + nameGenerator.generateName(item.getName()));
 		boolean result = fileCopier.copy(item, archiveFile);
 		cleaner.clean(archiveDir);
 		return result;
