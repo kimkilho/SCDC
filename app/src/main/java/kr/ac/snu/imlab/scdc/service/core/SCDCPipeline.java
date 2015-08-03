@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc.service;
+package kr.ac.snu.imlab.scdc.service.core;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -28,7 +28,6 @@ import edu.mit.media.funf.config.ConfigUpdater;
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.RuntimeTypeAdapterFactory;
 import edu.mit.media.funf.json.IJsonObject;
-import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.pipeline.Pipeline;
 import edu.mit.media.funf.probe.Probe.DataListener;
 import edu.mit.media.funf.probe.builtin.ProbeKeys;

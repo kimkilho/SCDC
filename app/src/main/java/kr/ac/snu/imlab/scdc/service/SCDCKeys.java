@@ -18,6 +18,17 @@ public class SCDCKeys {
       IS_FEMALE = "isFemale";
   }
 
+  public static interface Alarm {
+    public static final String
+      EXTRA_LABEL = "kr.ac.snu.imlab.scdc.service.alarm.LABEL",
+      EXTRA_LABEL_ID = "kr.ac.snu.imlab.scdc.service.alarm.LABEL_ID",
+      VIBRATE_ON_ALARM = "vibrate_on_alarm",
+      ALARM_TIME = "alarm_time",
+      REMINDER_TIME = "remider_time",
+      DEFAULT_ALARM_TIME = "15",
+      DEFAULT_REMINDER_TIME = "6";
+  }
+
   public static interface LabelKeys {
     public static final String
       ACTION_LABEL_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action" +

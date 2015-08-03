@@ -104,6 +104,15 @@
             </intent-filter>
         </receiver>
 
+        <receiver android:name=".service.alarm.OnBootReceiver" >
+          <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+          </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".service.alarm.TaskButlerService" />
+
     </application>
 
 </manifest>

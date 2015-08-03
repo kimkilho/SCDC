@@ -23,12 +23,11 @@ import java.util.ArrayList;
 import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.json.IJsonObject;
-import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
-import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
+import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
 
 public class BaseAdapterEx extends BaseAdapter {
   Context mContext = null;

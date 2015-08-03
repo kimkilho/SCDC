@@ -453,11 +453,9 @@ public class LaunchActivity extends ActionBarActivity {
           SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
                   Context.MODE_PRIVATE);
           // Save current isLogged value of labelEntries from SharedPreferences
-          for (int i = 0; i < labelEntries.size(); i++) {
-      //      prefs.edit().putBoolean(String.valueOf(i),
-      //                              labelEntries.get(i).isLogged()).apply();
-            prefs.edit().putLong(String.valueOf(i),
-              labelEntries.get(i).getStartLoggingTime()).apply();
+          for (LabelEntry labelEntry : labelEntries) {
+            prefs.edit().putLong(String.valueOf(labelEntry.getId()),
+              labelEntry.getStartLoggingTime()).apply();
           }
         }
 
