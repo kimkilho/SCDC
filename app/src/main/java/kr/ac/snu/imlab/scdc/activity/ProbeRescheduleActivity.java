@@ -29,7 +29,7 @@ import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
-import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
+import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
 
 
 public class ProbeRescheduleActivity extends ActionBarActivity {

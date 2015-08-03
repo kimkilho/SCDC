@@ -1,15 +1,13 @@
 package kr.ac.snu.imlab.scdc.service.alarm;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 
 import kr.ac.snu.imlab.scdc.service.SCDCKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.Alarm;
 
 /**
   * @author Kilho Kim
@@ -26,11 +24,18 @@ public class OnAlarmReceiver extends BroadcastReceiver {
     WakefulIntentService.acquireStaticLock(context);
       // acquire a partial WakeLock
 
+    Log.d(SCDCKeys.LogKeys.DEBUG, "OnAlarmReceiver.onReceive()/ received " +
+            "intent: " + intent.getDataString());
     // send notification, bundle intent with taskID
     NotificationHelper notification = new NotificationHelper();
     Bundle bundle = intent.getExtras();
-    int id = bundle.getInt(SCDCKeys.Alarm.EXTRA_LABEL_ID);
-    notification.sendBasicNotification(context, );
+    String labelName = bundle.getString(Alarm.EXTRA_LABEL_NAME);
+    int labelId = bundle.getInt(Alarm.EXTRA_LABEL_ID);
+    Log.d(SCDCKeys.LogKeys.DEBUG, "OnAlarmReceiver.onReceive()/ received " +
+                 "data=" + labelName + ", " + labelId);
+//    SharedPreferences prefs =
+//      context.getSharedPreferences(Config.SCDC_PREFS, Context.MODE_PRIVATE);
+    notification.sendBasicNotification(context, labelName, labelId);
     context.startService(new Intent(context, TaskButlerService.class));
       // start TaskButlerService
   }

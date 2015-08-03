@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.R;
@@ -89,13 +91,13 @@ public class BaseAdapterExLabel extends BaseAdapter {
 
       viewHolder = new ViewHolder();
       viewHolder.logLabelTextView =
-              (TextView)itemLayout.findViewById(R.id.logLabelTextView);
+        (TextView)itemLayout.findViewById(R.id.logLabelTextView);
       viewHolder.scheduleTextView =
-              (TextView)itemLayout.findViewById(R.id.scheduleTextView);
+        (TextView)itemLayout.findViewById(R.id.scheduleTextView);
       viewHolder.startLogButton =
-              (Button)itemLayout.findViewById(R.id.startLogButton);
+        (Button)itemLayout.findViewById(R.id.startLogButton);
       viewHolder.endLogButton =
-              (Button)itemLayout.findViewById(R.id.endLogButton);
+        (Button)itemLayout.findViewById(R.id.endLogButton);
 
       itemLayout.setTag(viewHolder);
     } else {
@@ -135,8 +137,17 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.startLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            // Save changes to SharedPreferences
+            SharedPreferences labelPrefs =
+              mContext.getSharedPreferences(Config.SCDC_LABEL_PREFS,
+                                            Context.MODE_PRIVATE);
+            // Save current isLogged value of labelEntries from SharedPreferences
+            LabelEntry currLabelEntry = mData.get(position);
+            labelPrefs.edit().putLong(String.valueOf(currLabelEntry.getId()),
+                                 currLabelEntry.getStartLoggingTime()).apply();
+
             // mData.get(position).setLogged(true);
-            mData.get(position).startLog();
+            currLabelEntry.startLog();
             // Start label logging
             Intent intent = new Intent();
             intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
@@ -150,14 +161,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
             mContext.sendBroadcast(intent);
 
             BaseAdapterExLabel.this.notify(position, "SSC Client",
-                    mData.get(position).getName(), "Label logging");
+                    currLabelEntry.getName(), "Label logging");
 
-            // FIXME: Update the elapsed time
-            handler.postDelayed(new Runnable() {
-              @Override
-              public void run() {
-              }
-            }, 1000L);
 //            viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
             v.setEnabled(false);
             viewHolder.endLogButton.setEnabled(true);
@@ -169,7 +174,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             Toast.makeText(mContext,
                     "Saving the label log...",
                     Toast.LENGTH_SHORT).show();
-              handler.postDelayed(new Runnable() {
+            handler.postDelayed(new Runnable() {
               @Override
               public void run() {
                 enabledToggleButton.setEnabled(true);

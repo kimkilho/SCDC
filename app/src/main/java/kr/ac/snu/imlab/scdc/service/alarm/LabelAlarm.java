@@ -4,9 +4,11 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.Alarm;
 
 /**
   * @author Kilho Kim
@@ -27,33 +29,33 @@ public class LabelAlarm {
    * @param context
    * @param id  The ID of the label
    */
-  public void cancelAlarm(Context context, int id) {
+  public void cancelAlarm(Context context, String labelName, int labelId) {
     // cancel regular alarms
-    PendingIntent pi = getPendingIntent(context, id);
+    PendingIntent pi = getPendingIntent(context, labelName, labelId);
     AlarmManager alarmManager =
       (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(pi);
     pi.cancel();
 
-    // cancel reminder alarm
-    Intent intent =
-      new Intent(context, OnAlarmReceiver.class)
-            .putExtra(SCDCKeys.Alarm.EXTRA_LABEL_ID, id)
-            .putExtra(LabelAlarm.ALARM_EXTRA, SCDCKeys.Alarm.REMINDER_TIME);
-    pi = PendingIntent.getBroadcast(context, id, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT);
-    alarmManager.cancel(pi);
-    pi.cancel();
-
-    // cancel procrastinator alarm
-    intent =
-      new Intent(context, OnAlarmReceiver.class)
-            .putExtra(SCDCKeys.Alarm.EXTRA_LABEL_ID, id)
-            .putExtra(LabelAlarm.ALARM_EXTRA, SCDCKeys.Alarm.ALARM_TIME);
-    pi = PendingIntent.getBroadcast(context, id, intent,
-            PendingIntent.FLAG_UPDATE_CURRENT);
-    alarmManager.cancel(pi);
-    pi.cancel();
+//    // cancel reminder alarm
+//    Intent intent =
+//      new Intent(context, OnAlarmReceiver.class)
+//            .putExtra(Alarm.EXTRA_LABEL_ID, id)
+//            .putExtra(LabelAlarm.ALARM_EXTRA, Alarm.REMINDER_TIME);
+//    pi = PendingIntent.getBroadcast(context, id, intent,
+//            PendingIntent.FLAG_UPDATE_CURRENT);
+//    alarmManager.cancel(pi);
+//    pi.cancel();
+//
+//    // cancel procrastinator alarm
+//    intent =
+//      new Intent(context, OnAlarmReceiver.class)
+//            .putExtra(Alarm.EXTRA_LABEL_ID, id)
+//            .putExtra(LabelAlarm.ALARM_EXTRA, Alarm.ALARM_TIME);
+//    pi = PendingIntent.getBroadcast(context, id, intent,
+//            PendingIntent.FLAG_UPDATE_CURRENT);
+//    alarmManager.cancel(pi);
+//    pi.cancel();
   }
 
   /**
@@ -62,27 +64,25 @@ public class LabelAlarm {
    * @param context
    * @param id  The ID of the label
    */
-  public void cancelNotification(Context context, int id) {
+  public void cancelNotification(Context context, int labelId) {
     NotificationHelper cancel = new NotificationHelper();
-    cancel.cancelNotification(context, id);
+    cancel.cancelNotification(context, labelId);
   }
 
   /**
    * @description Set a one-time alarm using the labelID
    * @param context
-   * @param labelEntry
+   * @param dateDue
+   * @param labelId
    */
-  public void setAlarm(Context context, LabelEntry labelEntry) {
-       AlarmManager am =
-         (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-       am.set(AlarmManager.RTC_WAKEUP, labelEntry.getDateDue(),
-               getPendingIntent(context, labelEntry.getId()));
-       // am.set(int type, long triggerAtMillis, PendingIntent operation)
-//        type 	One of ELAPSED_REALTIME, ELAPSED_REALTIME_WAKEUP, RTC,
-// or RTC_WAKEUP.
-//        triggerAtMillis 	time in milliseconds that the alarm should go off, using the appropriate clock (depending on the alarm type).
-//        operation 	Action to perform when the alarm goes off; typically comes from IntentSender.getBroadcast().
-   }
+  public void setAlarm(Context context, long dateDue,
+                       String name, int labelId) {
+    AlarmManager am =
+      (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    Log.d(SCDCKeys.LogKeys.DEBUG, "LabelAlarm.setAlarm()/ alarm set");
+    am.set(AlarmManager.RTC_WAKEUP, dateDue,
+            getPendingIntent(context, name, labelId));
+  }
 
   /**
    * @description Sets DateDue field to the next repeat cycle,
@@ -115,9 +115,10 @@ public class LabelAlarm {
   }
 
   // get a PendingIntent
-  PendingIntent getPendingIntent(Context context, int id) {
+  PendingIntent getPendingIntent(Context context, String name, int id) {
     Intent intent = new Intent(context, OnAlarmReceiver.class)
-                          .putExtra(SCDCKeys.Alarm.EXTRA_LABEL_ID, id);
+                          .putExtra(Alarm.EXTRA_LABEL_NAME, name)
+                          .putExtra(Alarm.EXTRA_LABEL_ID, id);
     return PendingIntent.getBroadcast(context, id, intent,
                                       PendingIntent.FLAG_UPDATE_CURRENT);
   }

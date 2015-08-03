@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc.service.core;
+package kr.ac.snu.imlab.scdc.service;
 
 import android.app.Activity;
 import android.content.ContentValues;
@@ -121,8 +121,9 @@ public class SCDCPipeline implements Pipeline, DataListener {
   };
 
   protected void reloadDbHelper(Context ctx) {
-    this.databaseHelper = new SCDCDatabaseHelper(ctx, StringUtil.simpleFilesafe
-            (name), version);
+    this.databaseHelper =
+      new SCDCDatabaseHelper(ctx,
+        StringUtil.simpleFilesafe(name), version);
   }
 
   // Edited by Kilho Kim:

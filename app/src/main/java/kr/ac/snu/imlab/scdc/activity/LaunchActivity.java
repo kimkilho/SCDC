@@ -26,7 +26,10 @@ import android.content.Context;
  import edu.mit.media.funf.config.Configurable;
  import edu.mit.media.funf.config.HttpConfigUpdater;
  import edu.mit.media.funf.probe.builtin.*;
- import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
+import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
+import kr.ac.snu.imlab.scdc.service.alarm.TaskButlerService;
+import kr.ac.snu.imlab.scdc.service.alarm.WakefulIntentService;
+import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
  import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
  import edu.mit.media.funf.storage.FileArchive;
 
@@ -273,17 +276,17 @@ public class LaunchActivity extends ActionBarActivity {
                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
        // Set current username
-       final SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
-               Context.MODE_PRIVATE);
+       final SharedPreferences basicPrefs =
+         getSharedPreferences(Config.SCDC_BASIC_PREFS, Context.MODE_PRIVATE);
        userName = (EditText)findViewById(R.id.user_name);
-       userName.setText(prefs.getString(SharedPrefs.USERNAME,
+       userName.setText(basicPrefs.getString(SharedPrefs.USERNAME,
                                         Config.DEFAULT_USERNAME));
        isMaleRadioButton = (RadioButton)findViewById(R.id.radio_male);
        isFemaleRadioButton = (RadioButton)findViewById(R.id.radio_female);
        isMaleRadioButton.setChecked(
-               !prefs.getBoolean(SharedPrefs.IS_FEMALE, false));
+               !basicPrefs.getBoolean(SharedPrefs.IS_FEMALE, false));
        isFemaleRadioButton.setChecked(
-               prefs.getBoolean(SharedPrefs.IS_FEMALE, false));
+               basicPrefs.getBoolean(SharedPrefs.IS_FEMALE, false));
        userName.setEnabled(false);
        isMaleRadioButton.setEnabled(false);
        isFemaleRadioButton.setEnabled(false);
@@ -302,10 +305,10 @@ public class LaunchActivity extends ActionBarActivity {
                    userNameButton.setText("Save");
                // If it has just finished being edited:
                } else {
-                   prefs.edit().putString(SharedPrefs.USERNAME,
-                                          userName.getText().toString()).apply();
-                   prefs.edit().putBoolean(SharedPrefs.IS_FEMALE,
-                           isFemaleRadioButton.isChecked()).apply();
+                   basicPrefs.edit().putString(SharedPrefs.USERNAME,
+                            userName.getText().toString()).apply();
+                   basicPrefs.edit().putBoolean(SharedPrefs.IS_FEMALE,
+                            isFemaleRadioButton.isChecked()).apply();
                    userName.setEnabled(false);
                    isMaleRadioButton.setEnabled(false);
                    isFemaleRadioButton.setEnabled(false);
@@ -326,6 +329,12 @@ public class LaunchActivity extends ActionBarActivity {
          labelEntries.add(new LabelEntry(i, labelNames[i],
                                          LabelProbe.class, null, true));
        }
+
+       // Put the total number of labels into SharedPreferences
+       SharedPreferences labelPrefs =
+         getSharedPreferences(Config.SCDC_LABEL_PREFS, Context.MODE_PRIVATE);
+       labelPrefs.edit().putInt(SharedPrefs.NUM_LABELS,
+               labelEntries.size()).apply();
 
        mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
@@ -423,48 +432,80 @@ public class LaunchActivity extends ActionBarActivity {
      }
 
      @Override
-        public void onResume() {
-          super.onResume();
+      public void onResume() {
+        super.onResume();
 
-          SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
-                  Context.MODE_PRIVATE);
-          // Restore isLogged value of labelEntries from SharedPreferences
-          for (int i = 0; i < labelEntries.size(); i++) {
-            mAdapter.getItem(i).startLog(prefs.getLong(String.valueOf(i), -1L));
-      //      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
-            Log.w(LogKeys.DEBUG, "LaunchActivity/ labelEntries(" + i + ")=" +
-                            labelEntries.get(i).getStartLoggingTime());
-          }
-
-          // Dynamically refresh the ListView items
-          handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-              mAdapter.notifyDataSetChanged();
-              handler.postDelayed(this, 1000L);
-            }
-          }, 1000L);
+        SharedPreferences labelPrefs =
+          getSharedPreferences(Config.SCDC_LABEL_PREFS, Context.MODE_PRIVATE);
+        // Restore isLogged value of labelEntries from SharedPreferences
+        for (int labelId = 0; labelId < labelEntries.size(); labelId++) {
+          mAdapter.getItem(labelId).startLog(
+            labelPrefs.getLong(SharedPrefs.START_LOGGING_TIME_PREFIX +
+                                 String.valueOf(labelId), -1L));
+    //      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
+          Log.w(LogKeys.DEBUG, "LaunchActivity/ labelEntries(" + labelId +
+                  ")=" + labelEntries.get(labelId).getStartLoggingTime());
         }
+
+        // Dynamically refresh the ListView items
+        handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            mAdapter.notifyDataSetChanged();
+            handler.postDelayed(this, 1000L);
+          }
+        }, 1000L);
+
+        stopService(new Intent(this, TaskButlerService.class));
+      }
 
      @Override
-        public void onPause() {
-          super.onPause();
+     public void onPause() {
+       super.onPause();
 
-          SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
-                  Context.MODE_PRIVATE);
-          // Save current isLogged value of labelEntries from SharedPreferences
-          for (LabelEntry labelEntry : labelEntries) {
-            prefs.edit().putLong(String.valueOf(labelEntry.getId()),
-              labelEntry.getStartLoggingTime()).apply();
-          }
-        }
+       SharedPreferences labelPrefs =
+         getSharedPreferences(Config.SCDC_LABEL_PREFS, Context.MODE_PRIVATE);
+       // Save current isLogged value of labelEntries from SharedPreferences
+       for (LabelEntry labelEntry : labelEntries) {
+         // Put label name
+         labelPrefs.edit().putString(
+           SharedPrefs.LABEL_NAME_PREFIX +
+             String.valueOf(labelEntry.getId()),
+           labelEntry.getName()).apply();
+         // Put start logging TIMESTAMP
+         labelPrefs.edit().putLong(
+           SharedPrefs.START_LOGGING_TIME_PREFIX +
+             String.valueOf(labelEntry.getId()),
+           labelEntry.getStartLoggingTime()).apply();
+         // Put date due TIMESTAMP
+         labelPrefs.edit().putLong(
+           SharedPrefs.DATE_DUE_PREFIX +
+             String.valueOf(labelEntry.getId()),
+           labelEntry.getDateDue()).apply();
+       }
+
+       // Set alarms only for the labels not being logged
+       for (LabelEntry currLabelEntry : labelEntries) {
+         if (!currLabelEntry.isLogged()) {
+           LabelAlarm alarm = new LabelAlarm();
+           // FIXME: DEBUG:
+           currLabelEntry.setDateDue(System.currentTimeMillis() + 60L);
+           alarm.setAlarm(this, currLabelEntry.getDateDue(),
+                          currLabelEntry.getName(), currLabelEntry.getId());
+         }
+       }
+
+       // Start service to check for alarms
+       WakefulIntentService.acquireStaticLock(this);
+       startService(new Intent(this, TaskButlerService.class));
+     }
 
 
      @Override
-        protected void onDestroy() {
-          unbindService(funfManagerConn);
-          super.onDestroy();
-        }
+     protected void onDestroy() {
+       unbindService(funfManagerConn);
+       super.onDestroy();
+     }
 
    //  private static final String TOTAL_COUNT_SQL = "SELECT COUNT(*) FROM " +
    //          NameValueDatabaseHelper.DATA_TABLE.name;
@@ -544,6 +585,7 @@ public class LaunchActivity extends ActionBarActivity {
 
        return newSchedules;
      }
+
 
      @Override
      public boolean onCreateOptionsMenu(Menu menu) {

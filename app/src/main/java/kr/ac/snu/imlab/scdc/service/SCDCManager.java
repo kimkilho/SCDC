@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc.service.core;
+package kr.ac.snu.imlab.scdc.service;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

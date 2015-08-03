@@ -14,7 +14,6 @@ public class LabelEntry extends ProbeEntry {
   private long startLoggingTime;
   private int labelId;
   private long dateDue;
-  private boolean hasDateDue;
   private Calendar dateDueCal;
 
   public LabelEntry(int labelId, String name, Class probeClass,
@@ -23,8 +22,6 @@ public class LabelEntry extends ProbeEntry {
     this.labelId = labelId;
     this.name = name;
     this.startLoggingTime = -1;
-    this.hasDateDue = false;
-    setAlarm();
   }
 
   public int getId() {
@@ -69,20 +66,23 @@ public class LabelEntry extends ProbeEntry {
   }
 
   public boolean hasDateDue() {
-    return hasDateDue;
+    if (this.dateDue == -1) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   public long getDateDue() {
-    return dateDue;
+    return this.dateDue;
   }
 
   public void setDateDue(long dateDue) {
-    this.hasDateDue = true;
     this.dateDue = dateDue;
   }
 
   private void updateDateDueCal() {
-    if (!hasDateDue) {
+    if (!hasDateDue()) {
       dateDueCal = null;
       return;
     }
@@ -91,15 +91,6 @@ public class LabelEntry extends ProbeEntry {
       dateDueCal = new GregorianCalendar();
     }
     dateDueCal.setTimeInMillis(dateDue);
-  }
-
-  private void setAlarm() {
-    LabelAlarm alarm = new LabelAlarm();
-    alarm.setAlarm();
-  }
-
-  private void cancelAlarm() {
-
   }
 
 //  public void setLogged(boolean isLogged) {
