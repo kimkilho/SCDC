@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc.service;
+package kr.ac.snu.imlab.scdc.service.core;
 
 /**
  * Created by kilho on 15. 7. 28.

@@ -1,62 +1,62 @@
 package kr.ac.snu.imlab.scdc.activity;
 
 import android.content.Context;
- import android.content.SharedPreferences;
- import android.support.v7.app.ActionBarActivity;
- import android.content.ComponentName;
- import android.content.Intent;
- import android.content.ServiceConnection;
- import android.database.sqlite.SQLiteDatabase;
- import android.os.Bundle;
- import android.os.Handler;
- import android.util.Log;
- import android.view.Menu;
- import android.view.MenuItem;
- import android.view.View;
- import android.view.WindowManager;
- import android.widget.Button;
- import android.widget.CompoundButton;
- import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.content.SharedPreferences;
+import android.support.v7.app.ActionBarActivity;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.ServiceConnection;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 
- import com.google.gson.JsonElement;
- import com.google.gson.JsonObject;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
- import edu.mit.media.funf.FunfManager;
- import edu.mit.media.funf.Schedule.BasicSchedule;
- import edu.mit.media.funf.config.Configurable;
- import edu.mit.media.funf.config.HttpConfigUpdater;
- import edu.mit.media.funf.probe.builtin.*;
- import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
- import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
- import edu.mit.media.funf.storage.FileArchive;
+import edu.mit.media.funf.FunfManager;
+import edu.mit.media.funf.Schedule.BasicSchedule;
+import edu.mit.media.funf.config.Configurable;
+import edu.mit.media.funf.config.HttpConfigUpdater;
+import edu.mit.media.funf.probe.builtin.*;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
+import edu.mit.media.funf.storage.FileArchive;
 
- import android.os.IBinder;
- import android.widget.EditText;
- import android.widget.ListView;
- import android.widget.RadioButton;
- import android.widget.TextView;
- import android.widget.Toast;
- import android.widget.ToggleButton;
+import android.os.IBinder;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.RadioButton;
+import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
- import java.io.File;
- import java.math.BigDecimal;
- import java.util.ArrayList;
- import java.util.HashMap;
- import java.util.List;
- import java.util.Map;
+import java.io.File;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
- import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
- import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
- import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
- import kr.ac.snu.imlab.scdc.service.SCDCKeys.LogKeys;
- import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
- import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
- import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
- import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
- import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExLabel;
- import kr.ac.snu.imlab.scdc.entry.LabelEntry;
- import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
- import kr.ac.snu.imlab.scdc.R;
+import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
+import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
+import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
+import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
+import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExLabel;
+import kr.ac.snu.imlab.scdc.entry.LabelEntry;
+import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
+import kr.ac.snu.imlab.scdc.R;
 
 
 public class LaunchActivity extends ActionBarActivity {
@@ -323,7 +323,7 @@ public class LaunchActivity extends ActionBarActivity {
 
        labelEntries = new ArrayList<LabelEntry>(labelNames.length);
        for (int i = 0; i < labelNames.length; i++) {
-         labelEntries.add(new LabelEntry(i, labelNames[i],
+         labelEntries.add(new LabelEntry(labelNames[i],
                                          LabelProbe.class, null, true));
        }
 
