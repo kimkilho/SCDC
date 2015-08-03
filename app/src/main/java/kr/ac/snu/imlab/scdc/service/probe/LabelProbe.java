@@ -18,6 +18,7 @@ import edu.mit.media.funf.probe.Probe.Base;
 import edu.mit.media.funf.probe.Probe.ContinuousProbe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 import edu.mit.media.funf.probe.Probe.Description;
+import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
 import edu.mit.media.funf.time.TimeUtil;
 
@@ -50,12 +51,12 @@ public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
           public void onReceive(Context context, Intent intent) {
             Log.w("DEBUG", "LabelProbe/ Received broadcast");
             JsonObject data = new JsonObject();
-            // FIXME: Add some more labels
-            labels.put(LabelKeys.SLEEP_LABEL, intent.getBooleanExtra(LabelKeys.SLEEP_LABEL, false));
-            labels.put(LabelKeys.IN_CLASS_LABEL, intent.getBooleanExtra(LabelKeys.IN_CLASS_LABEL, false));
-            labels.put(LabelKeys.EATING_LABEL, intent.getBooleanExtra(LabelKeys.EATING_LABEL, false));
-            labels.put(LabelKeys.STUDYING_LABEL, intent.getBooleanExtra(LabelKeys.STUDYING_LABEL, false));
-            labels.put(LabelKeys.DRINKING_LABEL, intent.getBooleanExtra(LabelKeys.DRINKING_LABEL, false));
+
+            String[] labelNames = LaunchActivity.labelNames;
+            for (int i = 0; i < labelNames.length; i++) {
+              labels.put(labelNames[i],
+                         intent.getBooleanExtra(labelNames[i], false));
+            }
             // Log.w("DEBUG", "SLEEP_LABEL=" + labels.get(LabelKeys.SLEEP_LABEL) + ", IN_CLASS_LABEL=" + labels.get(LabelKeys.IN_CLASS_LABEL));
             for (String key : labels.keySet()) {
               data.addProperty(key, labels.get(key));

@@ -25,10 +25,8 @@ import edu.mit.media.funf.FunfManager;
 import edu.mit.media.funf.Schedule.BasicSchedule;
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.HttpConfigUpdater;
-import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.probe.builtin.*;
-import edu.mit.media.funf.storage.NameValueDatabaseHelper;
-import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
+import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
 import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import edu.mit.media.funf.storage.FileArchive;
 
@@ -95,6 +93,15 @@ public class LaunchActivity extends ActionBarActivity {
 
   private Button archiveButton, truncateDataButton;
   private TextView dataCountView;
+
+  // FIXME: The list of labels available
+  public static final String[] labelNames = {
+        LabelKeys.SLEEP_LABEL,
+        LabelKeys.IN_CLASS_LABEL,
+        LabelKeys.EATING_LABEL,
+        LabelKeys.STUDYING_LABEL,
+        LabelKeys.DRINKING_LABEL
+  };
 
   private ServiceConnection funfManagerConn = new ServiceConnection() {
     @Override
@@ -305,18 +312,12 @@ public class LaunchActivity extends ActionBarActivity {
       probeEntries.add(new ProbeEntry(RunningApplicationsProbe.class, null, true));
       probeEntries.add(new ProbeEntry(ScreenProbe.class, null, true));
 
-    // The list of labels available
-    labelEntries = new ArrayList<LabelEntry>();
-      labelEntries.add(new LabelEntry(LabelKeys.SLEEP_LABEL,
-              LabelProbe.class, null, true));
-      labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL,
-              LabelProbe.class, null, true));
-      labelEntries.add(new LabelEntry(LabelKeys.EATING_LABEL,
-              LabelProbe.class, null, true));
-      labelEntries.add(new LabelEntry(LabelKeys.STUDYING_LABEL,
-              LabelProbe.class, null, true));
-      labelEntries.add(new LabelEntry(LabelKeys.DRINKING_LABEL,
-              LabelProbe.class, null, true));
+
+    labelEntries = new ArrayList<LabelEntry>(labelNames.length);
+    for (int i = 0; i < labelNames.length; i++) {
+      labelEntries.add(new LabelEntry(i, labelNames[i],
+                                      LabelProbe.class, null, true));
+    }
 
     mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
@@ -414,50 +415,50 @@ public class LaunchActivity extends ActionBarActivity {
   }
 
   @Override
-  public void onResume() {
-    super.onResume();
+     public void onResume() {
+       super.onResume();
 
-    SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
-            Context.MODE_PRIVATE);
-    // Restore isLogged value of labelEntries from SharedPreferences
-    for (int i = 0; i < labelEntries.size(); i++) {
-      mAdapter.getItem(i).startLog(prefs.getLong(String.valueOf(i), -1L));
-//      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
-      Log.w(LogKeys.DEBUG, "LaunchActivity/ labelEntries(" + i + ")=" +
-                      labelEntries.get(i).getStartLoggingTime());
-    }
+       SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
+               Context.MODE_PRIVATE);
+       // Restore isLogged value of labelEntries from SharedPreferences
+       for (int i = 0; i < labelEntries.size(); i++) {
+         mAdapter.getItem(i).startLog(prefs.getLong(String.valueOf(i), -1L));
+   //      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
+         Log.w(LogKeys.DEBUG, "LaunchActivity/ labelEntries(" + i + ")=" +
+                         labelEntries.get(i).getStartLoggingTime());
+       }
 
-    // Dynamically refresh the ListView items
-    handler.postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        mAdapter.notifyDataSetChanged();
-        handler.postDelayed(this, 1000L);
-      }
-    }, 1000L);
-  }
-
-  @Override
-  public void onPause() {
-    super.onPause();
-
-    SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
-            Context.MODE_PRIVATE);
-    // Save current isLogged value of labelEntries from SharedPreferences
-    for (int i = 0; i < labelEntries.size(); i++) {
-//      prefs.edit().putBoolean(String.valueOf(i),
-//                              labelEntries.get(i).isLogged()).apply();
-      prefs.edit().putLong(String.valueOf(i),
-        labelEntries.get(i).getStartLoggingTime()).apply();
-    }
-  }
-
+       // Dynamically refresh the ListView items
+       handler.postDelayed(new Runnable() {
+         @Override
+         public void run() {
+           mAdapter.notifyDataSetChanged();
+           handler.postDelayed(this, 1000L);
+         }
+       }, 1000L);
+     }
 
   @Override
-  protected void onDestroy() {
-    unbindService(funfManagerConn);
-    super.onDestroy();
-  }
+     public void onPause() {
+       super.onPause();
+
+       SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
+               Context.MODE_PRIVATE);
+       // Save current isLogged value of labelEntries from SharedPreferences
+       for (int i = 0; i < labelEntries.size(); i++) {
+   //      prefs.edit().putBoolean(String.valueOf(i),
+   //                              labelEntries.get(i).isLogged()).apply();
+         prefs.edit().putLong(String.valueOf(i),
+           labelEntries.get(i).getStartLoggingTime()).apply();
+       }
+     }
+
+
+  @Override
+     protected void onDestroy() {
+       unbindService(funfManagerConn);
+       super.onDestroy();
+     }
 
 //  private static final String TOTAL_COUNT_SQL = "SELECT COUNT(*) FROM " +
 //          NameValueDatabaseHelper.DATA_TABLE.name;
