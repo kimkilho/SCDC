@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +23,7 @@ import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
+import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
 
 import java.util.ArrayList;
 import android.os.Handler;
@@ -121,6 +123,20 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.endLogButton.setEnabled(mData.get(position).isLogged() &&
                                        enabledToggleButton.isChecked());
 
+//    // Set alarms only for the labels not being logged
+//    LabelEntry labelEntry = mData.get(position);
+//    if (!labelEntry.isLogged()) {
+//      LabelAlarm alarm = new LabelAlarm();
+//      // FIXME: DEBUG:
+//      if (labelEntry.isRepeating()) {
+//        int labelId = alarm.setRepeatingAlarm(mContext, labelEntry.getId());
+//      } else {
+//        if (labelEntry.hasDateDue() && labelEntry.isPastDue())
+//          alarm.setAlarm(mContext, labelEntry.getId());
+//      }
+//    }
+
+
     handler = new Handler();
 
     // Refresh the elapsed time if the label is logged
@@ -139,7 +155,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
         public void onClick(View v) {
             // Save changes to SharedPreferences
             SharedPreferences labelPrefs =
-              mContext.getSharedPreferences(Config.SCDC_LABEL_PREFS,
+              mContext.getSharedPreferences(Config.SCDC_PREFS,
                                             Context.MODE_PRIVATE);
             // Save current isLogged value of labelEntries from SharedPreferences
             LabelEntry currLabelEntry = mData.get(position);
@@ -272,44 +288,29 @@ public class BaseAdapterExLabel extends BaseAdapter {
 
   protected void notify(int mId, String title, String message,
                            String alert) {
-    Log.w("DEBUG", "BaseAdapterExLabel/ Start notification #" + mId + "- " +
-            title + ": " + message);
 
-//    // Create a new notification builder
-//    NotificationCompat.Builder notification =
-//            new NotificationCompat.Builder(this.mContext);
-//    notification.setContentTitle(title);
-//    notification.setContentText(message);
-//    notification.setTicker(alert);
-//    // notification.setSmallIcon(R.drawable.);
-//
-//    // Create an explicit intent for an Activity
-//    Intent resultIntent = new Intent(mContext, LaunchActivity.class);
-//    // Create a new stack builder
-//    TaskStackBuilder stackBuilder = TaskStackBuilder.create(this.mContext);
-//    stackBuilder.addParentStack((Activity)this.mContext);
-//    stackBuilder.addNextIntent(resultIntent);
-//    PendingIntent resultPendingIntent =
-//            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-//    notification.setContentIntent(resultPendingIntent);
-//    notification.setContentIntent(PendingIntent.getActivity(mContext, 0,
-//                                  new Intent(), 0));
-
-    NotificationManager notificationMgr =
-            (NotificationManager)mContext.
-                    getSystemService(Context.NOTIFICATION_SERVICE);
-//    notificationMgr.notify(mId, notification.build());
+    // Create a new notification builder
+    NotificationCompat.Builder builder =
+       new NotificationCompat.Builder(mContext)
+              .setAutoCancel(false)
+              .setContentIntent(getPendingIntent(mId))
+              .setContentTitle(title)
+              .setContentText(message)
+              .setTicker(alert)
+              // .setDefaults(Notification.DEFAULT_ALL)
+              .setSmallIcon(R.mipmap.ic_launcher)
+              .setOngoing(true)
+              .setWhen(System.currentTimeMillis());
 
     @SuppressWarnings("deprecation")
-    Notification notification = new Notification(R.mipmap.ic_launcher, alert,
-            System.currentTimeMillis());
-    notification.setLatestEventInfo(mContext, title, message,
-            PendingIntent.getActivity(mContext, 0, new Intent(), 0));
+    Notification notification = builder.getNotification();
+    NotificationManager notificationMgr = (NotificationManager)mContext.
+                          getSystemService(Context.NOTIFICATION_SERVICE);
     notificationMgr.notify(mId, notification);
+
   }
 
   protected void cancelNotify(int mId) {
-    Log.w("DEBUG", "BaseAdapterExLabel/ Cancel notification #" + mId);
     NotificationManager notificationMgr =
             (NotificationManager)mContext.
                     getSystemService(Context.NOTIFICATION_SERVICE);
@@ -321,6 +322,11 @@ public class BaseAdapterExLabel extends BaseAdapter {
             (NotificationManager)mContext.
                     getSystemService(Context.NOTIFICATION_SERVICE);
     notificationMgr.cancelAll();
+  }
+
+  PendingIntent getPendingIntent(int id) {
+    Intent intent = new Intent(mContext, LaunchActivity.class);
+    return PendingIntent.getActivity(mContext, id, intent, 0);
   }
 
 

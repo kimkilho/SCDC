@@ -23,8 +23,17 @@
                       android:layout_gravity="center_vertical"
                       android:layout_alignTop="@id/app_title"
                       android:layout_alignParentRight="true"
-                      android:textOn="On"
-                      android:textOff="Off" />
+                      android:textOn="Sensor"
+                      android:textOff="Sensor" />
+
+        <ToggleButton android:id="@+id/reminderToggleButton"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:layout_alignTop="@id/app_title"
+                      android:layout_toLeftOf="@id/enabledToggleButton"
+                      android:textOn="Push"
+                      android:textOff="Push" />
       </RelativeLayout>
 
 

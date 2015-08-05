@@ -112,10 +112,9 @@
         </receiver>
 
         <receiver
-            android:name="kr.ac.snu.imlab.scdc.service.alarm.OnAlarmReceiver"></receiver>
+          android:name="kr.ac.snu.imlab.scdc.service.alarm.OnAlarmReceiver" />
 
-        <service
-            android:name=".service.alarm.TaskButlerService" />
+        <service android:name=".service.alarm.TaskButlerService" />
 
     </application>
 

@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import kr.ac.snu.imlab.scdc.service.SCDCKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.Alarm;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
 
 /**
   * @author Kilho Kim
@@ -29,7 +29,7 @@ public class OnAlarmReceiver extends BroadcastReceiver {
     // send notification, bundle intent with taskID
     NotificationHelper notification = new NotificationHelper();
     Bundle bundle = intent.getExtras();
-    int labelId = bundle.getInt(Alarm.EXTRA_LABEL_ID);
+    int labelId = bundle.getInt(AlarmKeys.EXTRA_LABEL_ID);
     Log.d(SCDCKeys.LogKeys.DEBUG, "OnAlarmReceiver.onReceive()/ received " +
                                   "labelId=" + labelId);
 //    SharedPreferences prefs =

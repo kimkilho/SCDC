@@ -17,7 +17,7 @@ import java.util.GregorianCalendar;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.Alarm;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
@@ -58,9 +58,9 @@ public class NotificationHelper {
             .setContentIntent(getPendingIntent(context, labelId))
             .setContentInfo("Urgent")
             .setContentTitle(spHandler.getLabelName(labelId))
-              .setContentText(DateFormat.format("'Next reminder at: h:mmaa",
+            .setContentText(DateFormat.format("'Next reminder at: h:mmaa",
                               nextReminder))
-            .setDefaults(vibrate ?  Notification.DEFAULT_ALL :
+            .setDefaults(vibrate ? Notification.DEFAULT_ALL :
                       Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS)
             .setSmallIcon(R.mipmap.ic_launcher)
             .setTicker(spHandler.getLabelName(labelId))
@@ -103,7 +103,7 @@ public class NotificationHelper {
   // get a PendingIntent
   PendingIntent getPendingIntent(Context context, int id) {
     Intent intent = new Intent(context, LaunchActivity.class)
-                          .putExtra(Alarm.EXTRA_LABEL_ID, id);
+                          .putExtra(AlarmKeys.EXTRA_LABEL_ID, id);
     return PendingIntent.getActivity(context, id, intent, 0);
   }
 

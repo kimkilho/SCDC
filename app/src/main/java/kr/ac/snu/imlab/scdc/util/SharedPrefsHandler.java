@@ -5,7 +5,7 @@ import android.content.SharedPreferences;
 
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.Alarm;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
 
 /**
  * Created by kilho on 15. 8. 5.
@@ -77,6 +77,14 @@ public class SharedPrefsHandler {
                          String.valueOf(labelId), startLoggingTime).apply();
   }
 
+  public boolean getIsLogged(int labelId) {
+    if (getStartLoggingTime(labelId) == -1) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   // Labels - Alarm
   public boolean getIsCompleted(int labelId) {
     return prefs.getBoolean(SharedPrefs.LABEL_IS_COMPLETED_PREFIX +
@@ -100,7 +108,7 @@ public class SharedPrefsHandler {
 
   public void setHasDateDue(int labelId, boolean hasDateDue) {
     prefs.edit().putBoolean(SharedPrefs.LABEL_HAS_DATE_DUE_PREFIX +
-                            String.valueOf(labelId), hasDateDue);
+                            String.valueOf(labelId), hasDateDue).apply();
   }
 
   public boolean getHasFinalDateDue(int labelId) {
@@ -166,17 +174,24 @@ public class SharedPrefsHandler {
 
   // for procrastinator alarm
   public String getAlarmTime() {
-    return prefs.getString(SharedPrefs.ALARM_TIME, Alarm.DEFAULT_ALARM_TIME);
+    return prefs.getString(SharedPrefs.ALARM_TIME,
+                           AlarmKeys.DEFAULT_ALARM_TIME);
   }
 
   // for reminder
   public String getReminderTime() {
     return prefs.getString(SharedPrefs.REMINDER_TIME,
-                           Alarm.DEFAULT_REMINDER_TIME);
+                           AlarmKeys.DEFAULT_REMINDER_TIME);
   }
 
   // for notification
   public boolean getVibrateOnAlarm() {
     return prefs.getBoolean(SharedPrefs.VIBRATE_ON_ALARM, true);
+  }
+
+  // for time settings
+  public String getDefaultHour() {
+    return prefs.getString(SharedPrefs.DEFAULT_HOUR,
+                           AlarmKeys.DEFAULT_HOUR_VALUE);
   }
 }

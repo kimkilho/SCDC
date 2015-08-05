@@ -31,10 +31,11 @@ public class SCDCKeys {
       LABEL_HAS_FINAL_DATE_DUE = "has_final_date_due_",
       ALARM_TIME = "alarm_time",
       REMINDER_TIME = "reminder_time",
-      VIBRATE_ON_ALARM = "vibrate_on_alarm";
+      VIBRATE_ON_ALARM = "vibrate_on_alarm",
+      DEFAULT_HOUR = "default_hour";
   }
 
-  public static interface Alarm {
+  public static interface AlarmKeys {
     public static final String
       EXTRA_LABEL_NAME = "kr.ac.snu.imlab.scdc.service.alarm.LABEL_NAME",
       EXTRA_LABEL_ID = "kr.ac.snu.imlab.scdc.service.alarm.LABEL_ID",

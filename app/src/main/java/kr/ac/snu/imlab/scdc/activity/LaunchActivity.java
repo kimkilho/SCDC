@@ -44,7 +44,9 @@ import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
  import java.io.File;
  import java.math.BigDecimal;
  import java.util.ArrayList;
- import java.util.HashMap;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
  import java.util.List;
  import java.util.Map;
 
@@ -52,6 +54,7 @@ import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
  import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
  import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
  import kr.ac.snu.imlab.scdc.service.SCDCKeys.LogKeys;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
  import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
@@ -127,6 +130,9 @@ public class LaunchActivity extends ActionBarActivity {
      // Run Data Collection button
      private ToggleButton enabledToggleButton;
 
+     // Run Push notification button
+     private ToggleButton reminderToggleButton;
+
      private Button archiveButton, truncateDataButton;
      private TextView dataCountView;
 
@@ -138,6 +144,19 @@ public class LaunchActivity extends ActionBarActivity {
          pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
                  (Config.PIPELINE_NAME);
          pipeline.setActivity(LaunchActivity.this);
+
+         // Update probe schedules of pipeline
+         HttpConfigUpdater hcu = new HttpConfigUpdater();
+         hcu.setUrl("http://imlab-ws2.snu.ac.kr:7000/config_orig");
+         pipeline.setUpdate(hcu);
+         handler.post(new Runnable() {
+           @Override
+           public void run() {
+             if (pipeline.getHandler() != null) {
+               pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
+             }
+           }
+         });
 
 
          // This checkbox enables or disables the pipeline
@@ -240,6 +259,8 @@ public class LaunchActivity extends ActionBarActivity {
                    }
                  }, 2000L);
                }
+
+             reminderToggleButton.setEnabled(isChecked);
              }
 
 
@@ -307,7 +328,7 @@ public class LaunchActivity extends ActionBarActivity {
                } else {
                  spHandler.setUsername(userName.getText().toString());
                  spHandler.setIsFemale(isFemaleRadioButton
-                                        .isChecked());
+                         .isChecked());
                  userName.setEnabled(false);
                  isMaleRadioButton.setEnabled(false);
                  isFemaleRadioButton.setEnabled(false);
@@ -326,7 +347,8 @@ public class LaunchActivity extends ActionBarActivity {
        labelEntries = new ArrayList<LabelEntry>(labelNames.length);
        for (int i = 0; i < labelNames.length; i++) {
          labelEntries.add(new LabelEntry(i, labelNames[i],
-                                         LabelProbe.class, null, true));
+                                 LabelProbe.class, null, true,
+                                 LaunchActivity.this, Config.SCDC_PREFS));
        }
 
        // Put the total number of labels into SharedPreferences
@@ -343,8 +365,41 @@ public class LaunchActivity extends ActionBarActivity {
        // Used to make interface changes on main thread
        handler = new Handler();
 
-       enabledToggleButton = (ToggleButton)findViewById(R.id.enabledToggleButton);
+       enabledToggleButton =
+         (ToggleButton)findViewById(R.id.enabledToggleButton);
        enabledToggleButton.setChecked(false);
+
+       reminderToggleButton =
+         (ToggleButton)findViewById(R.id.reminderToggleButton);
+       reminderToggleButton.setChecked(false);
+       reminderToggleButton.setEnabled(false);
+       reminderToggleButton.setOnCheckedChangeListener(
+         new OnCheckedChangeListener() {
+         @Override
+         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+           if (isChecked) {
+             for (LabelEntry labelEntry : labelEntries) {
+               if (!labelEntry.isLogged()) {
+                 LabelAlarm alarm = new LabelAlarm();
+                 if (labelEntry.isRepeating()) {
+                   int labelId = alarm.setRepeatingAlarm(LaunchActivity.this,
+                                                         labelEntry.getId());
+                 } else {
+                   if (labelEntry.hasDateDue() && labelEntry.isPastDue())
+                     alarm.setAlarm(LaunchActivity.this, labelEntry.getId());
+                 }
+               }
+             }
+           } else {
+             for (LabelEntry labelEntry : labelEntries) {
+               LabelAlarm alarm = new LabelAlarm();
+               alarm.cancelAlarm(LaunchActivity.this, labelEntry.getId());
+               alarm.cancelNotification(LaunchActivity.this,
+                                        labelEntry.getId());
+             }
+           }
+         }
+       });
 
 
        // Runs an archive if pipeline is enabled
@@ -407,40 +462,22 @@ public class LaunchActivity extends ActionBarActivity {
            dataCountView.setText("Data size: 0.0 MB");
            // updateScanCount();
 
-           // Update probe schedules of pipeline
-           HttpConfigUpdater hcu = new HttpConfigUpdater();
-           hcu.setUrl("http://imlab-ws2.snu.ac.kr:7000/config");
-           pipeline.setUpdate(hcu);
-           handler.post(new Runnable() {
-             @Override
-             public void run() {
-               if (pipeline.getHandler() != null) {
-                 pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
-               }
-             }
-           });
          }
        });
 
+
+       // Start service to check for alarms
+       WakefulIntentService.acquireStaticLock(this);
+       startService(new Intent(this, TaskButlerService.class));
+
        // Bind to the service, to create the connection with FunfManager
-       bindService(new Intent(this, FunfManager.class), funfManagerConn,
-               BIND_AUTO_CREATE);
+       bindService(new Intent(this, FunfManager.class),
+               funfManagerConn, BIND_AUTO_CREATE);
      }
 
      @Override
       public void onResume() {
         super.onResume();
-
-       spHandler = SharedPrefsHandler.getInstance(this,
-         Config.SCDC_PREFS, Context.MODE_PRIVATE);
-
-        // Restore isLogged value of labelEntries from SharedPreferences
-        for (int labelId = 0; labelId < labelEntries.size(); labelId++) {
-          mAdapter.getItem(labelId).startLog(
-            spHandler.getStartLoggingTime(labelId));
-          Log.w(LogKeys.DEBUG, "LaunchActivity/ labelEntries(" + labelId +
-                  ")=" + labelEntries.get(labelId).getStartLoggingTime());
-        }
 
         // Dynamically refresh the ListView items
         handler.postDelayed(new Runnable() {
@@ -451,38 +488,53 @@ public class LaunchActivity extends ActionBarActivity {
           }
         }, 1000L);
 
-        stopService(new Intent(this, TaskButlerService.class));
+        // stopService(new Intent(this, TaskButlerService.class));
       }
 
      @Override
      public void onPause() {
        super.onPause();
 
-       // Save current isLogged value of labelEntries from SharedPreferences
-       for (LabelEntry labelEntry : labelEntries) {
-         labelEntry.setDateDue(System.currentTimeMillis() + 120L);
-
-         // Put label name
-         spHandler.setLabelName(labelEntry.getId(),
-                                labelEntry.getName());
-         // Put start logging TIMESTAMP
-         spHandler.setStartLoggingTime(labelEntry.getId(),
-                           labelEntry.getStartLoggingTime());
-         // Put date due TIMESTAMP
-         spHandler.setDateDue(labelEntry.getId(),
-                              labelEntry.getDateDue());
-
-         // Set alarms only for the labels not being logged
-         if (labelEntry.isLogged()) {
-           LabelAlarm alarm = new LabelAlarm();
-           // FIXME: DEBUG:
-           alarm.setAlarm(this, labelEntry.getId());
-         }
-       }
-
-       // Start service to check for alarms
-       WakefulIntentService.acquireStaticLock(this);
-       startService(new Intent(this, TaskButlerService.class));
+//       String hour = spHandler.getDefaultHour();
+//
+//       Calendar dueDateCal = GregorianCalendar.getInstance();
+//       dueDateCal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(hour));
+//       dueDateCal.set(Calendar.MINUTE, 0);
+//       dueDateCal.set(Calendar.SECOND, 0);
+//       dueDateCal.set(Calendar.MILLISECOND, 0);
+//       if (dueDateCal.getTimeInMillis() < System.currentTimeMillis())
+//         dueDateCal.add(Calendar.DAY_OF_YEAR, 1);
+//
+//       // set repeat interval
+//       int repeatInterval = 1;
+//
+//       // set task due date
+//       long dueDateMillis = dueDateCal.getTimeInMillis();
+//       boolean isCompleted = false;
+//       boolean hasDueDate = true;
+//       boolean hasFinalDueDate = true;
+//       boolean isRepeating = true;
+//       int repeatType = AlarmKeys.MINUTES;
+//
+//       // Save current isLogged value of labelEntries from SharedPreferences
+//       for (LabelEntry labelEntry : labelEntries) {
+//         int labelId = labelEntry.getId();
+//
+//
+//         // Set alarms only for the labels not being logged
+//         if (!labelEntry.isLogged()) {
+//           LabelAlarm alarm = new LabelAlarm();
+//           // FIXME: DEBUG:
+//           if (spHandler.getIsRepeating(labelId)) {
+//             labelId =
+//               alarm.setRepeatingAlarm(this, labelId);
+//           } else {
+//             if (spHandler.getHasDateDue(labelId) &&
+//                 spHandler.getIsPastDue(labelId))
+//               alarm.setAlarm(this, labelId);
+//           }
+//         }
+//       }
      }
 
 

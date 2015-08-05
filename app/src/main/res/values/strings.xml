@@ -29,7 +29,7 @@
             "@schedule": {"interval": 10800}
         },
         "update": {
-            "url": \"http://imlab-ws2.snu.ac.kr:7000/config\",
+            "url": \"http://imlab-ws2.snu.ac.kr:7000/config_orig\",
             "@schedule": {"interval": 10800}
         },
         "data": [
