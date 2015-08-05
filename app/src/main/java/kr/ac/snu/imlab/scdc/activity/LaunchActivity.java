@@ -108,8 +108,7 @@ public class LaunchActivity extends ActionBarActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             funfManager = ((FunfManager.LocalBinder) service).getManager();
             // funfManager.setCallingActivity(LaunchActivity.this);
-            pipeline = (SCDCPipeline) funfManager.getRegisteredPipeline
-                    (Config.PIPELINE_NAME);
+            pipeline = (SCDCPipeline) funfManager.getRegisteredPipeline(Config.PIPELINE_NAME);
             pipeline.setActivity(LaunchActivity.this);
 
 
@@ -293,42 +292,7 @@ public class LaunchActivity extends ActionBarActivity {
             }
         });
 
-        // The list of probes available
-        probeEntries = new ArrayList<ProbeEntry>();
-        // Device Probes
-        probeEntries.add(new ProbeEntry(BatteryProbe.class, null, true));
-        // Environment Probes
-        probeEntries.add(new ProbeEntry(LightSensorProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(MagneticFieldSensorProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(AudioFeaturesProbe.class, null, true));
-        // Motion Probes
-        probeEntries.add(new ProbeEntry(AccelerometerSensorProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(GyroscopeSensorProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(OrientationSensorProbe.class, null, true));
-        // Positioning Probes
-        probeEntries.add(new ProbeEntry(SimpleLocationProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(BluetoothProbe.class, null, true));
-        // Device Interaction
-        probeEntries.add(new ProbeEntry(RunningApplicationsProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(ScreenProbe.class, null, true));
-
-        // The list of labels available
-        labelEntries = new ArrayList<LabelEntry>();
-        labelEntries.add(new LabelEntry(LabelKeys.SLEEP_LABEL,
-                LabelProbe.class, null, true));
-        labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL,
-                LabelProbe.class, null, true));
-        labelEntries.add(new LabelEntry(LabelKeys.EATING_LABEL,
-                LabelProbe.class, null, true));
-        labelEntries.add(new LabelEntry(LabelKeys.STUDYING_LABEL,
-                LabelProbe.class, null, true));
-        labelEntries.add(new LabelEntry(LabelKeys.DRINKING_LABEL,
-                LabelProbe.class, null, true));
-
-        mAdapter = new BaseAdapterExLabel(this, labelEntries);
-
-        mListView = (ListView) findViewById(R.id.label_list_view);
-        mListView.setAdapter(mAdapter);
+        makeProbeEntries();
 
         // Displays the count of rows in the data
         dataCountView = (TextView) findViewById(R.id.dataCountText);
@@ -419,6 +383,45 @@ public class LaunchActivity extends ActionBarActivity {
         // Bind to the service, to create the connection with FunfManager
         bindService(new Intent(this, FunfManager.class), funfManagerConn,
                 BIND_AUTO_CREATE);
+    }
+
+    private void makeProbeEntries() {
+        // The list of probes available
+        probeEntries = new ArrayList<ProbeEntry>();
+        // Device Probes
+        probeEntries.add(new ProbeEntry(BatteryProbe.class, null, true));
+        // Environment Probes
+        probeEntries.add(new ProbeEntry(LightSensorProbe.class, null, true));
+        probeEntries.add(new ProbeEntry(MagneticFieldSensorProbe.class, null, true));
+        probeEntries.add(new ProbeEntry(AudioFeaturesProbe.class, null, true));
+        // Motion Probes
+        probeEntries.add(new ProbeEntry(AccelerometerSensorProbe.class, null, true));
+        probeEntries.add(new ProbeEntry(GyroscopeSensorProbe.class, null, true));
+        probeEntries.add(new ProbeEntry(OrientationSensorProbe.class, null, true));
+        // Positioning Probes
+        probeEntries.add(new ProbeEntry(SimpleLocationProbe.class, null, true));
+        probeEntries.add(new ProbeEntry(BluetoothProbe.class, null, true));
+        // Device Interaction
+        probeEntries.add(new ProbeEntry(RunningApplicationsProbe.class, null, true));
+        probeEntries.add(new ProbeEntry(ScreenProbe.class, null, true));
+
+        // The list of labels available
+        labelEntries = new ArrayList<LabelEntry>();
+        labelEntries.add(new LabelEntry(LabelKeys.SLEEP_LABEL,
+                LabelProbe.class, null, true));
+        labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL,
+                LabelProbe.class, null, true));
+        labelEntries.add(new LabelEntry(LabelKeys.EATING_LABEL,
+                LabelProbe.class, null, true));
+        labelEntries.add(new LabelEntry(LabelKeys.STUDYING_LABEL,
+                LabelProbe.class, null, true));
+        labelEntries.add(new LabelEntry(LabelKeys.DRINKING_LABEL,
+                LabelProbe.class, null, true));
+
+        mAdapter = new BaseAdapterExLabel(this, labelEntries);
+
+        mListView = (ListView) findViewById(R.id.label_list_view);
+        mListView.setAdapter(mAdapter);
     }
 
     private void sendFileViaEmail(File file) {

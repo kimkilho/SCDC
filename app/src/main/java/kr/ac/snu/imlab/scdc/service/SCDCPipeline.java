@@ -363,6 +363,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     JsonObject record = new JsonObject();
     record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
     record.add("value", data);
+//    Log.e("test0805", "data received from "+ probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString());
     Message message = Message.obtain(handler, DATA, record);
     if (probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString()
             .equals(LabelProbe.class.getName())) {
