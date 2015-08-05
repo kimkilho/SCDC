@@ -60,6 +60,7 @@ import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
  import kr.ac.snu.imlab.scdc.entry.LabelEntry;
  import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
  import kr.ac.snu.imlab.scdc.R;
+import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 
 public class LaunchActivity extends ActionBarActivity {
@@ -107,6 +108,7 @@ public class LaunchActivity extends ActionBarActivity {
      private Handler handler;
      private FunfManager funfManager = null;
      private SCDCPipeline pipeline = null;
+     private SharedPrefsHandler spHandler = null;
 
      // Username EditText and Button
      private EditText userName = null;
@@ -267,6 +269,9 @@ public class LaunchActivity extends ActionBarActivity {
 
      @Override
      protected void onCreate(Bundle savedInstanceState) {
+       spHandler = SharedPrefsHandler.getInstance(this,
+               Config.SCDC_PREFS, Context.MODE_PRIVATE);
+
        super.onCreate(savedInstanceState);
        setContentView(R.layout.activity_launch);
 
@@ -276,17 +281,12 @@ public class LaunchActivity extends ActionBarActivity {
                WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
        // Set current username
-       final SharedPreferences basicPrefs =
-         getSharedPreferences(Config.SCDC_BASIC_PREFS, Context.MODE_PRIVATE);
        userName = (EditText)findViewById(R.id.user_name);
-       userName.setText(basicPrefs.getString(SharedPrefs.USERNAME,
-                                        Config.DEFAULT_USERNAME));
+       userName.setText(spHandler.getUsername());
        isMaleRadioButton = (RadioButton)findViewById(R.id.radio_male);
        isFemaleRadioButton = (RadioButton)findViewById(R.id.radio_female);
-       isMaleRadioButton.setChecked(
-               !basicPrefs.getBoolean(SharedPrefs.IS_FEMALE, false));
-       isFemaleRadioButton.setChecked(
-               basicPrefs.getBoolean(SharedPrefs.IS_FEMALE, false));
+       isMaleRadioButton.setChecked(!spHandler.getIsFemale());
+       isFemaleRadioButton.setChecked(spHandler.getIsFemale());
        userName.setEnabled(false);
        isMaleRadioButton.setEnabled(false);
        isFemaleRadioButton.setEnabled(false);
@@ -298,22 +298,21 @@ public class LaunchActivity extends ActionBarActivity {
            public void onClick(View v) {
                // If it's currently not being edited now:
                if (!isEdited) {
-                   userName.setEnabled(true);
-                   isMaleRadioButton.setEnabled(true);
-                   isFemaleRadioButton.setEnabled(true);
-                   isEdited = true;
-                   userNameButton.setText("Save");
+                 userName.setEnabled(true);
+                 isMaleRadioButton.setEnabled(true);
+                 isFemaleRadioButton.setEnabled(true);
+                 isEdited = true;
+                 userNameButton.setText("Save");
                // If it has just finished being edited:
                } else {
-                   basicPrefs.edit().putString(SharedPrefs.USERNAME,
-                            userName.getText().toString()).apply();
-                   basicPrefs.edit().putBoolean(SharedPrefs.IS_FEMALE,
-                            isFemaleRadioButton.isChecked()).apply();
-                   userName.setEnabled(false);
-                   isMaleRadioButton.setEnabled(false);
-                   isFemaleRadioButton.setEnabled(false);
-                   isEdited = false;
-                   userNameButton.setText("Modify");
+                 spHandler.setUsername(userName.getText().toString());
+                 spHandler.setIsFemale(isFemaleRadioButton
+                                        .isChecked());
+                 userName.setEnabled(false);
+                 isMaleRadioButton.setEnabled(false);
+                 isFemaleRadioButton.setEnabled(false);
+                 isEdited = false;
+                 userNameButton.setText("Modify");
                }
            }
        });
@@ -331,10 +330,7 @@ public class LaunchActivity extends ActionBarActivity {
        }
 
        // Put the total number of labels into SharedPreferences
-       SharedPreferences labelPrefs =
-         getSharedPreferences(Config.SCDC_LABEL_PREFS, Context.MODE_PRIVATE);
-       labelPrefs.edit().putInt(SharedPrefs.NUM_LABELS,
-               labelEntries.size()).apply();
+       spHandler.setNumLabels(labelEntries.size());
 
        mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
@@ -435,14 +431,13 @@ public class LaunchActivity extends ActionBarActivity {
       public void onResume() {
         super.onResume();
 
-        SharedPreferences labelPrefs =
-          getSharedPreferences(Config.SCDC_LABEL_PREFS, Context.MODE_PRIVATE);
+       spHandler = SharedPrefsHandler.getInstance(this,
+         Config.SCDC_PREFS, Context.MODE_PRIVATE);
+
         // Restore isLogged value of labelEntries from SharedPreferences
         for (int labelId = 0; labelId < labelEntries.size(); labelId++) {
           mAdapter.getItem(labelId).startLog(
-            labelPrefs.getLong(SharedPrefs.START_LOGGING_TIME_PREFIX +
-                                 String.valueOf(labelId), -1L));
-    //      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
+            spHandler.getStartLoggingTime(labelId));
           Log.w(LogKeys.DEBUG, "LaunchActivity/ labelEntries(" + labelId +
                   ")=" + labelEntries.get(labelId).getStartLoggingTime());
         }
@@ -463,35 +458,25 @@ public class LaunchActivity extends ActionBarActivity {
      public void onPause() {
        super.onPause();
 
-       SharedPreferences labelPrefs =
-         getSharedPreferences(Config.SCDC_LABEL_PREFS, Context.MODE_PRIVATE);
        // Save current isLogged value of labelEntries from SharedPreferences
        for (LabelEntry labelEntry : labelEntries) {
-         // Put label name
-         labelPrefs.edit().putString(
-           SharedPrefs.LABEL_NAME_PREFIX +
-             String.valueOf(labelEntry.getId()),
-           labelEntry.getName()).apply();
-         // Put start logging TIMESTAMP
-         labelPrefs.edit().putLong(
-           SharedPrefs.START_LOGGING_TIME_PREFIX +
-             String.valueOf(labelEntry.getId()),
-           labelEntry.getStartLoggingTime()).apply();
-         // Put date due TIMESTAMP
-         labelPrefs.edit().putLong(
-           SharedPrefs.DATE_DUE_PREFIX +
-             String.valueOf(labelEntry.getId()),
-           labelEntry.getDateDue()).apply();
-       }
+         labelEntry.setDateDue(System.currentTimeMillis() + 120L);
 
-       // Set alarms only for the labels not being logged
-       for (LabelEntry currLabelEntry : labelEntries) {
-         if (!currLabelEntry.isLogged()) {
+         // Put label name
+         spHandler.setLabelName(labelEntry.getId(),
+                                labelEntry.getName());
+         // Put start logging TIMESTAMP
+         spHandler.setStartLoggingTime(labelEntry.getId(),
+                           labelEntry.getStartLoggingTime());
+         // Put date due TIMESTAMP
+         spHandler.setDateDue(labelEntry.getId(),
+                              labelEntry.getDateDue());
+
+         // Set alarms only for the labels not being logged
+         if (labelEntry.isLogged()) {
            LabelAlarm alarm = new LabelAlarm();
            // FIXME: DEBUG:
-           currLabelEntry.setDateDue(System.currentTimeMillis() + 60L);
-           alarm.setAlarm(this, currLabelEntry.getDateDue(),
-                          currLabelEntry.getName(), currLabelEntry.getId());
+           alarm.setAlarm(this, labelEntry.getId());
          }
        }
 
@@ -513,22 +498,24 @@ public class LaunchActivity extends ActionBarActivity {
       * Queries the database of the pipeline to determine how many rows of data we have recorded so far.
       */
      public void updateScanCount() {
-       // Query the pipeline db for the count of rows in the data table
-       SQLiteDatabase db = pipeline.getDb();
-       final long dbSize = new File(db.getPath()).length();  // in bytes
-   //      Cursor mcursor = db.rawQuery(TOTAL_COUNT_SQL, null);
-   //      mcursor.moveToFirst();
-       // final int count = mcursor.getInt(0);
-       // Update interface on main thread
-       runOnUiThread(new Runnable() {
-         @Override
-         public void run() {
-   //          dataCountView.setText("Data Count: " + count + "\n Size: "
-   //                      + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
+       if (pipeline.getDatabaseHelper() != null) {
+         // Query the pipeline db for the count of rows in the data table
+         SQLiteDatabase db = pipeline.getDb();
+         final long dbSize = new File(db.getPath()).length();  // in bytes
+         //      Cursor mcursor = db.rawQuery(TOTAL_COUNT_SQL, null);
+         //      mcursor.moveToFirst();
+         // final int count = mcursor.getInt(0);
+         // Update interface on main thread
+         runOnUiThread(new Runnable() {
+           @Override
+           public void run() {
+             //          dataCountView.setText("Data Count: " + count + "\n Size: "
+             //                      + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
              dataCountView.setText("Data size: " +
                      Math.round((dbSize / (1048576.0)) * 10.0) / 10.0 + " MB");
-         }
-       });
+           }
+         });
+       }
      }
 
      /**

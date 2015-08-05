@@ -9,6 +9,7 @@ import kr.ac.snu.imlab.scdc.service.SCDCKeys;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
+import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
   * Created by kilho on 15. 8. 3.
@@ -21,37 +22,42 @@ import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
 
   @Override
   protected void onHandleIntent(Intent intent) {
-    Log.d(SCDCKeys.LogKeys.DEBUG, "TaskButlerService.onHandleIntent()/ " +
-            "received intent=" + intent.getDataString());
+    SharedPrefsHandler spHandler =
+            SharedPrefsHandler.getInstance(this, Config.SCDC_PREFS,
+                                           Context.MODE_PRIVATE);
+//    Log.d(SCDCKeys.LogKeys.DEBUG, "TaskButlerService.onHandleIntent()/ " +
+//            "received intent=" + intent.getDataString());
     LabelAlarm alarm = new LabelAlarm();
-    SharedPreferences prefs =
-      getSharedPreferences(Config.SCDC_LABEL_PREFS, Context.MODE_PRIVATE);
 
     // Total number of labels
-    int numLabels = prefs.getInt(SharedPrefs.NUM_LABELS,
-                               Integer.parseInt(LabelKeys.DEFAULT_NUM_LABELS));
+    int numLabels = spHandler.getNumLabels();
 
     for (int labelId = 0; labelId < numLabels; labelId++) {
-      String labelName =
-        prefs.getString(SharedPrefs.LABEL_NAME_PREFIX +
-                        String.valueOf(labelId), null);
-      long dateDue =
-        prefs.getLong(SharedPrefs.DATE_DUE_PREFIX +
-                      String.valueOf(labelId), -1L);
-
 //      Log.d(SCDCKeys.LogKeys.DEBUG, "OnAlarmReceiver.onReceive()/ received " +
 //                     "data=" + labelName + ", " + labelId);
+      Log.d(SCDCKeys.LogKeys.DEBUG, "TaskButlerService.onHandleIntent()/ " +
+              "labelId=" + labelId + ", dateDue=" + spHandler.getDateDue
+              (labelId) + ", System.currentTimeMillis()=" +
+              System.currentTimeMillis());
 
       // Cancel existing alarm
-      alarm.cancelAlarm(this, labelName, labelId);
+      alarm.cancelAlarm(this, labelId);
 
-      // TODO: procrastinator and reminder alarm
+      // procrastinator and reminder alarm
+      if (spHandler.getIsPastDue(labelId)) {
+        alarm.setReminder(this, labelId);
+      }
 
-      // TODO: handle repeat alarms
+      // handle repeat alarms
+      if (spHandler.getIsRepeating(labelId) &&
+          spHandler.getIsCompleted(labelId)) {
+        labelId = alarm.setRepeatingAlarm(this, labelId);
+      }
 
       // regular alarms
-      if (dateDue >= System.currentTimeMillis()) {
-        alarm.setAlarm(this, dateDue, labelName, labelId);
+      if (spHandler.getIsCompleted(labelId) &&
+          spHandler.getDateDue(labelId) >= System.currentTimeMillis()) {
+        alarm.setAlarm(this, labelId);
       }
     }
 
