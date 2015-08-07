@@ -49,6 +49,8 @@
       }
 
     </string>
+    <string name="notification_interval_tv">Push interval</string>
     <string name="title_activity_probe_reschedule">ProbeRescheduleActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
 
 </resources>
