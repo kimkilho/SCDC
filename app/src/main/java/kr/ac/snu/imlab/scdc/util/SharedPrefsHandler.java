@@ -124,7 +124,7 @@ public class SharedPrefsHandler {
   // for repeating alarm
   public boolean getIsRepeating(int labelId) {
     return prefs.getBoolean(SharedPrefs.LABEL_IS_REPEATING +
-                            String.valueOf(labelId), false);
+                            String.valueOf(labelId), true);
   }
 
   public void setIsRepeating(int labelId, boolean isRepeating) {
@@ -134,7 +134,7 @@ public class SharedPrefsHandler {
 
   public int getRepeatType(int labelId) {
     return prefs.getInt(SharedPrefs.LABEL_REPEAT_TYPE_PREFIX +
-            String.valueOf(labelId), -1);
+            String.valueOf(labelId), 0);
   }
 
   public void setRepeatType(int labelId, int repeatType) {
@@ -145,9 +145,10 @@ public class SharedPrefsHandler {
     }
   }
 
+  // FIXME:
   public int getRepeatInterval(int labelId) {
     return prefs.getInt(SharedPrefs.LABEL_REPEAT_INTERVAL_PREFIX +
-            String.valueOf(labelId), -1);
+            String.valueOf(labelId), 1);
   }
 
   public void setRepeatInterval(int labelId, int repeatInterval) {
@@ -155,9 +156,11 @@ public class SharedPrefsHandler {
             String.valueOf(labelId), repeatInterval).apply();
   }
 
+  // FIXME:
   public long getDateDue(int labelId) {
     return prefs.getLong(SharedPrefs.LABEL_DATE_DUE_PREFIX +
-                         String.valueOf(labelId), -1L);
+                         String.valueOf(labelId),
+                         System.currentTimeMillis() + 60L);
   }
 
   public void setDateDue(int labelId, long dateDue) {
@@ -193,5 +196,15 @@ public class SharedPrefsHandler {
   public String getDefaultHour() {
     return prefs.getString(SharedPrefs.DEFAULT_HOUR,
                            AlarmKeys.DEFAULT_HOUR_VALUE);
+  }
+
+  // Save reminderToggleButton state
+  public boolean isReminderRunning() {
+    return prefs.getBoolean(SharedPrefs.IS_REMINDER_RUNNING, false);
+  }
+
+  public void setReminderRunning(boolean isRunning) {
+    prefs.edit().putBoolean(SharedPrefs.IS_REMINDER_RUNNING,
+                            isRunning).apply();
   }
 }

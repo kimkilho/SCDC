@@ -369,9 +369,13 @@ public class SCDCPipeline implements Pipeline, DataListener {
       Log.w("DEBUG", "BasicPipeline.onDataReceived()/ LabelProbe data " +
               "received");
 
-      handler.sendMessageAtFrontOfQueue(message);
+      if (handler != null) {
+        handler.sendMessageAtFrontOfQueue(message);
+      }
     } else {
-      handler.sendMessage(message);
+      if (handler != null) {
+        handler.sendMessage(message);
+      }
     }
     // Added by Kilho Kim
     if (activity != null && activity instanceof LaunchActivity) {

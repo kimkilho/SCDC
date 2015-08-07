@@ -114,7 +114,7 @@
         <receiver
           android:name="kr.ac.snu.imlab.scdc.service.alarm.OnAlarmReceiver" />
 
-        <service android:name=".service.alarm.TaskButlerService" />
+        <service android:name="kr.ac.snu.imlab.scdc.service.alarm.TaskButlerService" />
 
     </application>
 

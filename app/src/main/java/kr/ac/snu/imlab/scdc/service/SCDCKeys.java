@@ -32,7 +32,8 @@ public class SCDCKeys {
       ALARM_TIME = "alarm_time",
       REMINDER_TIME = "reminder_time",
       VIBRATE_ON_ALARM = "vibrate_on_alarm",
-      DEFAULT_HOUR = "default_hour";
+      DEFAULT_HOUR = "default_hour",
+      IS_REMINDER_RUNNING = "is_reminder_running";
   }
 
   public static interface AlarmKeys {

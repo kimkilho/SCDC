@@ -11,6 +11,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.LogKeys;
@@ -138,18 +139,23 @@ public class LabelAlarm {
     if (newDateDue.getTimeInMillis() <= System.currentTimeMillis()) {
       while (newDateDue.getTimeInMillis() <= System.currentTimeMillis()) {
         newDateDue.add(repeatType, labelEntry.getRepeatInterval());
+//        Log.d(SCDCKeys.LogKeys.DEBUG, "LabelAlarm.setRepeatingAlarm()/ " +
+//                "newDateDue=" + newDateDue.getTime().toString());
       }
     } else {
       // Due date was ahead of current time, label alarm was finished early
       newDateDue.add(repeatType, labelEntry.getRepeatInterval());
+//      Log.d(SCDCKeys.LogKeys.DEBUG, "LabelAlarm.setRepeatingAlarm()/ " +
+//              "newDateDue=" + newDateDue.getTime().toString());
 
       AlarmManager am =
         (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
       am.set(AlarmManager.RTC_WAKEUP, newDateDue.getTimeInMillis(),
              getPendingIntent(context, labelId));
 
-      Log.d(LogKeys.DEBUG, "LabelAlarm.setAlarm()/ alarm set - " +
-              "labelId=" + labelId + ", dateDue=" + dateDue);
+      Log.d(LogKeys.DEBUG, "LabelAlarm.setRepeatingAlarm()/ alarm set - " +
+              "labelId=" + labelId + ", dateDue=" +
+              newDateDue.getTime().toString());
       return labelId;
     }
 

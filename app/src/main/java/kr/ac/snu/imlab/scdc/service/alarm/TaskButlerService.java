@@ -3,6 +3,7 @@ package kr.ac.snu.imlab.scdc.service.alarm;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -29,30 +30,32 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
   @Override
   protected void onHandleIntent(Intent intent) {
+    Log.d(SCDCKeys.LogKeys.DEBUG, "TaskButlerService.onHandleIntent()/ " +
+            "service running...");
     SharedPrefsHandler spHandler =
             SharedPrefsHandler.getInstance(this, Config.SCDC_PREFS,
                                            Context.MODE_PRIVATE);
     // Total number of labels
     int numLabels = spHandler.getNumLabels();
 
-    labelEntries = new ArrayList<LabelEntry>(numLabels);
-    for (int labelId = 0; labelId < labelEntries.size(); labelId++) {
+    labelEntries = new ArrayList<LabelEntry>();
+    for (int labelId = 0; labelId < numLabels; labelId++) {
       labelEntries.add(new LabelEntry(labelId, null,
                               LabelProbe.class, null, true,
                               this, Config.SCDC_PREFS));
     }
 
-    LabelAlarm alarm = new LabelAlarm();
-
     for (int labelId = 0; labelId < labelEntries.size(); labelId++) {
       LabelEntry labelEntry = labelEntries.get(labelId);
 
       if (!labelEntry.isLogged()) {
+        LabelAlarm alarm = new LabelAlarm();
+
 //      Log.d(SCDCKeys.LogKeys.DEBUG, "OnAlarmReceiver.onReceive()/ received " +
 //                     "data=" + labelName + ", " + labelId);
         Log.d(SCDCKeys.LogKeys.DEBUG, "TaskButlerService.onHandleIntent()/ " +
-                "labelId=" + labelId + ", dateDue=" + spHandler.getDateDue
-                (labelId) + ", System.currentTimeMillis()=" +
+                "labelId=" + labelId + ", dateDue=" + labelEntry.getDateDue() +
+                ", System.currentTimeMillis()=" +
                 System.currentTimeMillis());
 
         // Cancel existing alarm
@@ -61,18 +64,24 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
         // procrastinator and reminder alarm
         if (labelEntry.isPastDue()) {
           alarm.setReminder(this, labelId);
+          Log.d(SCDCKeys.LogKeys.DEBUG, "TaskButlerService.onHandleIntent()/ " +
+                 "alarm.setReminder(" + labelId + ")");
         }
 
         // handle repeat alarms
         if (labelEntry.isRepeating() && labelEntry.isCompleted()) {
           labelId = alarm.setRepeatingAlarm(this, labelId);
+          Log.d(SCDCKeys.LogKeys.DEBUG, "TaskButlerService.onHandleIntent()/ " +
+                  "alarm.setRepeatingAlarm(" + labelId + ")");
         }
 
         // regular alarms
-        if (labelEntry.isCompleted() &&
-            labelEntry.getDateDue() >= System.currentTimeMillis()) {
-          alarm.setAlarm(this, labelId);
-        }
+//        if (labelEntry.isCompleted() &&
+//            labelEntry.getDateDue() >= System.currentTimeMillis()) {
+//          alarm.setAlarm(this, labelId);
+//          Log.d(SCDCKeys.LogKeys.DEBUG, "TaskButlerService.onHandleIntent()/ " +
+//                  "alarm.setAlarm(" + labelId + ")");
+//        }
       }
     }
 

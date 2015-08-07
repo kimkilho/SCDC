@@ -4,6 +4,7 @@ import android.content.Context;
  import android.content.SharedPreferences;
  import android.support.v7.app.ActionBarActivity;
  import android.content.ComponentName;
+ import android.content.ComponentName;
  import android.content.Intent;
  import android.content.ServiceConnection;
  import android.database.sqlite.SQLiteDatabase;
@@ -26,6 +27,7 @@ import android.content.Context;
  import edu.mit.media.funf.config.Configurable;
  import edu.mit.media.funf.config.HttpConfigUpdater;
  import edu.mit.media.funf.probe.builtin.*;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
 import kr.ac.snu.imlab.scdc.service.alarm.TaskButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.WakefulIntentService;
@@ -158,9 +160,7 @@ public class LaunchActivity extends ActionBarActivity {
            }
          });
 
-
          // This checkbox enables or disables the pipeline
-         enabledToggleButton.setChecked(pipeline.isEnabled());
          enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
            @Override
            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -232,6 +232,9 @@ public class LaunchActivity extends ActionBarActivity {
                    }
                  }, 1000L);
 
+                 reminderToggleButton.setEnabled(isChecked);
+                 reminderToggleButton.setChecked(spHandler.isReminderRunning());
+
                } else {
                  // Dynamically refresh the ListView items
                  // by calling mAdapter.getView() again.
@@ -258,24 +261,66 @@ public class LaunchActivity extends ActionBarActivity {
                      funfManager.disablePipeline(Config.PIPELINE_NAME);
                    }
                  }, 2000L);
+
+                 spHandler.setReminderRunning(isChecked);
+                 reminderToggleButton.setChecked(spHandler.isReminderRunning());
+                 reminderToggleButton.setEnabled(isChecked);
                }
 
-             reminderToggleButton.setEnabled(isChecked);
              }
 
 
            }
          });
 
+         // This checkbox runs or stops the reminder alarm
+         reminderToggleButton.setOnCheckedChangeListener(
+           new OnCheckedChangeListener() {
+             @Override
+             public void onCheckedChanged(CompoundButton buttonView,
+                                          boolean isChecked) {
+               if (isChecked) {
+                 for (LabelEntry labelEntry : labelEntries) {
+                   if (!labelEntry.isLogged()) {
+                     LabelAlarm alarm = new LabelAlarm();
+                     if (labelEntry.isRepeating()) {
+                       Log.d(SCDCKeys.LogKeys.DEBUG,
+                               "LaunchActivity.reminderToggleButton" +
+                                       ".onCheckedChangeListener()/ set " +
+                                       "repeating alarm: labelId=" +
+                                       labelEntry.getId());
+                       int labelId = alarm.setRepeatingAlarm(
+                               LaunchActivity.this, labelEntry.getId());
+                     } else {
+                       if (labelEntry.hasDateDue() &&  labelEntry.isPastDue())
+                         alarm.setAlarm(LaunchActivity.this, labelEntry.getId());
+                         Log.d(SCDCKeys.LogKeys.DEBUG,
+                                 "LaunchActivity.reminderToggleButton" +
+                                         ".onCheckedChangeListener()/ set " +
+                                         "alarm: labelId=" + labelEntry.getId());
+                     }
+                   }
+                 }
+               } else {
+                 for (LabelEntry labelEntry : labelEntries) {
+                   LabelAlarm alarm = new LabelAlarm();
+                   alarm.cancelAlarm(LaunchActivity.this, labelEntry.getId());
+                   alarm.cancelNotification(LaunchActivity.this,
+                           labelEntry.getId());
+                 }
+               }
+             }
+         });
+
          // Set UI ready to use, by enabling buttons
          enabledToggleButton.setEnabled(true);
+         enabledToggleButton.setChecked(pipeline.isEnabled());
+         archiveButton.setEnabled(!enabledToggleButton.isChecked());
+         truncateDataButton.setEnabled(!enabledToggleButton.isChecked());
 
-         if (enabledToggleButton.isChecked()) {
-             archiveButton.setEnabled(false);
-             truncateDataButton.setEnabled(false);
-         } else {
-             archiveButton.setEnabled(true);
-             truncateDataButton.setEnabled(true);
+         reminderToggleButton.setEnabled(enabledToggleButton.isChecked());
+         if (reminderToggleButton.isEnabled()) {
+           reminderToggleButton.setChecked(spHandler.isReminderRunning());
          }
 
          mAdapter.notifyDataSetChanged();
@@ -367,39 +412,9 @@ public class LaunchActivity extends ActionBarActivity {
 
        enabledToggleButton =
          (ToggleButton)findViewById(R.id.enabledToggleButton);
-       enabledToggleButton.setChecked(false);
-
        reminderToggleButton =
          (ToggleButton)findViewById(R.id.reminderToggleButton);
-       reminderToggleButton.setChecked(false);
-       reminderToggleButton.setEnabled(false);
-       reminderToggleButton.setOnCheckedChangeListener(
-         new OnCheckedChangeListener() {
-         @Override
-         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-           if (isChecked) {
-             for (LabelEntry labelEntry : labelEntries) {
-               if (!labelEntry.isLogged()) {
-                 LabelAlarm alarm = new LabelAlarm();
-                 if (labelEntry.isRepeating()) {
-                   int labelId = alarm.setRepeatingAlarm(LaunchActivity.this,
-                                                         labelEntry.getId());
-                 } else {
-                   if (labelEntry.hasDateDue() && labelEntry.isPastDue())
-                     alarm.setAlarm(LaunchActivity.this, labelEntry.getId());
-                 }
-               }
-             }
-           } else {
-             for (LabelEntry labelEntry : labelEntries) {
-               LabelAlarm alarm = new LabelAlarm();
-               alarm.cancelAlarm(LaunchActivity.this, labelEntry.getId());
-               alarm.cancelNotification(LaunchActivity.this,
-                                        labelEntry.getId());
-             }
-           }
-         }
-       });
+
 
 
        // Runs an archive if pipeline is enabled
@@ -494,6 +509,8 @@ public class LaunchActivity extends ActionBarActivity {
      @Override
      public void onPause() {
        super.onPause();
+
+       spHandler.setReminderRunning(reminderToggleButton.isChecked());
 
 //       String hour = spHandler.getDefaultHour();
 //
