@@ -38,24 +38,32 @@ public class SCDCKeys {
 
   public static interface AlarmKeys {
     public static final String
-      EXTRA_LABEL_NAME = "kr.ac.snu.imlab.scdc.service.alarm.LABEL_NAME",
-      EXTRA_LABEL_ID = "kr.ac.snu.imlab.scdc.service.alarm.LABEL_ID",
+      EXTRA_ALARM_NAME = "kr.ac.snu.imlab.scdc.service.alarm.ALARM_NAME",
+      EXTRA_ALARM_ID = "kr.ac.snu.imlab.scdc.service.alarm.ALARM_ID",
       EXTRA_DATE_DUE = "kr.ac.snu.imlab.scdc.service.alarm.DATE_DUE",
       ALARM_EXTRA = "kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm";
+
+    // Repeat constants
+    public static final int
+            MINUTES = 0,
+            HOURS = 1,
+            DAYS = 2,
+            WEEKS = 3,
+            MONTHS = 4,
+            YEARS = 5;
 
     public static final String
       DEFAULT_REMINDER_TIME = "6",
       DEFAULT_ALARM_TIME = "5",
-      DEFAULT_HOUR_VALUE = "12";
+      DEFAULT_HOUR_VALUE = "12",
+      DEFAULT_REPEAT_TYPE = String.valueOf(MINUTES),
+      DEFAULT_REPEAT_INTERVAL = "1",
+      DEFAULT_DATE_DUE = "3155760000";  // 2070.01.01 00:00:00
 
-    // Repeat constants
-    public static final int
-      MINUTES = 0,
-      HOURS = 1,
-      DAYS = 2,
-      WEEKS = 3,
-      MONTHS = 4,
-      YEARS = 5;
+    public static final String
+      DEFAULT_GENERAL_ALARM_ID = "100",
+      DEFAULT_GENERAL_ALARM_REPEAT_TYPE = String.valueOf(MINUTES),
+      DEFAULT_GENERAL_ALARM_REPEAT_INTERVAL = "1";
   }
 
   public static interface LabelKeys {

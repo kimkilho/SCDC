@@ -36,11 +36,11 @@ public class LabelAlarm {
    * @description Cancel alarm using the alarm id,
    *   PendingIntent is created using the Alarm id
    * @param context
-   * @param labelId  The ID of the label
+   * @param alarmId  The ID of the alarm
    */
-  public void cancelAlarm(Context context, int labelId) {
+  public void cancelAlarm(Context context, int alarmId) {
     // cancel regular alarms
-    PendingIntent pi = getPendingIntent(context, labelId);
+    PendingIntent pi = getPendingIntent(context, alarmId);
     AlarmManager alarmManager =
       (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     alarmManager.cancel(pi);
@@ -49,9 +49,9 @@ public class LabelAlarm {
     // cancel reminder alarm
     Intent intent =
       new Intent(context, OnAlarmReceiver.class)
-            .putExtra(AlarmKeys.EXTRA_LABEL_ID, labelId)
+            .putExtra(AlarmKeys.EXTRA_ALARM_ID, alarmId)
             .putExtra(LabelAlarm.ALARM_EXTRA, SharedPrefs.REMINDER_TIME);
-    pi = PendingIntent.getBroadcast(context, labelId, intent,
+    pi = PendingIntent.getBroadcast(context, alarmId, intent,
                                     PendingIntent.FLAG_UPDATE_CURRENT);
     alarmManager.cancel(pi);
     pi.cancel();
@@ -59,9 +59,9 @@ public class LabelAlarm {
     // cancel procrastinator alarm
     intent =
       new Intent(context, OnAlarmReceiver.class)
-            .putExtra(AlarmKeys.EXTRA_LABEL_ID, labelId)
+            .putExtra(AlarmKeys.EXTRA_ALARM_ID, alarmId)
             .putExtra(LabelAlarm.ALARM_EXTRA, SharedPrefs.ALARM_TIME);
-    pi = PendingIntent.getBroadcast(context, labelId, intent,
+    pi = PendingIntent.getBroadcast(context, alarmId, intent,
                                     PendingIntent.FLAG_UPDATE_CURRENT);
     alarmManager.cancel(pi);
     pi.cancel();
@@ -71,47 +71,39 @@ public class LabelAlarm {
    * @description Use this call in activity code
    *   to cancel existing notifications
    * @param context
-   * @param labelId  The ID of the label
+   * @param alarmId  The ID of the alarm
    */
-  public void cancelNotification(Context context, int labelId) {
+  public void cancelNotification(Context context, int alarmId) {
     NotificationHelper cancel = new NotificationHelper();
-    cancel.cancelNotification(context, labelId);
-  }
-
-  /**
-   * @description Set a one-time alarm using the labelID
-   * @param context
-   * @param labelId
-   */
-  public void setAlarm(Context context, int labelId) {
-    LabelEntry labelEntry =
-      new LabelEntry(labelId, null, LabelProbe.class, null, true,
-                     context, Config.SCDC_PREFS);
-    long dateDue = labelEntry.getDateDue();
-    AlarmManager am =
-      (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-    am.set(AlarmManager.RTC_WAKEUP, dateDue,
-            getPendingIntent(context, labelId));
-    Log.d(LogKeys.DEBUG, "LabelAlarm.setAlarm()/ alarm set - " +
-            "labelId=" + labelId + ", dateDue=" + dateDue);
+    cancel.cancelNotification(context, alarmId);
   }
 
   /**
    * @description Sets DateDue field to the next repeat cycle,
    *   you still need to call setAlarm()
    * @param context
-   * @param labelId
+   * @param alarmId
    */
-  public int setRepeatingAlarm(Context context, int labelId) {
-    LabelEntry labelEntry =
-            new LabelEntry(labelId, null, LabelProbe.class, null, true,
-                    context, Config.SCDC_PREFS);
-    long dateDue = labelEntry.getDateDue();
-    Calendar newDateDue = new GregorianCalendar();
-    newDateDue.setTimeInMillis(dateDue);
-    int repeatType;
+  public int setRepeatingAlarm(Context context, int alarmId) {
+    int repeatType, alarmRepeatType, alarmRepeatInterval;
+    long dateDue;
 
-    switch (labelEntry.getRepeatType()) {
+    if (alarmId == Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_ID)) {
+      alarmRepeatType =
+        Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_REPEAT_TYPE);
+      dateDue = System.currentTimeMillis();
+      alarmRepeatInterval =
+        Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_REPEAT_INTERVAL);
+    } else {
+      LabelEntry labelEntry =
+              new LabelEntry(alarmId, null, LabelProbe.class, null, true,
+                      context, Config.SCDC_PREFS);
+      alarmRepeatType = labelEntry.getRepeatType();
+      dateDue = System.currentTimeMillis();
+      alarmRepeatInterval = labelEntry.getRepeatInterval();
+    }
+
+    switch (alarmRepeatType) {
       case AlarmKeys.MINUTES:
         repeatType = Calendar.MINUTE;
         break;
@@ -135,117 +127,26 @@ public class LabelAlarm {
         break;
     }
 
-    // Due date is behind current time, label alarm was finished late
-    if (newDateDue.getTimeInMillis() <= System.currentTimeMillis()) {
-      while (newDateDue.getTimeInMillis() <= System.currentTimeMillis()) {
-        newDateDue.add(repeatType, labelEntry.getRepeatInterval());
-//        Log.d(SCDCKeys.LogKeys.DEBUG, "LabelAlarm.setRepeatingAlarm()/ " +
-//                "newDateDue=" + newDateDue.getTime().toString());
-      }
-    } else {
-      // Due date was ahead of current time, label alarm was finished early
-      newDateDue.add(repeatType, labelEntry.getRepeatInterval());
-//      Log.d(SCDCKeys.LogKeys.DEBUG, "LabelAlarm.setRepeatingAlarm()/ " +
-//              "newDateDue=" + newDateDue.getTime().toString());
-
-      AlarmManager am =
-        (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-      am.set(AlarmManager.RTC_WAKEUP, newDateDue.getTimeInMillis(),
-             getPendingIntent(context, labelId));
-
-      Log.d(LogKeys.DEBUG, "LabelAlarm.setRepeatingAlarm()/ alarm set - " +
-              "labelId=" + labelId + ", dateDue=" +
-              newDateDue.getTime().toString());
-      return labelId;
-    }
-
-    labelEntry.setDateDue(newDateDue.getTimeInMillis());
-    labelEntry.setIsCompleted(false);
-
-    return labelId;
-  }
-
-  /**
-   * @description Reads preferences, and schedule a procrastinator alarm
-   *   for a past due label.
-   * @param context
-   * @param labelId
-   */
-  public void setProcrastinatorAlarm(Context context, int labelId) {
-    SharedPrefsHandler spHandler =
-      SharedPrefsHandler.getInstance(context, Config.SCDC_PREFS,
-        Context.MODE_PRIVATE);
-    String strAlarm = spHandler.getAlarmTime();
-    Calendar cal = Calendar.getInstance();
-    int iAlarm = Integer.parseInt(strAlarm);
-    cal.add(Calendar.MINUTE, iAlarm);
-    long lAlarm = cal.getTimeInMillis();
-
-    Intent intent = new Intent(context, OnAlarmReceiver.class)
-                          .putExtra(AlarmKeys.EXTRA_LABEL_ID, labelId)
-                          .putExtra(AlarmKeys.ALARM_EXTRA, SharedPrefs.ALARM_TIME);
+    Calendar newDateDue = new GregorianCalendar();
+    newDateDue.setTimeInMillis(dateDue);
+    newDateDue.add(repeatType, alarmRepeatInterval);
+      // set newDateDue by repeatInterval after current time
 
     AlarmManager am =
       (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-    am.set(AlarmManager.RTC_WAKEUP, lAlarm,
-           PendingIntent.getBroadcast(context, labelId, intent,
-             PendingIntent.FLAG_UPDATE_CURRENT));
-  }
+    am.set(AlarmManager.RTC_WAKEUP, newDateDue.getTimeInMillis(),
+           getPendingIntent(context, alarmId));
 
-  /**
-   * @description Reads preferences, and schedule a reminder alarm
-   *   for a past due label.
-   * @param context
-   * @param labelId
-   */
-  public void setReminder(Context context, int labelId) {
-    SharedPrefsHandler spHandler =
-      SharedPrefsHandler.getInstance(context, Config.SCDC_PREFS,
-        Context.MODE_PRIVATE);
-    LabelEntry labelEntry =
-      new LabelEntry(labelId, null, LabelProbe.class, null, true,
-                    context, Config.SCDC_PREFS);
-
-    long dateDue = labelEntry.getDateDue();
-    Calendar dueCal = new GregorianCalendar();
-    dueCal.setTimeInMillis(dateDue);
-    boolean isProcrastinator = labelEntry.hasFinalDateDue();
-
-    String strReminder;
-    int iInterval;
-
-    if (isProcrastinator) {
-      // Procrastinator alarm
-      strReminder = spHandler.getAlarmTime();
-      iInterval = Calendar.MINUTE;
-    } else {
-      // Regular alarm
-      strReminder = spHandler.getReminderTime();
-      iInterval = Calendar.HOUR;
-    }
-
-    int iReminder = Integer.parseInt(strReminder);
-
-    do {
-      dueCal.add(iInterval, iReminder);
-    } while (dueCal.getTimeInMillis() < System.currentTimeMillis());
-
-    Intent intent = new Intent(context, OnAlarmReceiver.class)
-                          .putExtra(AlarmKeys.EXTRA_LABEL_ID, labelId)
-                          .putExtra(AlarmKeys.ALARM_EXTRA, isProcrastinator ?
-                            SharedPrefs.ALARM_TIME : SharedPrefs.REMINDER_TIME);
-
-    AlarmManager am =
-      (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-    am.set(AlarmManager.RTC_WAKEUP, dueCal.getTimeInMillis(),
-      PendingIntent.getBroadcast(context, labelId, intent,
-                                 PendingIntent.FLAG_UPDATE_CURRENT));
+    Log.d(LogKeys.DEBUG, "LabelAlarm.setRepeatingAlarm()/ alarm set - " +
+            "alarmId=" + alarmId + ", dateDue=" +
+            newDateDue.getTime().toString());
+    return alarmId;
   }
 
   // get a PendingIntent
   PendingIntent getPendingIntent(Context context, int id) {
     Intent intent = new Intent(context, OnAlarmReceiver.class)
-                          .putExtra(AlarmKeys.EXTRA_LABEL_ID, id);
+                          .putExtra(AlarmKeys.EXTRA_ALARM_ID, id);
     return PendingIntent.getBroadcast(context, id, intent,
                                       PendingIntent.FLAG_UPDATE_CURRENT);
   }

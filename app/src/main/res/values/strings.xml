@@ -52,5 +52,7 @@
     <string name="notification_interval_tv">Push interval</string>
     <string name="title_activity_probe_reschedule">ProbeRescheduleActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="general_alarm_message">현재 무엇을 하고 계신가요? 레이블링을 수행해주세요.</string>
+    <string name="label_alarm_message">%1$s한지 %2$s 지났습니다.</string>
 
 </resources>

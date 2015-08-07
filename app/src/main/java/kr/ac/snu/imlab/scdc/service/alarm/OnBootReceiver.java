@@ -16,7 +16,7 @@ import android.content.Intent;
   public void onReceive(Context context, Intent intent) {
     WakefulIntentService.acquireStaticLock(context);
       // acquire a partial WakeLock
-    context.startService(new Intent(context, TaskButlerService.class));
+    context.startService(new Intent(context, AlarmButlerService.class));
       // start TaskButlerService
   }
  }

@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
@@ -19,6 +20,7 @@ import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
+import kr.ac.snu.imlab.scdc.util.TimeUtil;
 
 /**
  * @author Kilho Kim
@@ -33,15 +35,16 @@ public class NotificationHelper {
    * @description Basic text notification for Task Butler,
    * using NotificationCompat
    */
-  public void sendBasicNotification(Context context, int labelId) {
+  public void sendBasicNotification(Context context, int alarmId) {
     SharedPrefsHandler spHandler =
       SharedPrefsHandler.getInstance(context, Config.SCDC_PREFS,
                                      Context.MODE_PRIVATE);
+
     boolean vibrate = spHandler.getVibrateOnAlarm();
     int alarmInterval;
     int alarmUnits;
 
-    if (spHandler.getHasFinalDateDue(labelId)) {
+    if (spHandler.getHasFinalDateDue(alarmId)) {
       alarmInterval = Integer.parseInt(spHandler.getAlarmTime());
       alarmUnits = Calendar.MINUTE;
     } else {
@@ -51,45 +54,65 @@ public class NotificationHelper {
 
     Calendar nextReminder = GregorianCalendar.getInstance();
     nextReminder.add(alarmUnits, alarmInterval);
+    Resources res = context.getResources();
 
-    NotificationCompat.Builder builder =
-      new NotificationCompat.Builder(context)
-            .setAutoCancel(true)
-            .setContentIntent(getPendingIntent(context, labelId))
-            .setContentInfo("Urgent")
-            .setContentTitle(spHandler.getLabelName(labelId))
-            .setContentText(DateFormat.format("'Next reminder at: h:mmaa",
-                              nextReminder))
-            .setDefaults(vibrate ? Notification.DEFAULT_ALL :
-                      Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS)
-            .setSmallIcon(R.mipmap.ic_launcher)
-            .setTicker(spHandler.getLabelName(labelId))
-            .setWhen(System.currentTimeMillis());
+    NotificationCompat.Builder builder;
+    if (alarmId == Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_ID)) {
+      builder = new NotificationCompat.Builder(context)
+                      .setAutoCancel(true)
+                      .setContentIntent(getPendingIntent(context, alarmId))
+                      .setContentInfo("Urgent")
+                      .setContentTitle(res.getString(R.string.app_title))
+                      .setContentText(res.getString(R.string
+                              .general_alarm_message))
+                      .setDefaults(vibrate ? Notification.DEFAULT_ALL :
+                        Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS)
+                      .setSmallIcon(R.mipmap.ic_launcher)
+                      .setTicker(spHandler.getLabelName(alarmId))
+                      .setWhen(System.currentTimeMillis());
+    } else {
+      String message = String.format(res.getString(R.string
+                          .label_alarm_message),
+                          spHandler.getLabelName(alarmId),
+                          TimeUtil.getElapsedTimeUntilNow(
+                            spHandler.getStartLoggingTime(alarmId)));
+      builder = new NotificationCompat.Builder(context)
+                      .setAutoCancel(true)
+                      .setContentIntent(getPendingIntent(context, alarmId))
+                      .setContentInfo("Urgent")
+                      .setContentTitle(res.getString(R.string.app_title))
+                      .setContentText(message)
+                      .setDefaults(vibrate ? Notification.DEFAULT_ALL :
+                              Notification.DEFAULT_SOUND|Notification.DEFAULT_LIGHTS)
+                      .setSmallIcon(R.mipmap.ic_launcher)
+                      .setTicker(spHandler.getLabelName(alarmId))
+                      .setWhen(System.currentTimeMillis());
+    }
 
     @SuppressWarnings("deprecation")
     Notification notification = builder.getNotification();
     NotificationManager notificationMgr = getNotificationManager(context);
-    notificationMgr.notify(labelId, notification);
+    notificationMgr.notify(alarmId, notification);
   }
 
   /**
    * @description Basic Text Notification with Ongoing flag enabled for
    *   Task Butler, using NotificationCompat
    * @param context
-   * @param labelId
+   * @param alarmId
    * @return
    */
-  public void sendPersistentNotification(Context context, int labelId) {
+  public void sendPersistentNotification(Context context, int alarmId) {
     SharedPrefsHandler spHandler =
       SharedPrefsHandler.getInstance(context, Config.SCDC_PREFS,
         Context.MODE_PRIVATE);
     NotificationCompat.Builder builder =
       new NotificationCompat.Builder(context)
-        .setContentText(spHandler.getLabelName(labelId))
-        .setContentTitle(spHandler.getLabelName(labelId))
+        .setContentText(spHandler.getLabelName(alarmId))
+        .setContentTitle(spHandler.getLabelName(alarmId))
         .setSmallIcon(R.mipmap.ic_launcher)
         .setAutoCancel(true)
-        .setContentIntent(getPendingIntent(context, labelId))
+        .setContentIntent(getPendingIntent(context, alarmId))
         .setWhen(System.currentTimeMillis())
         .setOngoing(true)
         .setDefaults(Notification.DEFAULT_ALL);
@@ -97,13 +120,13 @@ public class NotificationHelper {
     @SuppressWarnings("deprecation")
     Notification notification = builder.getNotification();
     NotificationManager notificationMgr = getNotificationManager(context);
-    notificationMgr.notify(labelId, notification);
+    notificationMgr.notify(alarmId, notification);
   }
 
   // get a PendingIntent
   PendingIntent getPendingIntent(Context context, int id) {
     Intent intent = new Intent(context, LaunchActivity.class)
-                          .putExtra(AlarmKeys.EXTRA_LABEL_ID, id);
+                          .putExtra(AlarmKeys.EXTRA_ALARM_ID, id);
     return PendingIntent.getActivity(context, id, intent, 0);
   }
 
@@ -117,10 +140,10 @@ public class NotificationHelper {
    * @description Cancels an existing notification, if user modified the task.
    *   Make the actual call from LabelAlarm.cancelNotification(Context, int)
    * @param context
-   * @param labelId
+   * @param alarmId
    */
-  public void cancelNotification(Context context, int labelId) {
+  public void cancelNotification(Context context, int alarmId) {
     NotificationManager notificationMgr = getNotificationManager(context);
-    notificationMgr.cancel(labelId);
+    notificationMgr.cancel(alarmId);
   }
 }

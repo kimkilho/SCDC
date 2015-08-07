@@ -1,11 +1,9 @@
 package kr.ac.snu.imlab.scdc.activity;
 
 import android.content.Context;
- import android.content.SharedPreferences;
- import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarActivity;
  import android.content.ComponentName;
- import android.content.ComponentName;
- import android.content.Intent;
+import android.content.Intent;
  import android.content.ServiceConnection;
  import android.database.sqlite.SQLiteDatabase;
  import android.os.Bundle;
@@ -28,8 +26,8 @@ import android.content.Context;
  import edu.mit.media.funf.config.HttpConfigUpdater;
  import edu.mit.media.funf.probe.builtin.*;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys;
+import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
-import kr.ac.snu.imlab.scdc.service.alarm.TaskButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.WakefulIntentService;
 import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
  import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
@@ -46,18 +44,14 @@ import kr.ac.snu.imlab.scdc.service.SCDCPipeline;
  import java.io.File;
  import java.math.BigDecimal;
  import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
  import java.util.List;
  import java.util.Map;
 
  import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
- import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
- import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
+import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
  import kr.ac.snu.imlab.scdc.service.SCDCKeys.LogKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
- import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
+import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
  import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
@@ -280,27 +274,31 @@ public class LaunchActivity extends ActionBarActivity {
              public void onCheckedChanged(CompoundButton buttonView,
                                           boolean isChecked) {
                if (isChecked) {
-                 for (LabelEntry labelEntry : labelEntries) {
-                   if (!labelEntry.isLogged()) {
-                     LabelAlarm alarm = new LabelAlarm();
-                     if (labelEntry.isRepeating()) {
-                       Log.d(SCDCKeys.LogKeys.DEBUG,
-                               "LaunchActivity.reminderToggleButton" +
-                                       ".onCheckedChangeListener()/ set " +
-                                       "repeating alarm: labelId=" +
-                                       labelEntry.getId());
-                       int labelId = alarm.setRepeatingAlarm(
-                               LaunchActivity.this, labelEntry.getId());
-                     } else {
-                       if (labelEntry.hasDateDue() &&  labelEntry.isPastDue())
-                         alarm.setAlarm(LaunchActivity.this, labelEntry.getId());
-                         Log.d(SCDCKeys.LogKeys.DEBUG,
-                                 "LaunchActivity.reminderToggleButton" +
-                                         ".onCheckedChangeListener()/ set " +
-                                         "alarm: labelId=" + labelEntry.getId());
-                     }
-                   }
-                 }
+                 // Start service to check for alarms
+                 WakefulIntentService.acquireStaticLock(LaunchActivity.this);
+                 startService(new Intent(LaunchActivity.this,
+                                         AlarmButlerService.class));
+//                 for (LabelEntry labelEntry : labelEntries) {
+//                   if (!labelEntry.isLogged()) {
+//                     LabelAlarm alarm = new LabelAlarm();
+//                     if (labelEntry.isRepeating()) {
+//                       Log.d(SCDCKeys.LogKeys.DEBUG,
+//                               "LaunchActivity.reminderToggleButton" +
+//                                       ".onCheckedChangeListener()/ set " +
+//                                       "repeating alarm: labelId=" +
+//                                       labelEntry.getId());
+//                       int labelId = alarm.setRepeatingAlarm(
+//                               LaunchActivity.this, labelEntry.getId());
+//                     } else {
+//                       if (labelEntry.hasDateDue() &&  labelEntry.isPastDue())
+//                         alarm.setAlarm(LaunchActivity.this, labelEntry.getId());
+//                         Log.d(SCDCKeys.LogKeys.DEBUG,
+//                                 "LaunchActivity.reminderToggleButton" +
+//                                         ".onCheckedChangeListener()/ set " +
+//                                         "alarm: labelId=" + labelEntry.getId());
+//                     }
+//                   }
+//                 }
                } else {
                  for (LabelEntry labelEntry : labelEntries) {
                    LabelAlarm alarm = new LabelAlarm();
@@ -308,6 +306,8 @@ public class LaunchActivity extends ActionBarActivity {
                    alarm.cancelNotification(LaunchActivity.this,
                            labelEntry.getId());
                  }
+                 stopService(new Intent(LaunchActivity.this,
+                         AlarmButlerService.class));
                }
              }
          });
@@ -480,10 +480,6 @@ public class LaunchActivity extends ActionBarActivity {
          }
        });
 
-
-       // Start service to check for alarms
-       WakefulIntentService.acquireStaticLock(this);
-       startService(new Intent(this, TaskButlerService.class));
 
        // Bind to the service, to create the connection with FunfManager
        bindService(new Intent(this, FunfManager.class),

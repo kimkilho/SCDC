@@ -134,7 +134,8 @@ public class SharedPrefsHandler {
 
   public int getRepeatType(int labelId) {
     return prefs.getInt(SharedPrefs.LABEL_REPEAT_TYPE_PREFIX +
-            String.valueOf(labelId), 0);
+            String.valueOf(labelId),
+            Integer.parseInt(AlarmKeys.DEFAULT_REPEAT_TYPE));
   }
 
   public void setRepeatType(int labelId, int repeatType) {
@@ -145,10 +146,10 @@ public class SharedPrefsHandler {
     }
   }
 
-  // FIXME:
   public int getRepeatInterval(int labelId) {
     return prefs.getInt(SharedPrefs.LABEL_REPEAT_INTERVAL_PREFIX +
-            String.valueOf(labelId), 1);
+            String.valueOf(labelId),
+            Integer.parseInt(AlarmKeys.DEFAULT_REPEAT_INTERVAL));
   }
 
   public void setRepeatInterval(int labelId, int repeatInterval) {
@@ -160,7 +161,7 @@ public class SharedPrefsHandler {
   public long getDateDue(int labelId) {
     return prefs.getLong(SharedPrefs.LABEL_DATE_DUE_PREFIX +
                          String.valueOf(labelId),
-                         System.currentTimeMillis() + 60L);
+                         Long.parseLong(AlarmKeys.DEFAULT_DATE_DUE));
   }
 
   public void setDateDue(int labelId, long dateDue) {

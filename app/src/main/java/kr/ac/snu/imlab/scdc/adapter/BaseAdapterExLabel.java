@@ -24,6 +24,7 @@ import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
+import kr.ac.snu.imlab.scdc.util.TimeUtil;
 
 import java.util.ArrayList;
 import android.os.Handler;
@@ -123,7 +124,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.endLogButton.setEnabled(mData.get(position).isLogged() &&
                                        enabledToggleButton.isChecked());
 
-//    // Set alarms only for the labels not being logged
+    // Set alarms only for the labels not being logged
 //    LabelEntry labelEntry = mData.get(position);
 //    if (!labelEntry.isLogged()) {
 //      LabelAlarm alarm = new LabelAlarm();
@@ -142,7 +143,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
     // Refresh the elapsed time if the label is logged
     if (mData.get(position).isLogged()) {
       String elapsedTime =
-        getElapsedTimeUntilNow(mData.get(position).getStartLoggingTime());
+        TimeUtil.getElapsedTimeUntilNow(
+          mData.get(position).getStartLoggingTime());
       viewHolder.scheduleTextView.setText(
               "Currently " + mData.get(position).getName() +
               " for " + elapsedTime);
@@ -242,49 +244,6 @@ public class BaseAdapterExLabel extends BaseAdapter {
     itemLayout.setClickable(true);
     return itemLayout;
   }
-
-  private String getElapsedTimeUntilNow(long startTime) {
-    if (startTime == -1) return null;
-
-    long timeDelta = System.currentTimeMillis() - startTime;
-    String elapsedTime = null;
-
-    long secondsInMillis = 1000;
-    long minutesInMillis = secondsInMillis * 60;
-    long hoursInMillis = minutesInMillis * 60;
-    long daysInMillis = hoursInMillis * 24;
-
-    if (timeDelta < minutesInMillis) {
-      elapsedTime = String.valueOf(timeDelta / secondsInMillis) + " seconds";
-    } else if (timeDelta < hoursInMillis) {
-      elapsedTime = String.valueOf(timeDelta / minutesInMillis) + " minutes";
-    } else if (timeDelta < daysInMillis) {
-      elapsedTime = String.valueOf(timeDelta / hoursInMillis) + " hours";
-    } else {
-      elapsedTime = String.valueOf(timeDelta / daysInMillis) + " hours";
-    }
-
-    return elapsedTime;
-  }
-
-  /*
-  private void startTimerTask(int i) {
-    // Stop TimerTask if running
-    stopTimerTask();
-
-    // Run TimerTask immediately and repeat on every 1000ms
-    mTimers.get(i).schedule(mCountTimerTask, 0, 1000);
-  }
-
-  private void stopTimerTask() {
-    // Stop all TimerTasks
-    if (mCountTimerTask != null) {
-      mCountTimerTask.cancel();
-      mCountTimerTask = null;
-    }
-  }
-  */
-
 
   protected void notify(int mId, String title, String message,
                            String alert) {

@@ -24,18 +24,15 @@ public class OnAlarmReceiver extends BroadcastReceiver {
     WakefulIntentService.acquireStaticLock(context);
       // acquire a partial WakeLock
 
-//    Log.d(SCDCKeys.LogKeys.DEBUG, "OnAlarmReceiver.onReceive()/ received " +
-//            "intent: " + intent.getDataString());
     // send notification, bundle intent with taskID
     NotificationHelper notification = new NotificationHelper();
     Bundle bundle = intent.getExtras();
-    int labelId = bundle.getInt(AlarmKeys.EXTRA_LABEL_ID);
+    int alarmId = bundle.getInt(AlarmKeys.EXTRA_ALARM_ID);
     Log.d(SCDCKeys.LogKeys.DEBUG, "OnAlarmReceiver.onReceive()/ received " +
-                                  "labelId=" + labelId);
-//    SharedPreferences prefs =
-//      context.getSharedPreferences(Config.SCDC_PREFS, Context.MODE_PRIVATE);
-    notification.sendBasicNotification(context, labelId); // send basic noti
-    context.startService(new Intent(context, TaskButlerService.class));
+                                  "alarmId=" + alarmId);
+    notification.sendBasicNotification(context, alarmId);
+      // send basic notification
+    context.startService(new Intent(context, AlarmButlerService.class));
       // start TaskButlerService
   }
 }
