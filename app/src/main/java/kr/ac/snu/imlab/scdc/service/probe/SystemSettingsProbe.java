@@ -13,7 +13,7 @@ import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.builtin.ProbeKeys;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys;
 
-@Probe.DisplayName("Control Panel Log Probe")
+@Probe.DisplayName("System Settings Log Probe")
 @Probe.Description("Records System content(screen brightness, accelerometer rotation, volume) for all time")
 @Schedule.DefaultSchedule(interval = 0, duration = 0, opportunistic = true)
 public class SystemSettingsProbe extends Probe.Base implements Probe.ContinuousProbe {
