@@ -35,4 +35,16 @@ public class SCDCKeys {
     public static final String
       DEBUG = "DEBUG";
   }
+
+  public interface SystemSettingsKeys {
+
+    String SCREEN_BRIGHTNESS = "screenBrightness";
+    String ACCELEROMETER_ROTATION = "accelerometerRotation";
+    String VOLUME_ALARM = "volumeAlarm";
+    String VOLUME_MUSIC = "volumeMusic";
+    String VOLUME_NOTIFICATION = "volumeNotification";
+    String VOLUME_RING = "volumeRing";
+    String VOLUME_SYSTEM = "volumeSystem";
+    String VOLUME_VOICE = "volumeVoice";
+  }
 }
