@@ -47,4 +47,10 @@ public class SCDCKeys {
     String VOLUME_SYSTEM = "volumeSystem";
     String VOLUME_VOICE = "volumeVoice";
   }
+
+  public interface NetworkSettingsKeys {
+    String AIR_PLANE_MODE_ON = "airPlaneModeOn";
+    String MOBILE_DATA_ON = "mobileDataOn";
+    String WIFI_ON = "wifiOn";
+  }
 }
