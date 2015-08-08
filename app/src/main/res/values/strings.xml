@@ -44,7 +44,9 @@
           {"@type": "edu.mit.media.funf.probe.builtin.BluetoothProbe"},
           {"@type": "edu.mit.media.funf.probe.builtin.RunningApplicationsProbe"},
           {"@type": "edu.mit.media.funf.probe.builtin.ScreenProbe"},
-          {"@type": "kr.ac.snu.imlab.scdc.service.probe.LabelProbe"}
+          {"@type": "kr.ac.snu.imlab.scdc.service.probe.LabelProbe"},
+          {"@type": "kr.ac.snu.imlab.scdc.service.probe.SystemSettingsProbe"},
+          {"@type": "kr.ac.snu.imlab.scdc.service.probe.NetworkSettingsProbe"}
         ]
       }
 
