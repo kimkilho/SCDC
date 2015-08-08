@@ -39,20 +39,14 @@ public class SCDCDatabaseHelper extends SQLiteOpenHelper {
                     new Column(COLUMN_INSTALLATION, "TEXT"), // Universally Unique Id for device installation
                     new Column(COLUMN_UUID, "TEXT"), // Universally Unique Id for file
                     new Column(COLUMN_CREATED, "FLOAT"))); // TIMESTAMP in data broadcast
-    private static final String DB_FILE_DIR = "SCDC";
-
 
     private final Context context;
     private final String databaseName;
 
     public SCDCDatabaseHelper(Context context, String name, int version) {
-        super(context, dbFilePathInExternalStrage(name), null, version);
+        super(context, name, null, version);
         this.context = context;
         this.databaseName = name;
-    }
-
-    private static String dbFilePathInExternalStrage(String name) {
-        return Environment.getExternalStorageDirectory() + File.separator + DB_FILE_DIR + File.separator + name;
     }
 
     @Override
@@ -97,11 +91,11 @@ public class SCDCDatabaseHelper extends SQLiteOpenHelper {
 
         public Table(final String name, final List<Column> columns) {
             this.name = name;
-            this.columns = new ArrayList<Column>(columns);
+            this.columns = new ArrayList<>(columns);
         }
 
         public List<Column> getColumns() {
-            return new ArrayList<Column>(columns);
+            return new ArrayList<>(columns);
         }
 
         public String getCreateTableSQL() {

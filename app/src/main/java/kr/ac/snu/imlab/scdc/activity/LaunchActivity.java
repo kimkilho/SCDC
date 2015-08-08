@@ -323,12 +323,11 @@ public class LaunchActivity extends ActionBarActivity {
                 Log.w(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
                 File dbFile = new File(db.getPath());
                 db.close();
-                sendFileViaEmail(dbFile);
-//        archive.add(dbFile);
-//        upload = new MultipartEntityArchive(funfManager,
-//                "http://imlab-ws2.snu.ac.kr:7000/data",
-//                LaunchActivity.this);
-//        uploader.run(archive, upload);
+                archive.add(dbFile);
+                upload = new MultipartEntityArchive(funfManager,
+                        "http://imlab-ws2.snu.ac.kr:7000/data",
+                        LaunchActivity.this);
+                uploader.run(archive, upload);
                 if (dbFile.exists()) {
                     archive.remove(dbFile);
                 }
@@ -387,7 +386,7 @@ public class LaunchActivity extends ActionBarActivity {
 
     private void makeProbeEntries() {
         // The list of probes available
-        probeEntries = new ArrayList<ProbeEntry>();
+        probeEntries = new ArrayList<>();
         // Device Probes
         probeEntries.add(new ProbeEntry(BatteryProbe.class, null, true));
         // Environment Probes
@@ -406,7 +405,7 @@ public class LaunchActivity extends ActionBarActivity {
         probeEntries.add(new ProbeEntry(ScreenProbe.class, null, true));
 
         // The list of labels available
-        labelEntries = new ArrayList<LabelEntry>();
+        labelEntries = new ArrayList<>();
         labelEntries.add(new LabelEntry(LabelKeys.SLEEP_LABEL,
                 LabelProbe.class, null, true));
         labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL,
@@ -422,17 +421,6 @@ public class LaunchActivity extends ActionBarActivity {
 
         mListView = (ListView) findViewById(R.id.label_list_view);
         mListView.setAdapter(mAdapter);
-    }
-
-    private void sendFileViaEmail(File file) {
-        Intent emailIntent = new Intent(Intent.ACTION_SEND);
-        emailIntent .setType("vnd.android.cursor.dir/email");
-        String to[] = {"cfhd89@gmail.com"};
-        emailIntent .putExtra(Intent.EXTRA_EMAIL, to);
-        emailIntent .putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-        emailIntent .putExtra(Intent.EXTRA_SUBJECT, "SCDC");
-        startActivity(Intent.createChooser(emailIntent , "Send email..."));
-
     }
 
     @Override

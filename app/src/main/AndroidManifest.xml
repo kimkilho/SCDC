@@ -13,7 +13,6 @@
     <uses-permission android:name="android.permission.BATTERY_STATS" />
     <!-- Backing up database to SD card -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <!-- Accounts probe -->
     <!--
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
