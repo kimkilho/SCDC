@@ -5,6 +5,7 @@ import android.database.ContentObserver;
 import android.media.AudioManager;
 import android.os.Handler;
 import android.provider.Settings;
+import android.util.Log;
 
 import com.google.gson.JsonObject;
 
@@ -28,7 +29,6 @@ public class SystemSettingsProbe extends Probe.Base implements Probe.ContinuousP
     protected void onEnable() {
         initializeAudioManager();
         initializeSystemSettings();
-
         initializeSettingsContentObserver();
         registerContentObserver();
     }
@@ -56,7 +56,7 @@ public class SystemSettingsProbe extends Probe.Base implements Probe.ContinuousP
     }
 
     private int getCurrentValue(String name) {
-        return android.provider.Settings.System.getInt(getContext().getContentResolver(),name,DEFAULT_VALUE);
+        return android.provider.Settings.System.getInt(getContext().getContentResolver(), name, DEFAULT_VALUE);
     }
 
     private int getCurrentVolume(int streamType) {
@@ -68,11 +68,7 @@ public class SystemSettingsProbe extends Probe.Base implements Probe.ContinuousP
         settingsContentObserver = new SettingsContentObserver(new Handler());
     }
 
-    private void registerContentObserver() {
-        getContext().getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, settingsContentObserver);
-    }
-
-    public class SettingsContentObserver extends ContentObserver {
+    private class SettingsContentObserver extends ContentObserver {
 
         public SettingsContentObserver(Handler handler) {
             super(handler);
@@ -93,6 +89,10 @@ public class SystemSettingsProbe extends Probe.Base implements Probe.ContinuousP
             }
         }
 
+    }
+
+    private void registerContentObserver() {
+        getContext().getContentResolver().registerContentObserver(android.provider.Settings.System.CONTENT_URI, true, settingsContentObserver);
     }
 
     private boolean isSystemSettingsChanged(JsonObject currentSystemSettings) {
