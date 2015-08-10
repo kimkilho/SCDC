@@ -2,7 +2,9 @@ package kr.ac.snu.imlab.scdc.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
+import kr.ac.snu.imlab.scdc.service.SCDCKeys;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
 import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
@@ -85,7 +87,32 @@ public class SharedPrefsHandler {
     }
   }
 
-  // Labels - Alarm
+
+  // Alarm - General
+  public int getGeneralRepeatType() {
+    return prefs.getInt(SharedPrefs.GENERAL_REPEAT_TYPE,
+            Integer.parseInt(AlarmKeys.DEFAULT_REPEAT_TYPE));
+  }
+
+  public void setGeneralRepeatType(int repeatType) {
+    if (repeatType >= 0 && repeatType <= 5) {
+      prefs.edit().putInt(SharedPrefs.GENERAL_REPEAT_TYPE,
+                          repeatType).apply();
+    }
+  }
+
+  public int getGeneralRepeatInterval() {
+    return prefs.getInt(SharedPrefs.GENERAL_REPEAT_INTERVAL,
+            Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_REPEAT_INTERVAL));
+  }
+
+  public void setGeneralRepeatInterval(int repeatInterval) {
+    prefs.edit().putInt(SharedPrefs.GENERAL_REPEAT_INTERVAL,
+                        repeatInterval).apply();
+  }
+
+
+  // Alarm - Labels
   public boolean getIsCompleted(int labelId) {
     return prefs.getBoolean(SharedPrefs.LABEL_IS_COMPLETED_PREFIX +
                             String.valueOf(labelId), true);
@@ -155,6 +182,10 @@ public class SharedPrefsHandler {
   public void setRepeatInterval(int labelId, int repeatInterval) {
     prefs.edit().putInt(SharedPrefs.LABEL_REPEAT_INTERVAL_PREFIX +
             String.valueOf(labelId), repeatInterval).apply();
+//    Log.d(SCDCKeys.LogKeys.DEBUG, "SharedPrefsHandler.setRepeatInterval(" +
+//            labelId + ", " + repeatInterval + ")");
+//    Log.d(SCDCKeys.LogKeys.DEBUG, "SharedPrefsHandler.getRepeatInterval(" +
+//            labelId + ")=" + getRepeatInterval(labelId));
   }
 
   // FIXME:

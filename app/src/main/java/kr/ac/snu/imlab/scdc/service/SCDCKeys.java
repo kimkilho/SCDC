@@ -33,7 +33,9 @@ public class SCDCKeys {
       REMINDER_TIME = "reminder_time",
       VIBRATE_ON_ALARM = "vibrate_on_alarm",
       DEFAULT_HOUR = "default_hour",
-      IS_REMINDER_RUNNING = "is_reminder_running";
+      IS_REMINDER_RUNNING = "is_reminder_running",
+      GENERAL_REPEAT_TYPE = "general_repeat_type",
+      GENERAL_REPEAT_INTERVAL = "general_repeat_interval";
   }
 
   public static interface AlarmKeys {
@@ -57,13 +59,13 @@ public class SCDCKeys {
       DEFAULT_ALARM_TIME = "5",
       DEFAULT_HOUR_VALUE = "12",
       DEFAULT_REPEAT_TYPE = String.valueOf(MINUTES),
-      DEFAULT_REPEAT_INTERVAL = "1",
+      DEFAULT_REPEAT_INTERVAL = "2",
       DEFAULT_DATE_DUE = "3155760000";  // 2070.01.01 00:00:00
 
     public static final String
       DEFAULT_GENERAL_ALARM_ID = "100",
       DEFAULT_GENERAL_ALARM_REPEAT_TYPE = String.valueOf(MINUTES),
-      DEFAULT_GENERAL_ALARM_REPEAT_INTERVAL = "1";
+      DEFAULT_GENERAL_ALARM_REPEAT_INTERVAL = "5";
   }
 
   public static interface LabelKeys {

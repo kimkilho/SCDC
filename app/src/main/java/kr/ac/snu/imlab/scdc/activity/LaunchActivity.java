@@ -273,6 +273,7 @@ public class LaunchActivity extends ActionBarActivity {
              @Override
              public void onCheckedChanged(CompoundButton buttonView,
                                           boolean isChecked) {
+               spHandler.setReminderRunning(isChecked);
                if (isChecked) {
                  // Start service to check for alarms
                  WakefulIntentService.acquireStaticLock(LaunchActivity.this);
@@ -306,6 +307,11 @@ public class LaunchActivity extends ActionBarActivity {
                    alarm.cancelNotification(LaunchActivity.this,
                            labelEntry.getId());
                  }
+                 LabelAlarm alarm = new LabelAlarm();
+                 int generalAlarmId = Integer.parseInt(SCDCKeys.AlarmKeys
+                                            .DEFAULT_GENERAL_ALARM_ID);
+                 alarm.cancelAlarm(LaunchActivity.this, generalAlarmId);
+                 alarm.cancelNotification(LaunchActivity.this, generalAlarmId);
                  stopService(new Intent(LaunchActivity.this,
                          AlarmButlerService.class));
                }
@@ -506,48 +512,12 @@ public class LaunchActivity extends ActionBarActivity {
      public void onPause() {
        super.onPause();
 
-       spHandler.setReminderRunning(reminderToggleButton.isChecked());
+       if (!enabledToggleButton.isChecked()) {
+         spHandler.setReminderRunning(false);
+       } else {
+         spHandler.setReminderRunning(reminderToggleButton.isChecked());
+       }
 
-//       String hour = spHandler.getDefaultHour();
-//
-//       Calendar dueDateCal = GregorianCalendar.getInstance();
-//       dueDateCal.set(Calendar.HOUR_OF_DAY, Integer.valueOf(hour));
-//       dueDateCal.set(Calendar.MINUTE, 0);
-//       dueDateCal.set(Calendar.SECOND, 0);
-//       dueDateCal.set(Calendar.MILLISECOND, 0);
-//       if (dueDateCal.getTimeInMillis() < System.currentTimeMillis())
-//         dueDateCal.add(Calendar.DAY_OF_YEAR, 1);
-//
-//       // set repeat interval
-//       int repeatInterval = 1;
-//
-//       // set task due date
-//       long dueDateMillis = dueDateCal.getTimeInMillis();
-//       boolean isCompleted = false;
-//       boolean hasDueDate = true;
-//       boolean hasFinalDueDate = true;
-//       boolean isRepeating = true;
-//       int repeatType = AlarmKeys.MINUTES;
-//
-//       // Save current isLogged value of labelEntries from SharedPreferences
-//       for (LabelEntry labelEntry : labelEntries) {
-//         int labelId = labelEntry.getId();
-//
-//
-//         // Set alarms only for the labels not being logged
-//         if (!labelEntry.isLogged()) {
-//           LabelAlarm alarm = new LabelAlarm();
-//           // FIXME: DEBUG:
-//           if (spHandler.getIsRepeating(labelId)) {
-//             labelId =
-//               alarm.setRepeatingAlarm(this, labelId);
-//           } else {
-//             if (spHandler.getHasDateDue(labelId) &&
-//                 spHandler.getIsPastDue(labelId))
-//               alarm.setAlarm(this, labelId);
-//           }
-//         }
-//       }
      }
 
 

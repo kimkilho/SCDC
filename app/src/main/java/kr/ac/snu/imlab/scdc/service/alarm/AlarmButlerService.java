@@ -31,35 +31,38 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
   @Override
   protected void onHandleIntent(Intent intent) {
-    Log.d(SCDCKeys.LogKeys.DEBUG, "AlarmButlerService.onHandleIntent()/ " +
-                                  "AlarmButlerService running...");
     SharedPrefsHandler spHandler =
             SharedPrefsHandler.getInstance(this, Config.SCDC_PREFS,
-                                           Context.MODE_PRIVATE);
-    // Total number of labels
-    int numLabels = spHandler.getNumLabels();
+                    Context.MODE_PRIVATE);
 
-    labelEntries = new ArrayList<LabelEntry>();
-    for (int labelId = 0; labelId < numLabels; labelId++) {
-      labelEntries.add(new LabelEntry(labelId, null,
-                              LabelProbe.class, null, true,
-                              this, Config.SCDC_PREFS));
-    }
+    boolean isReminderRunning = spHandler.isReminderRunning();
+    if (isReminderRunning) {
+      Log.d(SCDCKeys.LogKeys.DEBUG, "AlarmButlerService.onHandleIntent()/ " +
+              "AlarmButlerService running...");
+      // Total number of labels
+      int numLabels = spHandler.getNumLabels();
 
-    boolean isNotLogged = true;
+      labelEntries = new ArrayList<LabelEntry>();
+      for (int labelId = 0; labelId < numLabels; labelId++) {
+        labelEntries.add(new LabelEntry(labelId, null,
+                LabelProbe.class, null, true,
+                this, Config.SCDC_PREFS));
+      }
 
-    for (int labelId = 0; labelId < labelEntries.size(); labelId++) {
-      LabelEntry labelEntry = labelEntries.get(labelId);
+      boolean isNotLogged = true;
 
-      LabelAlarm alarm = new LabelAlarm();
+      for (int labelId = 0; labelId < labelEntries.size(); labelId++) {
+        LabelEntry labelEntry = labelEntries.get(labelId);
+
+        LabelAlarm alarm = new LabelAlarm();
 
 //      Log.d(SCDCKeys.LogKeys.DEBUG, "OnAlarmReceiver.onReceive()/ received " +
 //                     "data=" + labelName + ", " + labelId);
 
-      // Cancel existing alarm
-      alarm.cancelAlarm(this, labelId);
+        // Cancel existing alarm
+        alarm.cancelAlarm(this, labelId);
 
-      // procrastinator and reminder alarm
+        // procrastinator and reminder alarm
 //        if (labelEntry.isPastDue()) {
 //          alarm.setReminder(this, labelId);
 //          Log.d(SCDCKeys.LogKeys.DEBUG, "AlarmButlerService.onHandleIntent()/
@@ -67,15 +70,15 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 //                 "alarm.setReminder(" + labelId + ")");
 //        }
 
-      // handle repeat alarms
-      if (labelEntry.isLogged() && labelEntry.isRepeating()) {
-        isNotLogged = false;
-        labelId = alarm.setRepeatingAlarm(this, labelId);
-        Log.d(SCDCKeys.LogKeys.DEBUG, "AlarmButlerService.onHandleIntent()/ " +
-                "alarm.setRepeatingAlarm(" + labelId + ")");
-      }
+        // handle repeat alarms
+        if (labelEntry.isLogged() && labelEntry.isRepeating()) {
+          isNotLogged = false;
+          labelId = alarm.setRepeatingAlarm(this, labelId);
+          Log.d(SCDCKeys.LogKeys.DEBUG, "AlarmButlerService.onHandleIntent()/ " +
+                  "alarm.setRepeatingAlarm(" + labelId + ")");
+        }
 
-      // regular alarms
+        // regular alarms
 //        if (labelEntry.isCompleted() &&
 //            labelEntry.getDateDue() >= System.currentTimeMillis()) {
 //          alarm.setAlarm(this, labelId);
@@ -83,15 +86,16 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 // " +
 //                  "alarm.setAlarm(" + labelId + ")");
 //        }
-    }
+      }
 
-    if (isNotLogged) {
-      LabelAlarm alarm = new LabelAlarm();
-      int alarmId = Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_ID);
-      alarm.cancelAlarm(this, alarmId);
-      alarmId = alarm.setRepeatingAlarm(this, alarmId);
-      Log.d(SCDCKeys.LogKeys.DEBUG, "AlarmButlerService.onHandleIntent()/ " +
-              "alarm.setRepeatingAlarm(" + alarmId + ")");
+      if (isNotLogged) {
+        LabelAlarm alarm = new LabelAlarm();
+        int alarmId = Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_ID);
+        alarm.cancelAlarm(this, alarmId);
+        alarmId = alarm.setRepeatingAlarm(this, alarmId);
+        Log.d(SCDCKeys.LogKeys.DEBUG, "AlarmButlerService.onHandleIntent()/ " +
+                "alarm.setRepeatingAlarm(" + alarmId + ")");
+      }
     }
 
     super.onHandleIntent(intent);

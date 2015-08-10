@@ -61,7 +61,8 @@ public class NotificationHelper {
       builder = new NotificationCompat.Builder(context)
                       .setAutoCancel(true)
                       .setContentIntent(getPendingIntent(context, alarmId))
-                      .setContentInfo("Urgent")
+                      .setContentInfo(res.getString(
+                        R.string.label_alarm_content_info))
                       .setContentTitle(res.getString(R.string.app_title))
                       .setContentText(res.getString(R.string
                               .general_alarm_message))
@@ -79,7 +80,8 @@ public class NotificationHelper {
       builder = new NotificationCompat.Builder(context)
                       .setAutoCancel(true)
                       .setContentIntent(getPendingIntent(context, alarmId))
-                      .setContentInfo("Urgent")
+                      .setContentInfo(
+                        res.getString(R.string.label_alarm_content_info))
                       .setContentTitle(res.getString(R.string.app_title))
                       .setContentText(message)
                       .setDefaults(vibrate ? Notification.DEFAULT_ALL :

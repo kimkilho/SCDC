@@ -124,20 +124,6 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.endLogButton.setEnabled(mData.get(position).isLogged() &&
                                        enabledToggleButton.isChecked());
 
-    // Set alarms only for the labels not being logged
-//    LabelEntry labelEntry = mData.get(position);
-//    if (!labelEntry.isLogged()) {
-//      LabelAlarm alarm = new LabelAlarm();
-//      // FIXME: DEBUG:
-//      if (labelEntry.isRepeating()) {
-//        int labelId = alarm.setRepeatingAlarm(mContext, labelEntry.getId());
-//      } else {
-//        if (labelEntry.hasDateDue() && labelEntry.isPastDue())
-//          alarm.setAlarm(mContext, labelEntry.getId());
-//      }
-//    }
-
-
     handler = new Handler();
 
     // Refresh the elapsed time if the label is logged
@@ -178,8 +164,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, false));
             mContext.sendBroadcast(intent);
 
-            BaseAdapterExLabel.this.notify(position, "SSC Client",
-                    currLabelEntry.getName(), "Label logging");
+//            BaseAdapterExLabel.this.notify(position, "SSC Client",
+//                    currLabelEntry.getName(), "Label logging");
 
 //            viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
             v.setEnabled(false);
@@ -219,7 +205,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, true));
             mContext.sendBroadcast(intent);
 
-            BaseAdapterExLabel.this.cancelNotify(position);
+//            BaseAdapterExLabel.this.cancelNotify(position);
 
 //            viewHolder.scheduleTextView.setText(R.string.probe_disabled);
             v.setEnabled(false);

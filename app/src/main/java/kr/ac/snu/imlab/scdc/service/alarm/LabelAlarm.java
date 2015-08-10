@@ -31,6 +31,7 @@ public class LabelAlarm {
     "kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm";
   public static final int REPEATING_ALARM = 1;
   public static final int PROCRASTINATOR_ALARM = 2;
+  private SharedPrefsHandler spHandler;
 
   /**
    * @description Cancel alarm using the alarm id,
@@ -89,11 +90,11 @@ public class LabelAlarm {
     long dateDue;
 
     if (alarmId == Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_ID)) {
-      alarmRepeatType =
-        Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_REPEAT_TYPE);
+      spHandler = SharedPrefsHandler.getInstance(context, Config.SCDC_PREFS,
+                                                 Context.MODE_PRIVATE);
+      alarmRepeatType = spHandler.getGeneralRepeatType();
       dateDue = System.currentTimeMillis();
-      alarmRepeatInterval =
-        Integer.parseInt(AlarmKeys.DEFAULT_GENERAL_ALARM_REPEAT_INTERVAL);
+      alarmRepeatInterval = spHandler.getGeneralRepeatInterval();
     } else {
       LabelEntry labelEntry =
               new LabelEntry(alarmId, null, LabelProbe.class, null, true,

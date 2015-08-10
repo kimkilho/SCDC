@@ -65,34 +65,34 @@ public class LabelEntry extends ProbeEntry {
   public long getStartLoggingTime() {
     return spHandler.getStartLoggingTime(getId());
   }
-
-  public boolean isCompleted() {
-    return spHandler.getIsCompleted(getId());
-  }
-
-  public void setIsCompleted(boolean isCompleted) {
-    spHandler.setIsCompleted(getId(), isCompleted);
-  }
-
-  public void toggleIsCompleted() {
-    spHandler.toggleIsCompleted(getId());
-  }
-
-  public boolean hasDateDue() {
-    return spHandler.getHasDateDue(getId());
-  }
-
-  public void setHasDateDue(boolean hasDateDue) {
-    spHandler.setHasDateDue(getId(), hasDateDue);
-  }
-
-  public boolean hasFinalDateDue() {
-    return spHandler.getHasFinalDateDue(getId());
-  }
-
-  public void setHasFinalDateDue(boolean hasFinalDateDue) {
-    spHandler.setHasFinalDateDue(getId(), hasFinalDateDue);
-  }
+//
+//  public boolean isCompleted() {
+//    return spHandler.getIsCompleted(getId());
+//  }
+//
+//  public void setIsCompleted(boolean isCompleted) {
+//    spHandler.setIsCompleted(getId(), isCompleted);
+//  }
+//
+//  public void toggleIsCompleted() {
+//    spHandler.toggleIsCompleted(getId());
+//  }
+//
+//  public boolean hasDateDue() {
+//    return spHandler.getHasDateDue(getId());
+//  }
+//
+//  public void setHasDateDue(boolean hasDateDue) {
+//    spHandler.setHasDateDue(getId(), hasDateDue);
+//  }
+//
+//  public boolean hasFinalDateDue() {
+//    return spHandler.getHasFinalDateDue(getId());
+//  }
+//
+//  public void setHasFinalDateDue(boolean hasFinalDateDue) {
+//    spHandler.setHasFinalDateDue(getId(), hasFinalDateDue);
+//  }
 
   public boolean isRepeating() {
     return spHandler.getIsRepeating(getId());
@@ -126,9 +126,9 @@ public class LabelEntry extends ProbeEntry {
     spHandler.setDateDue(getId(), dateDue);
   }
 
-  public boolean isPastDue() {
-    return spHandler.getIsPastDue(getId());
-  }
+//  public boolean isPastDue() {
+//    return spHandler.getIsPastDue(getId());
+//  }
 
 //  public void setLogged(boolean isLogged) {
 //    this.isLogged = isLogged;
