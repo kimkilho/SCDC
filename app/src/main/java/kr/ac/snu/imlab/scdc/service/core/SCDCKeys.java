@@ -9,7 +9,9 @@ public class SCDCKeys {
     public static final String
       PIPELINE_NAME = "scdc",
       SCDC_PREFS = "kr.ac.snu.imlab.scdc.Label",
-      DEFAULT_USERNAME = "imlab_user";
+      DEFAULT_USERNAME = "imlab_user",
+      DEFAULT_UPLOAD_URL = "http://imlab-ws2.snu.ac.kr:7000/data",
+      DEFAULT_UPDATE_URL = "http://imlab-ws2.snu.ac.kr:7000/config";
 
     public static final boolean
       DEFAULT_IS_FEMALE = false;

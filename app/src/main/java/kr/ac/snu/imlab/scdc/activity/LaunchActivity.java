@@ -2,9 +2,7 @@ package kr.ac.snu.imlab.scdc.activity;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
- import android.content.ComponentName;
 import android.content.Intent;
  import android.content.ServiceConnection;
  import android.database.sqlite.SQLiteDatabase;
@@ -19,11 +17,7 @@ import android.content.Intent;
  import android.widget.CompoundButton;
  import android.widget.CompoundButton.OnCheckedChangeListener;
 
- import com.google.gson.JsonElement;
- import com.google.gson.JsonObject;
-
  import edu.mit.media.funf.FunfManager;
- import edu.mit.media.funf.Schedule.BasicSchedule;
  import edu.mit.media.funf.config.Configurable;
  import edu.mit.media.funf.config.HttpConfigUpdater;
  import edu.mit.media.funf.probe.builtin.*;
@@ -31,7 +25,6 @@ import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
 import kr.ac.snu.imlab.scdc.service.alarm.WakefulIntentService;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
-import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
 import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
  import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
  import edu.mit.media.funf.storage.FileArchive;
@@ -45,11 +38,7 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
  import android.widget.ToggleButton;
 
  import java.io.File;
- import java.math.BigDecimal;
  import java.util.ArrayList;
-import java.util.HashMap;
- import java.util.List;
- import java.util.Map;
 
  import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
@@ -146,7 +135,7 @@ public class LaunchActivity extends ActionBarActivity {
 
             // Update probe schedules of pipeline
             HttpConfigUpdater hcu = new HttpConfigUpdater();
-            hcu.setUrl("http://imlab-ws2.snu.ac.kr:7000/config");
+            hcu.setUrl(Config.DEFAULT_UPDATE_URL);
             pipeline.setUpdate(hcu);
             handler.post(new Runnable() {
               @Override
@@ -164,40 +153,8 @@ public class LaunchActivity extends ActionBarActivity {
                     if (funfManager != null) {
                         if (isChecked) {
                             funfManager.enablePipeline(pipeline.getName());
-
-                            // Assigning new schedules to existing probes in each probeEntries
-                            Map<JsonElement, BasicSchedule> newSchedules =
-                                    buildScheduleMap(pipeline);
-                            for (int i = 0; i < probeEntries.size(); i++) {
-                                ProbeEntry probeEntry = probeEntries.get(i);
-                                probeEntry.setSchedule(
-                                        newSchedules.get(probeEntry.getProbeConfig())
-                                );
-                            }
-
-                            // Request data from pipeline(data listener) to normal probes
-                            for (int i = 0; i < probeEntries.size(); i++) {
-                                ProbeEntry probeEntry = probeEntries.get(i);
-                                if (probeEntry.isEnabled()) {
-                                    funfManager.requestData(pipeline,
-                                            probeEntry.getProbeConfig(), probeEntry.getSchedule());
-                                } else {
-                                    funfManager.unrequestData(pipeline,
-                                            probeEntry.getProbeConfig());
-                                }
-                            }
-
-                            // Request data from pipeline (data listener) to label probe
-                            for (int i = 0; i < labelEntries.size(); i++) {
-                                LabelEntry labelEntry = labelEntries.get(i);
-                                if (labelEntry.isEnabled()) {
-                                    funfManager.requestData(pipeline,
-                                            labelEntry.getProbeConfig(), labelEntry.getSchedule());
-                                } else {
-                                    funfManager.unrequestData(pipeline,
-                                            labelEntry.getProbeConfig());
-                                }
-                            }
+                              // NOTE: funfManager automatically reloads the scdc pipeline
+                              //       with newly updated schedules
 
                             archiveButton.setEnabled(false);
                             truncateDataButton.setEnabled(false);
@@ -207,16 +164,7 @@ public class LaunchActivity extends ActionBarActivity {
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Log.w(LogKeys.DEBUG, "LaunchActivity/ Entering " +
-                                            "sendBroadcast(intent)");
-                                    Intent intent = new Intent();
-                                    intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-                                    intent.setAction(LabelKeys.ACTION_LABEL_LOG);
-                                    for (int i = 0; i < labelEntries.size(); i++) {
-                                        intent.putExtra(labelEntries.get(i).getName(),
-                                                labelEntries.get(i).isLogged());
-                                    }
-                                    sendBroadcast(intent);
+                                    sendBroadcast(getLabelIntent());
                                 }
                             }, 1000L);
 
@@ -237,16 +185,7 @@ public class LaunchActivity extends ActionBarActivity {
                             // by calling mAdapter.getView() again.
                             mAdapter.notifyDataSetChanged();
 
-                            Log.w(LogKeys.DEBUG, "LaunchActivity/ Entering sendBroadcast" +
-                                    "(intent)");
-                            Intent intent = new Intent();
-                            intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-                            intent.setAction(LabelKeys.ACTION_LABEL_LOG);
-                            for (int i = 0; i < labelEntries.size(); i++) {
-                                intent.putExtra(labelEntries.get(i).getName(),
-                                        labelEntries.get(i).isLogged());
-                            }
-                            sendBroadcast(intent);
+                            sendBroadcast(getLabelIntent());
 
                             // Intentionally wait 2 seconds to send broadcast
                             // then terminate
@@ -279,27 +218,6 @@ public class LaunchActivity extends ActionBarActivity {
                   WakefulIntentService.acquireStaticLock(LaunchActivity.this);
                   startService(new Intent(LaunchActivity.this,
                                           AlarmButlerService.class));
-//                 for (LabelEntry labelEntry : labelEntries) {
-//                   if (!labelEntry.isLogged()) {
-//                     LabelAlarm alarm = new LabelAlarm();
-//                     if (labelEntry.isRepeating()) {
-//                       Log.d(SCDCKeys.LogKeys.DEBUG,
-//                               "LaunchActivity.reminderToggleButton" +
-//                                       ".onCheckedChangeListener()/ set " +
-//                                       "repeating alarm: labelId=" +
-//                                       labelEntry.getId());
-//                       int labelId = alarm.setRepeatingAlarm(
-//                               LaunchActivity.this, labelEntry.getId());
-//                     } else {
-//                       if (labelEntry.hasDateDue() &&  labelEntry.isPastDue())
-//                         alarm.setAlarm(LaunchActivity.this, labelEntry.getId());
-//                         Log.d(SCDCKeys.LogKeys.DEBUG,
-//                                 "LaunchActivity.reminderToggleButton" +
-//                                         ".onCheckedChangeListener()/ set " +
-//                                         "alarm: labelId=" + labelEntry.getId());
-//                     }
-//                   }
-//                 }
                 } else {
                   for (LabelEntry labelEntry : labelEntries) {
                     LabelAlarm alarm = new LabelAlarm();
@@ -444,8 +362,7 @@ public class LaunchActivity extends ActionBarActivity {
                 db.close();
                 archive.add(dbFile);
                 upload = new MultipartEntityArchive(funfManager,
-                        "http://imlab-ws2.snu.ac.kr:7000/data",
-                        LaunchActivity.this);
+                        Config.DEFAULT_UPLOAD_URL, LaunchActivity.this);
                 uploader.run(archive, upload);
                 if (dbFile.exists()) {
                     archive.remove(dbFile);
@@ -573,39 +490,18 @@ public class LaunchActivity extends ActionBarActivity {
         return funfManager;
     }
 
-    private Map<JsonElement, BasicSchedule>
-    buildScheduleMap(SCDCPipeline pipeline) {
-        Map<JsonElement, BasicSchedule> newSchedules = new HashMap<>();
-        List<JsonElement> newDataRequests = pipeline.getDataRequests();
-        for (int i = 0; i < newDataRequests.size(); i++) {
-            JsonObject currDataRequests = newDataRequests.get(i).getAsJsonObject();
-            JsonElement currType = currDataRequests.get("@type");
-            try {
-                JsonObject currSchedule = currDataRequests.get("@schedule").getAsJsonObject();
-                BasicSchedule newSchedule = new BasicSchedule();
-                if (currSchedule.get("interval") != null) {
-                    newSchedule.setInterval(new BigDecimal
-                            (currSchedule.get("interval").getAsString()));
-                }
-                if (currSchedule.get("duration") != null) {
-                    newSchedule.setDuration(new BigDecimal
-                            (currSchedule.get("duration").getAsString()));
-                }
-                if (currSchedule.get("opportunistic") != null) {
-                    newSchedule.setOpportunistic(
-                            currSchedule.get("opportunistic").getAsBoolean());
-                }
-                if (currSchedule.get("strict") != null) {
-                    newSchedule.setStrict(
-                            currSchedule.get("strict").getAsBoolean());
-                }
-                newSchedules.put(currType, newSchedule);
-            } catch (NullPointerException e) {
-                newSchedules.put(currType, null);
-            }
-        }
+    private Intent getLabelIntent() {
+      Log.w(LogKeys.DEBUG, "LaunchActivity/ Entering " +
+              "sendBroadcast(intent)");
+      Intent intent = new Intent();
+      intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
+      intent.setAction(LabelKeys.ACTION_LABEL_LOG);
+      for (int i = 0; i < labelEntries.size(); i++) {
+        intent.putExtra(labelEntries.get(i).getName(),
+                labelEntries.get(i).isLogged());
+      }
 
-        return newSchedules;
+      return intent;
     }
 
 
