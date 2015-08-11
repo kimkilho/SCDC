@@ -32,6 +32,10 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
 
 
+/**
+ * @author Kilho Kim
+ * @deprecated
+ */
 public class ProbeRescheduleActivity extends ActionBarActivity {
 
     private Handler handler;

@@ -29,6 +29,10 @@ import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
 
+/**
+ * @author Kilho Kim
+ * @deprecated
+ */
 public class BaseAdapterEx extends BaseAdapter {
   Context mContext = null;
   ArrayList<ProbeEntry> mData = null;
