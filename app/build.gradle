@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "kr.ac.snu.imlab.scdc"
-        minSdkVersion 16
+        minSdkVersion 17
         targetSdkVersion 18
         versionCode 1
         versionName "0.2.3"

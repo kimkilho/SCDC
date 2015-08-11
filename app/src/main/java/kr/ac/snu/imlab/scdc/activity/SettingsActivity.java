@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExSettings;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 

@@ -23,7 +23,6 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
-import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
 import kr.ac.snu.imlab.scdc.util.TimeUtil;
 
 import java.util.ArrayList;

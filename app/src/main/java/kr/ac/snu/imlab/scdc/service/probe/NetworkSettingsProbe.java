@@ -10,7 +10,7 @@ import com.google.gson.JsonObject;
 import edu.mit.media.funf.Schedule;
 import edu.mit.media.funf.probe.Probe;
 import edu.mit.media.funf.probe.builtin.ProbeKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
 
 @Probe.RequiredPermissions({Manifest.permission.ACCESS_NETWORK_STATE})
 @Probe.DisplayName("Network Settings Log Probe")
