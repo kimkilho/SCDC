@@ -89,13 +89,13 @@ public class SCDCPipeline implements Pipeline, DataListener {
       switch (msg.what) {
         case ARCHIVE:
           if (archive != null) {
-            Log.w("DEBUG", "BasicPipeline/ running runArchive()");
+            Log.w("DEBUG", "SCDCPipeline/ running runArchive()");
             runArchive();
           }
           break;
         case UPLOAD:
           if (archive != null && upload != null && uploader != null) {
-            Log.w("DEBUG", "BasicPipeline/ running uploader.run(archive, " +
+            Log.w("DEBUG", "SCDCPipeline/ running uploader.run(archive, " +
                     "upload)");
             // uploader.start();
             uploader.run(archive, upload);
@@ -103,7 +103,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
           break;
         case UPDATE:
           if (update != null) {
-//            Log.w("DEBUG", "BasicPipeline/ Entered handleMessage: UPDATE");
+//            Log.w("DEBUG", "SCDCPipeline/ Entered handleMessage: UPDATE");
             update.run(name, manager);
           }
           break;
@@ -367,7 +367,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     Message message = Message.obtain(handler, DATA, record);
     if (probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString()
             .equals(LabelProbe.class.getName())) {
-      Log.w("DEBUG", "BasicPipeline.onDataReceived()/ LabelProbe data " +
+      Log.w("DEBUG", "SCDCPipeline.onDataReceived()/ LabelProbe data " +
               "received");
 
       if (handler != null) {

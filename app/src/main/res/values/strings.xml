@@ -14,14 +14,14 @@
             "name":"default",
             "version":1,
             "upload": {
-                "url": \"http://imlab-ws2.snu.ac.kr:8000/data\",
+                "url": \"http://imlab-ws2.snu.ac.kr:7000/data\",
                 "@schedule": {"interval": 10800}
             }
         }
     </string>
     <string name="scdc_pipeline">
       {
-        "@type":"kr.ac.snu.imlab.scdc.service.SCDCPipeline",
+        "@type":"kr.ac.snu.imlab.scdc.service.core.SCDCPipeline",
         "name":"scdc",
         "version": 1,
         "upload": {
@@ -29,7 +29,7 @@
             "@schedule": {"interval": 10800}
         },
         "update": {
-            "url": \"http://imlab-ws2.snu.ac.kr:7000/config_orig\",
+            "url": \"http://imlab-ws2.snu.ac.kr:7000/config\",
             "@schedule": {"interval": 10800}
         },
         "data": [
@@ -44,9 +44,7 @@
           {"@type": "edu.mit.media.funf.probe.builtin.BluetoothProbe"},
           {"@type": "edu.mit.media.funf.probe.builtin.RunningApplicationsProbe"},
           {"@type": "edu.mit.media.funf.probe.builtin.ScreenProbe"},
-          {"@type": "kr.ac.snu.imlab.scdc.service.probe.LabelProbe"},
-          {"@type": "kr.ac.snu.imlab.scdc.service.probe.SystemSettingsProbe"},
-          {"@type": "kr.ac.snu.imlab.scdc.service.probe.NetworkSettingsProbe"}
+          {"@type": "kr.ac.snu.imlab.scdc.service.probe.LabelProbe"}
         ]
       }
 
