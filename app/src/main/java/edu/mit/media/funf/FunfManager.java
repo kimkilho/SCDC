@@ -91,6 +91,7 @@ import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.time.TimeUtil;
 import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
 
 public class FunfManager extends Service {
 	
@@ -213,6 +214,7 @@ public class FunfManager extends Service {
 	  Bundle metadata = getMetadata();
 	  if (prefs.contains(name)) {
 	    pipelineConfig = prefs.getString(name, null);
+      Log.d(SCDCKeys.LogKeys.DEBUG, "FunfManager.reload(): pipelineConfig=" + pipelineConfig);
 	  } else if (metadata.containsKey(name)) {
 	    pipelineConfig = metadata.getString(name);
 	  }

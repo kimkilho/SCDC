@@ -183,6 +183,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     this.handler = new Handler(looper, callback);
     enabled = true;
     for (JsonElement dataRequest : data) {
+      Log.d(SCDCKeys.LogKeys.DEBUG, "SCDCPipeline.onCreate(): dataRequest=" + dataRequest.toString());
       manager.requestData(this, dataRequest);
     }
     for (Map.Entry<String, Schedule> schedule : schedules.entrySet()) {
