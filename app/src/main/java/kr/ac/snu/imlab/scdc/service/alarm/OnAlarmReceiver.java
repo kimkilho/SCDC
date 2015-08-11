@@ -6,8 +6,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import kr.ac.snu.imlab.scdc.service.SCDCKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlarmKeys;
 
 /**
   * @author Kilho Kim

@@ -16,7 +16,7 @@ import java.util.ArrayList;
 
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
 
 /**
  * Created by kilho on 15. 8. 10.

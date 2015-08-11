@@ -7,7 +7,6 @@ import android.util.Log;
 import java.util.ArrayList;
 
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys;
 
 /**
  * Created by kilho on 15. 8. 10.

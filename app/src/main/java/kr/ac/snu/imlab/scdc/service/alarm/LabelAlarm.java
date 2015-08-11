@@ -11,11 +11,10 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.LogKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlarmKeys;
 import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 

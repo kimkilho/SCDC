@@ -2,12 +2,10 @@ package kr.ac.snu.imlab.scdc.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
-import kr.ac.snu.imlab.scdc.service.SCDCKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlarmKeys;
 
 /**
  * Created by kilho on 15. 8. 5.

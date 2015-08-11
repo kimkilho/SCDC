@@ -17,8 +17,8 @@ import java.util.GregorianCalendar;
 
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlarmKeys;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 import kr.ac.snu.imlab.scdc.util.TimeUtil;
 

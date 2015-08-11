@@ -68,6 +68,7 @@ import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.time.TimeUtil;
 import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
+import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
 
 /**
  * Created by kilho on 15. 8. 3.

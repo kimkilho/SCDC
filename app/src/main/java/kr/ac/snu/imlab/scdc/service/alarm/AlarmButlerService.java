@@ -2,19 +2,14 @@ package kr.ac.snu.imlab.scdc.service.alarm;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
 
-import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.AlarmKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.Config;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.SharedPrefs;
-import kr.ac.snu.imlab.scdc.service.SCDCKeys.LabelKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlarmKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
