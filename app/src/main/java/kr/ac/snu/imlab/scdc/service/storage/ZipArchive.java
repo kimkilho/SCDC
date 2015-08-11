@@ -31,6 +31,8 @@ import edu.mit.media.funf.util.NameGenerator;
 import edu.mit.media.funf.util.NameGenerator.CompositeNameGenerator;
 import edu.mit.media.funf.util.NameGenerator.RequiredSuffixNameGenerator;
 import edu.mit.media.funf.util.StringUtil;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
  * @author Kilho Kim
@@ -74,10 +76,13 @@ public class ZipArchive extends DefaultArchive {
   }
 
   static FileDirectoryArchive getTimestampedDbFileArchive(File archiveDir, Context context, SecretKey encryptionKey) {
-    SharedPreferences prefs = context.getSharedPreferences(SCDC_PREFS,
-            Context.MODE_PRIVATE);
+    String prefsName = Config.SCDC_PREFS;
+    int mode = Context.MODE_PRIVATE;
     // NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new IsFemaleNameGenerator(prefs), new ShortDatetimeNameGenerator(), new RequiredSuffixNameGenerator(".db"));
-    NameGenerator nameGenerator = new CompositeNameGenerator(new UsernameNameGenerator(prefs), new IsFemaleNameGenerator(prefs), new ShortDatetimeNameGenerator());
+    NameGenerator nameGenerator = new CompositeNameGenerator(
+      new UsernameNameGenerator(context, prefsName, mode),
+      new IsFemaleNameGenerator(context, prefsName, mode),
+      new ShortDatetimeNameGenerator());
     // Use non-encrypting FileCopier
     FileCopier copier = new FileCopier.SimpleFileCopier();
     return new FileDirectoryArchive(archiveDir, nameGenerator, copier, new DirectoryCleaner.KeepAll());
@@ -140,15 +145,15 @@ public class ZipArchive extends DefaultArchive {
    */
   static class UsernameNameGenerator implements NameGenerator {
 
-    private SharedPreferences prefs;
+    private SharedPrefsHandler spHandler;
 
-    public UsernameNameGenerator(SharedPreferences prefs) {
-      this.prefs = prefs;
+    public UsernameNameGenerator(Context context, String name, int mode) {
+      spHandler = SharedPrefsHandler.getInstance(context, name, mode);
     }
 
     @Override
     public String generateName(final String name) {
-      return name == null ? null : prefs.getString("userName", "imlab_user") + "_" + name;
+      return name == null ? null : spHandler.getUsername() + "_" + name;
     }
   }
 
@@ -158,15 +163,16 @@ public class ZipArchive extends DefaultArchive {
    */
   static class IsFemaleNameGenerator implements NameGenerator {
 
-    private SharedPreferences prefs;
+    private SharedPrefsHandler spHandler;
 
-    public IsFemaleNameGenerator(SharedPreferences prefs) {
-      this.prefs = prefs;
+    public IsFemaleNameGenerator(Context context, String name, int mode) {
+      spHandler = SharedPrefsHandler.getInstance(context, name, mode);
     }
 
     @Override
     public String generateName(final String name) {
-      return name == null ? null : (prefs.getBoolean("isFemale", false) ? "female" : "male") + "_" + name;
+      return name == null ?
+          null : (spHandler.getIsFemale() ? "female" : "male") + "_" + name;
     }
   }
 

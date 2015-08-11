@@ -89,14 +89,17 @@ public class SCDCPipeline implements Pipeline, DataListener {
       switch (msg.what) {
         case ARCHIVE:
           if (archive != null) {
-            Log.w("DEBUG", "SCDCPipeline/ running runArchive()");
+            Log.w(SCDCKeys.LogKeys.DEBUG,
+                    "SCDCPipeline.Handler.Callback().handleMessage(): " +
+                    "running runArchive()");
             runArchive();
           }
           break;
         case UPLOAD:
           if (archive != null && upload != null && uploader != null) {
-            Log.w("DEBUG", "SCDCPipeline/ running uploader.run(archive, " +
-                    "upload)");
+            Log.w(SCDCKeys.LogKeys.DEBUG,
+                    "SCDCPipeline.Handler.Callback().handleMessage(): " +
+                    "running uploader.run(archive, upload)");
             // uploader.start();
             uploader.run(archive, upload);
           }
@@ -213,6 +216,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     }
     looper.quit();
     enabled = false;
+    odrl = null;
   }
 
   @Override
@@ -365,7 +369,6 @@ public class SCDCPipeline implements Pipeline, DataListener {
     JsonObject record = new JsonObject();
     record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
     record.add("value", data);
-//    Log.e("test0805", "data received from "+ probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString());
     Message message = Message.obtain(handler, DATA, record);
     if (probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString()
             .equals(LabelProbe.class.getName())) {

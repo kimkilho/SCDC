@@ -125,14 +125,19 @@ public class LaunchActivity extends ActionBarActivity
     private Button archiveButton, truncateDataButton;
     private TextView dataCountView;
 
+    // FIXME:
+    private SCDCDatabaseHelper delegateDatabaseHelper;
+
     private ServiceConnection funfManagerConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             funfManager = ((FunfManager.LocalBinder) service).getManager();
-            // funfManager.setCallingActivity(LaunchActivity.this);
             pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
                                           (Config.PIPELINE_NAME);
-//            pipeline.setDataReceivedListener(LaunchActivity.this);
+            Log.d(SCDCKeys.LogKeys.DEBUG, "pipeline.getName()=" +
+              pipeline.getName() + ", pipeline.isEnabled()=" + pipeline.isEnabled() +
+              ", pipeline.getDatabaseHelper()=" + pipeline.getDatabaseHelper());
+            pipeline.setDataReceivedListener(LaunchActivity.this);
 
             // Update probe schedules of pipeline
             HttpConfigUpdater hcu = new HttpConfigUpdater();
@@ -147,6 +152,7 @@ public class LaunchActivity extends ActionBarActivity
               }
             });
 
+
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 @Override
@@ -154,12 +160,15 @@ public class LaunchActivity extends ActionBarActivity
                     if (funfManager != null) {
                         if (isChecked) {
                             funfManager.enablePipeline(pipeline.getName());
+                            pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
+                                          (Config.PIPELINE_NAME);
+                            Log.d(SCDCKeys.LogKeys.DEBUG, "pipeline.getName()=" +
+                                    pipeline.getName() + ", pipeline.isEnabled()=" + pipeline.isEnabled() +
+                                    ", pipeline.getDatabaseHelper()=" + pipeline.getDatabaseHelper());
                             pipeline.setDataReceivedListener(LaunchActivity.this);
                               // NOTE: funfManager automatically reloads the scdc pipeline
                               //       with newly updated schedules
 
-                            archiveButton.setEnabled(false);
-                            truncateDataButton.setEnabled(false);
 
                             // Intentionally wait 1 second for label probes to be loaded
                             // then send broadcast
@@ -181,25 +190,28 @@ public class LaunchActivity extends ActionBarActivity
 
                           reminderToggleButton.setEnabled(isChecked);
                           reminderToggleButton.setChecked(spHandler.isReminderRunning());
-                          updateScanCount();
+                          boolean areButtonsOn =
+                                  (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+                          archiveButton.setEnabled(areButtonsOn);
+                          truncateDataButton.setEnabled(areButtonsOn);
 
                         } else {
                             // Dynamically refresh the ListView items
                             // by calling mAdapter.getView() again.
                             mAdapter.notifyDataSetChanged();
-
                             sendBroadcast(getLabelIntent());
 
                             // Intentionally wait 2 seconds to send broadcast
                             // then terminate
                             handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    archiveButton.setEnabled(true);
-                                    truncateDataButton.setEnabled(true);
-                                    updateScanCount();
-                                    funfManager.disablePipeline(Config.PIPELINE_NAME);
-                                }
+                              @Override
+                              public void run() {
+                                funfManager.disablePipeline(Config.PIPELINE_NAME);
+                                boolean areButtonsOn =
+                                        (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+                                archiveButton.setEnabled(areButtonsOn);
+                                truncateDataButton.setEnabled(areButtonsOn);
+                              }
                             }, 2000L);
                           spHandler.setReminderRunning(isChecked);
                           reminderToggleButton.setChecked(spHandler.isReminderRunning());
@@ -243,8 +255,10 @@ public class LaunchActivity extends ActionBarActivity
             // Set UI ready to use, by enabling buttons
             enabledToggleButton.setEnabled(true);
             enabledToggleButton.setChecked(pipeline.isEnabled());
-            archiveButton.setEnabled(!enabledToggleButton.isChecked());
-            truncateDataButton.setEnabled(!enabledToggleButton.isChecked());
+            boolean areButtonsOn =
+              (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+            archiveButton.setEnabled(areButtonsOn);
+            truncateDataButton.setEnabled(areButtonsOn);
 
             reminderToggleButton.setEnabled(enabledToggleButton.isChecked());
             if (reminderToggleButton.isEnabled()) {
@@ -252,6 +266,7 @@ public class LaunchActivity extends ActionBarActivity
             }
 
             mAdapter.notifyDataSetChanged();
+            updateScanCount();
         }
 
         @Override
@@ -346,10 +361,10 @@ public class LaunchActivity extends ActionBarActivity
 
         // Runs an archive if pipeline is enabled
         archiveButton = (Button) findViewById(R.id.archiveButton);
-        archiveButton.setEnabled(true);
         archiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
+              if (pipeline.getDatabaseHelper() != null) {
                 v.setEnabled(false);
 
                 Toast.makeText(getBaseContext(), "Compressing DB file. Please wait...",
@@ -368,7 +383,7 @@ public class LaunchActivity extends ActionBarActivity
                         Config.DEFAULT_UPLOAD_URL, LaunchActivity.this);
                 uploader.run(archive, upload);
                 if (dbFile.exists()) {
-                    archive.remove(dbFile);
+                  archive.remove(dbFile);
                 }
 
                 // uploader.stop();
@@ -377,25 +392,26 @@ public class LaunchActivity extends ActionBarActivity
                 // (Note: this is kind of a hack since archiving is seamless
                 //         and there are no messages when it occurs)
                 handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
+                  @Override
+                  public void run() {
 //              Toast.makeText(getBaseContext(), "Archived! Will be uploaded " +
 //                              "in a few seconds...",
 //                              Toast.LENGTH_LONG).show();
 //              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
 //              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-                        updateScanCount();
-                        if (!enabledToggleButton.isEnabled()) {
-                            v.setEnabled(true);
-                        }
+                    updateScanCount();
+                    if (!enabledToggleButton.isEnabled()) {
+                      v.setEnabled(true);
                     }
+                  }
                 }, 5000L);
+
+              }
             }
         });
 
         // Truncate the data
         truncateDataButton = (Button) findViewById(R.id.truncateDataButton);
-        truncateDataButton.setEnabled(false);
         truncateDataButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -454,7 +470,7 @@ public class LaunchActivity extends ActionBarActivity
      */
     @Override
     public void updateScanCount() {
-      Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.updateScanCount(): entered updateScanCount())");
+      // Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.updateScanCount(): entered updateScanCount())");
       if (pipeline.getDatabaseHelper() != null) {
         // Query the pipeline db for the count of rows in the data table
         SQLiteDatabase db = pipeline.getDb();
