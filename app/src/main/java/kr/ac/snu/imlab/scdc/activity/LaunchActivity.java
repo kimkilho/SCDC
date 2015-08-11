@@ -2,70 +2,67 @@ package kr.ac.snu.imlab.scdc.activity;
 
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.database.sqlite.SQLiteDatabase;
-import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.CompoundButton;
-import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.EditText;
-import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ToggleButton;
+ import android.content.ComponentName;
+import android.content.Intent;
+ import android.content.ServiceConnection;
+ import android.database.sqlite.SQLiteDatabase;
+ import android.os.Bundle;
+ import android.os.Handler;
+ import android.util.Log;
+ import android.view.Menu;
+ import android.view.MenuItem;
+ import android.view.View;
+ import android.view.WindowManager;
+ import android.widget.Button;
+ import android.widget.CompoundButton;
+ import android.widget.CompoundButton.OnCheckedChangeListener;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+ import com.google.gson.JsonElement;
+ import com.google.gson.JsonObject;
 
-import java.io.File;
-import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import edu.mit.media.funf.FunfManager;
-import edu.mit.media.funf.Schedule.BasicSchedule;
-import edu.mit.media.funf.config.Configurable;
-import edu.mit.media.funf.config.HttpConfigUpdater;
-import edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe;
-import edu.mit.media.funf.probe.builtin.AudioFeaturesProbe;
-import edu.mit.media.funf.probe.builtin.BatteryProbe;
-import edu.mit.media.funf.probe.builtin.BluetoothProbe;
-import edu.mit.media.funf.probe.builtin.GyroscopeSensorProbe;
-import edu.mit.media.funf.probe.builtin.LightSensorProbe;
-import edu.mit.media.funf.probe.builtin.MagneticFieldSensorProbe;
-import edu.mit.media.funf.probe.builtin.OrientationSensorProbe;
-import edu.mit.media.funf.probe.builtin.RunningApplicationsProbe;
-import edu.mit.media.funf.probe.builtin.ScreenProbe;
-import edu.mit.media.funf.probe.builtin.SimpleLocationProbe;
-import edu.mit.media.funf.storage.FileArchive;
-import kr.ac.snu.imlab.scdc.R;
-import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExLabel;
-import kr.ac.snu.imlab.scdc.entry.LabelEntry;
-import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
-import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
-import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
-import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
+ import edu.mit.media.funf.FunfManager;
+ import edu.mit.media.funf.Schedule.BasicSchedule;
+ import edu.mit.media.funf.config.Configurable;
+ import edu.mit.media.funf.config.HttpConfigUpdater;
+ import edu.mit.media.funf.probe.builtin.*;
+import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
+import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
+import kr.ac.snu.imlab.scdc.service.alarm.WakefulIntentService;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
 import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
-import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
+ import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
+ import edu.mit.media.funf.storage.FileArchive;
+
+ import android.os.IBinder;
+ import android.widget.EditText;
+ import android.widget.ListView;
+ import android.widget.RadioButton;
+ import android.widget.TextView;
+ import android.widget.Toast;
+ import android.widget.ToggleButton;
+
+ import java.io.File;
+ import java.math.BigDecimal;
+ import java.util.ArrayList;
+import java.util.HashMap;
+ import java.util.List;
+ import java.util.Map;
+
+ import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
+ import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
-import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
-import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
-import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
+ import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
+ import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
+ import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
+ import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExLabel;
+ import kr.ac.snu.imlab.scdc.entry.LabelEntry;
+ import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
+ import kr.ac.snu.imlab.scdc.R;
+ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 
 public class LaunchActivity extends ActionBarActivity {
@@ -77,11 +74,43 @@ public class LaunchActivity extends ActionBarActivity {
     @Configurable
     protected MultipartEntityArchive upload = null;
 
+    // FIXME: The list of labels available
+    @Configurable
+    public static final String[] labelNames = {
+            LabelKeys.SLEEP_LABEL,
+            LabelKeys.IN_CLASS_LABEL,
+            LabelKeys.EATING_LABEL,
+            LabelKeys.STUDYING_LABEL,
+            LabelKeys.DRINKING_LABEL
+    };
+
+    // FIXME: The list of probes available
+    @Configurable
+    public static final Class[] probeClasses = {
+            // Device Probes
+            BatteryProbe.class,
+            // Environment Probes
+            LightSensorProbe.class,
+            MagneticFieldSensorProbe.class,
+            AudioFeaturesProbe.class,
+            // Motion Probes
+            AccelerometerSensorProbe.class,
+            GyroscopeSensorProbe.class,
+            OrientationSensorProbe.class,
+            // Positioning Probes
+            SimpleLocationProbe.class,
+            BluetoothProbe.class,
+            // Device Interaction Probes
+            RunningApplicationsProbe.class,
+            ScreenProbe.class
+    };
+
     private SCDCUploadService uploader;
 
     private Handler handler;
     private FunfManager funfManager = null;
     private SCDCPipeline pipeline = null;
+    private SharedPrefsHandler spHandler = null;
 
     // Username EditText and Button
     private EditText userName = null;
@@ -100,6 +129,9 @@ public class LaunchActivity extends ActionBarActivity {
     // Run Data Collection button
     private ToggleButton enabledToggleButton;
 
+    // Run Push notification button
+    private ToggleButton reminderToggleButton;
+
     private Button archiveButton, truncateDataButton;
     private TextView dataCountView;
 
@@ -108,12 +140,24 @@ public class LaunchActivity extends ActionBarActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             funfManager = ((FunfManager.LocalBinder) service).getManager();
             // funfManager.setCallingActivity(LaunchActivity.this);
-            pipeline = (SCDCPipeline) funfManager.getRegisteredPipeline(Config.PIPELINE_NAME);
+            pipeline = (SCDCPipeline) funfManager.getRegisteredPipeline
+                                          (Config.PIPELINE_NAME);
             pipeline.setActivity(LaunchActivity.this);
 
+            // Update probe schedules of pipeline
+            HttpConfigUpdater hcu = new HttpConfigUpdater();
+            hcu.setUrl("http://imlab-ws2.snu.ac.kr:7000/config");
+            pipeline.setUpdate(hcu);
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                if (pipeline.getHandler() != null) {
+                  pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
+                }
+              }
+            });
 
             // This checkbox enables or disables the pipeline
-            enabledToggleButton.setChecked(pipeline.isEnabled());
             enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -185,6 +229,9 @@ public class LaunchActivity extends ActionBarActivity {
                                 }
                             }, 1000L);
 
+                          reminderToggleButton.setEnabled(isChecked);
+                          reminderToggleButton.setChecked(spHandler.isReminderRunning());
+
                         } else {
                             // Dynamically refresh the ListView items
                             // by calling mAdapter.getView() again.
@@ -211,22 +258,75 @@ public class LaunchActivity extends ActionBarActivity {
                                     funfManager.disablePipeline(Config.PIPELINE_NAME);
                                 }
                             }, 2000L);
+                          spHandler.setReminderRunning(isChecked);
+                          reminderToggleButton.setChecked(spHandler.isReminderRunning());
+                          reminderToggleButton.setEnabled(isChecked);
                         }
                     }
-
 
                 }
             });
 
+            // This checkbox runs or stops the reminder alarm
+            reminderToggleButton.setOnCheckedChangeListener(
+              new OnCheckedChangeListener() {
+              @Override
+              public void onCheckedChanged(CompoundButton buttonView,
+                                           boolean isChecked) {
+                spHandler.setReminderRunning(isChecked);
+                if (isChecked) {
+                  // Start service to check for alarms
+                  WakefulIntentService.acquireStaticLock(LaunchActivity.this);
+                  startService(new Intent(LaunchActivity.this,
+                                          AlarmButlerService.class));
+//                 for (LabelEntry labelEntry : labelEntries) {
+//                   if (!labelEntry.isLogged()) {
+//                     LabelAlarm alarm = new LabelAlarm();
+//                     if (labelEntry.isRepeating()) {
+//                       Log.d(SCDCKeys.LogKeys.DEBUG,
+//                               "LaunchActivity.reminderToggleButton" +
+//                                       ".onCheckedChangeListener()/ set " +
+//                                       "repeating alarm: labelId=" +
+//                                       labelEntry.getId());
+//                       int labelId = alarm.setRepeatingAlarm(
+//                               LaunchActivity.this, labelEntry.getId());
+//                     } else {
+//                       if (labelEntry.hasDateDue() &&  labelEntry.isPastDue())
+//                         alarm.setAlarm(LaunchActivity.this, labelEntry.getId());
+//                         Log.d(SCDCKeys.LogKeys.DEBUG,
+//                                 "LaunchActivity.reminderToggleButton" +
+//                                         ".onCheckedChangeListener()/ set " +
+//                                         "alarm: labelId=" + labelEntry.getId());
+//                     }
+//                   }
+//                 }
+                } else {
+                  for (LabelEntry labelEntry : labelEntries) {
+                    LabelAlarm alarm = new LabelAlarm();
+                    alarm.cancelAlarm(LaunchActivity.this, labelEntry.getId());
+                    alarm.cancelNotification(LaunchActivity.this,
+                                             labelEntry.getId());
+                  }
+                  LabelAlarm alarm = new LabelAlarm();
+                  int generalAlarmId = Integer.parseInt(SCDCKeys.AlarmKeys
+                                              .DEFAULT_GENERAL_ALARM_ID);
+                  alarm.cancelAlarm(LaunchActivity.this, generalAlarmId);
+                  alarm.cancelNotification(LaunchActivity.this, generalAlarmId);
+                  stopService(new Intent(LaunchActivity.this,
+                                         AlarmButlerService.class));
+                }
+              }
+            });
+
             // Set UI ready to use, by enabling buttons
             enabledToggleButton.setEnabled(true);
+            enabledToggleButton.setChecked(pipeline.isEnabled());
+            archiveButton.setEnabled(!enabledToggleButton.isChecked());
+            truncateDataButton.setEnabled(!enabledToggleButton.isChecked());
 
-            if (enabledToggleButton.isChecked()) {
-                archiveButton.setEnabled(false);
-                truncateDataButton.setEnabled(false);
-            } else {
-                archiveButton.setEnabled(true);
-                truncateDataButton.setEnabled(true);
+            reminderToggleButton.setEnabled(enabledToggleButton.isChecked());
+            if (reminderToggleButton.isEnabled()) {
+              reminderToggleButton.setChecked(spHandler.isReminderRunning());
             }
 
             mAdapter.notifyDataSetChanged();
@@ -241,6 +341,9 @@ public class LaunchActivity extends ActionBarActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        spHandler = SharedPrefsHandler.getInstance(this,
+                Config.SCDC_PREFS, Context.MODE_PRIVATE);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_launch);
 
@@ -250,17 +353,12 @@ public class LaunchActivity extends ActionBarActivity {
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
         // Set current username
-        final SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
-                Context.MODE_PRIVATE);
         userName = (EditText) findViewById(R.id.user_name);
-        userName.setText(prefs.getString(SharedPrefs.USERNAME,
-                Config.DEFAULT_USERNAME));
+        userName.setText(spHandler.getUsername());
         isMaleRadioButton = (RadioButton) findViewById(R.id.radio_male);
         isFemaleRadioButton = (RadioButton) findViewById(R.id.radio_female);
-        isMaleRadioButton.setChecked(
-                !prefs.getBoolean(SharedPrefs.IS_FEMALE, false));
-        isFemaleRadioButton.setChecked(
-                prefs.getBoolean(SharedPrefs.IS_FEMALE, false));
+        isMaleRadioButton.setChecked(!spHandler.getIsFemale());
+        isFemaleRadioButton.setChecked(spHandler.getIsFemale());
         userName.setEnabled(false);
         isMaleRadioButton.setEnabled(false);
         isFemaleRadioButton.setEnabled(false);
@@ -279,20 +377,38 @@ public class LaunchActivity extends ActionBarActivity {
                     userNameButton.setText("Save");
                     // If it has just finished being edited:
                 } else {
-                    prefs.edit().putString(SharedPrefs.USERNAME,
-                            userName.getText().toString()).apply();
-                    prefs.edit().putBoolean(SharedPrefs.IS_FEMALE,
-                            isFemaleRadioButton.isChecked()).apply();
-                    userName.setEnabled(false);
-                    isMaleRadioButton.setEnabled(false);
-                    isFemaleRadioButton.setEnabled(false);
-                    isEdited = false;
-                    userNameButton.setText("Modify");
+                  spHandler.setUsername(userName.getText().toString());
+                  spHandler.setIsFemale(isFemaleRadioButton
+                                        .isChecked());
+                  userName.setEnabled(false);
+                  isMaleRadioButton.setEnabled(false);
+                  isFemaleRadioButton.setEnabled(false);
+                  isEdited = false;
+                  userNameButton.setText("Modify");
                 }
             }
         });
 
-        makeProbeEntries();
+        // The list of probes available
+        probeEntries = new ArrayList<ProbeEntry>(probeClasses.length);
+        for (int i = 0; i < probeClasses.length; i++) {
+          probeEntries.add(new ProbeEntry(probeClasses[i], null, true));
+        }
+        // The list of labels available
+        labelEntries = new ArrayList<LabelEntry>(labelNames.length);
+        for (int i = 0; i < labelNames.length; i++) {
+          labelEntries.add(new LabelEntry(i, labelNames[i],
+                              LabelProbe.class, null, true,
+                              LaunchActivity.this, Config.SCDC_PREFS));
+        }
+
+        // Put the total number of labels into SharedPreferences
+        spHandler.setNumLabels(labelEntries.size());
+
+        mAdapter = new BaseAdapterExLabel(this, labelEntries);
+
+        mListView = (ListView) findViewById(R.id.label_list_view);
+        mListView.setAdapter(mAdapter);
 
         // Displays the count of rows in the data
         dataCountView = (TextView) findViewById(R.id.dataCountText);
@@ -300,8 +416,11 @@ public class LaunchActivity extends ActionBarActivity {
         // Used to make interface changes on main thread
         handler = new Handler();
 
-        enabledToggleButton = (ToggleButton) findViewById(R.id.enabledToggleButton);
-        enabledToggleButton.setChecked(false);
+        enabledToggleButton =
+          (ToggleButton) findViewById(R.id.enabledToggleButton);
+        reminderToggleButton =
+          (ToggleButton)findViewById(R.id.reminderToggleButton);
+
 
 
         // Runs an archive if pipeline is enabled
@@ -364,78 +483,18 @@ public class LaunchActivity extends ActionBarActivity {
                 dataCountView.setText("Data size: 0.0 MB");
                 // updateScanCount();
 
-                // Update probe schedules of pipeline
-                HttpConfigUpdater hcu = new HttpConfigUpdater();
-                hcu.setUrl("http://imlab-ws2.snu.ac.kr:7000/config");
-                pipeline.setUpdate(hcu);
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (pipeline.getHandler() != null) {
-                            pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
-                        }
-                    }
-                });
             }
         });
 
+
         // Bind to the service, to create the connection with FunfManager
-        bindService(new Intent(this, FunfManager.class), funfManagerConn,
-                BIND_AUTO_CREATE);
-    }
-
-    private void makeProbeEntries() {
-        // The list of probes available
-        probeEntries = new ArrayList<>();
-        // Device Probes
-        probeEntries.add(new ProbeEntry(BatteryProbe.class, null, true));
-        // Environment Probes
-        probeEntries.add(new ProbeEntry(LightSensorProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(MagneticFieldSensorProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(AudioFeaturesProbe.class, null, true));
-        // Motion Probes
-        probeEntries.add(new ProbeEntry(AccelerometerSensorProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(GyroscopeSensorProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(OrientationSensorProbe.class, null, true));
-        // Positioning Probes
-        probeEntries.add(new ProbeEntry(SimpleLocationProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(BluetoothProbe.class, null, true));
-        // Device Interaction
-        probeEntries.add(new ProbeEntry(RunningApplicationsProbe.class, null, true));
-        probeEntries.add(new ProbeEntry(ScreenProbe.class, null, true));
-
-        // The list of labels available
-        labelEntries = new ArrayList<>();
-        labelEntries.add(new LabelEntry(LabelKeys.SLEEP_LABEL,
-                LabelProbe.class, null, true));
-        labelEntries.add(new LabelEntry(LabelKeys.IN_CLASS_LABEL,
-                LabelProbe.class, null, true));
-        labelEntries.add(new LabelEntry(LabelKeys.EATING_LABEL,
-                LabelProbe.class, null, true));
-        labelEntries.add(new LabelEntry(LabelKeys.STUDYING_LABEL,
-                LabelProbe.class, null, true));
-        labelEntries.add(new LabelEntry(LabelKeys.DRINKING_LABEL,
-                LabelProbe.class, null, true));
-
-        mAdapter = new BaseAdapterExLabel(this, labelEntries);
-
-        mListView = (ListView) findViewById(R.id.label_list_view);
-        mListView.setAdapter(mAdapter);
+        bindService(new Intent(this, FunfManager.class),
+                funfManagerConn, BIND_AUTO_CREATE);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
-                Context.MODE_PRIVATE);
-        // Restore isLogged value of labelEntries from SharedPreferences
-        for (int i = 0; i < labelEntries.size(); i++) {
-            mAdapter.getItem(i).startLog(prefs.getLong(String.valueOf(i), -1L));
-//      labelEntries.get(i).setLogged(prefs.getBoolean(String.valueOf(i), false));
-            Log.w(LogKeys.DEBUG, "LaunchActivity/ labelEntries(" + i + ")=" +
-                    labelEntries.get(i).getStartLoggingTime());
-        }
 
         // Dynamically refresh the ListView items
         handler.postDelayed(new Runnable() {
@@ -445,21 +504,20 @@ public class LaunchActivity extends ActionBarActivity {
                 handler.postDelayed(this, 1000L);
             }
         }, 1000L);
+
+      // stopService(new Intent(this, AlarmButlerService.class));
     }
 
     @Override
     public void onPause() {
-        super.onPause();
+      super.onPause();
 
-        SharedPreferences prefs = getSharedPreferences(Config.SCDC_PREFS,
-                Context.MODE_PRIVATE);
-        // Save current isLogged value of labelEntries from SharedPreferences
-        for (int i = 0; i < labelEntries.size(); i++) {
-//      prefs.edit().putBoolean(String.valueOf(i),
-//                              labelEntries.get(i).isLogged()).apply();
-            prefs.edit().putLong(String.valueOf(i),
-                    labelEntries.get(i).getStartLoggingTime()).apply();
-        }
+      if (!enabledToggleButton.isChecked()) {
+        spHandler.setReminderRunning(false);
+      } else {
+        spHandler.setReminderRunning(reminderToggleButton.isChecked());
+      }
+
     }
 
 
@@ -471,11 +529,11 @@ public class LaunchActivity extends ActionBarActivity {
 
 //  private static final String TOTAL_COUNT_SQL = "SELECT COUNT(*) FROM " +
 //          NameValueDatabaseHelper.DATA_TABLE.name;
-
     /**
      * Queries the database of the pipeline to determine how many rows of data we have recorded so far.
      */
     public void updateScanCount() {
+      if (pipeline.getDatabaseHelper() != null) {
         // Query the pipeline db for the count of rows in the data table
         SQLiteDatabase db = pipeline.getDb();
         final long dbSize = new File(db.getPath()).length();  // in bytes
@@ -484,14 +542,15 @@ public class LaunchActivity extends ActionBarActivity {
         // final int count = mcursor.getInt(0);
         // Update interface on main thread
         runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
+          @Override
+          public void run() {
 //          dataCountView.setText("Data Count: " + count + "\n Size: "
 //                      + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
-                dataCountView.setText("Data size: " +
-                        Math.round((dbSize / (1048576.0)) * 10.0) / 10.0 + " MB");
-            }
+            dataCountView.setText("Data size: " +
+                    Math.round((dbSize / (1048576.0)) * 10.0) / 10.0 + " MB");
+          }
         });
+      }
     }
 
     /**
@@ -549,6 +608,7 @@ public class LaunchActivity extends ActionBarActivity {
         return newSchedules;
     }
 
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -565,7 +625,7 @@ public class LaunchActivity extends ActionBarActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            return true;
+          startActivity(new Intent(this, SettingsActivity.class));
         }
 
         return super.onOptionsItemSelected(item);

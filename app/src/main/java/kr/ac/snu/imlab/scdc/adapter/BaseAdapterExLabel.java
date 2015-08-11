@@ -5,6 +5,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,10 +18,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
+import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
+import kr.ac.snu.imlab.scdc.util.TimeUtil;
 
 import java.util.ArrayList;
 import android.os.Handler;
@@ -89,13 +94,13 @@ public class BaseAdapterExLabel extends BaseAdapter {
 
       viewHolder = new ViewHolder();
       viewHolder.logLabelTextView =
-              (TextView)itemLayout.findViewById(R.id.logLabelTextView);
+        (TextView)itemLayout.findViewById(R.id.logLabelTextView);
       viewHolder.scheduleTextView =
-              (TextView)itemLayout.findViewById(R.id.scheduleTextView);
+        (TextView)itemLayout.findViewById(R.id.scheduleTextView);
       viewHolder.startLogButton =
-              (Button)itemLayout.findViewById(R.id.startLogButton);
+        (Button)itemLayout.findViewById(R.id.startLogButton);
       viewHolder.endLogButton =
-              (Button)itemLayout.findViewById(R.id.endLogButton);
+        (Button)itemLayout.findViewById(R.id.endLogButton);
 
       itemLayout.setTag(viewHolder);
     } else {
@@ -124,7 +129,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
     // Refresh the elapsed time if the label is logged
     if (mData.get(position).isLogged()) {
       String elapsedTime =
-        getElapsedTimeUntilNow(mData.get(position).getStartLoggingTime());
+        TimeUtil.getElapsedTimeUntilNow(
+          mData.get(position).getStartLoggingTime());
       viewHolder.scheduleTextView.setText(
               "Currently " + mData.get(position).getName() +
               " for " + elapsedTime);
@@ -135,8 +141,17 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.startLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            // Save changes to SharedPreferences
+            SharedPreferences labelPrefs =
+              mContext.getSharedPreferences(Config.SCDC_PREFS,
+                                            Context.MODE_PRIVATE);
+            // Save current isLogged value of labelEntries from SharedPreferences
+            LabelEntry currLabelEntry = mData.get(position);
+            labelPrefs.edit().putLong(String.valueOf(currLabelEntry.getId()),
+                                 currLabelEntry.getStartLoggingTime()).apply();
+
             // mData.get(position).setLogged(true);
-            mData.get(position).startLog();
+            currLabelEntry.startLog();
             // Start label logging
             Intent intent = new Intent();
             intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
@@ -149,15 +164,9 @@ public class BaseAdapterExLabel extends BaseAdapter {
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, false));
             mContext.sendBroadcast(intent);
 
-            BaseAdapterExLabel.this.notify(position, "SSC Client",
-                    mData.get(position).getName(), "Label logging");
+//            BaseAdapterExLabel.this.notify(position, "SSC Client",
+//                    currLabelEntry.getName(), "Label logging");
 
-            // FIXME: Update the elapsed time
-            handler.postDelayed(new Runnable() {
-              @Override
-              public void run() {
-              }
-            }, 1000L);
 //            viewHolder.scheduleTextView.setText("Currently " + mData.get(position).getName() + " for # minutes");
             v.setEnabled(false);
             viewHolder.endLogButton.setEnabled(true);
@@ -169,7 +178,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             Toast.makeText(mContext,
                     "Saving the label log...",
                     Toast.LENGTH_SHORT).show();
-              handler.postDelayed(new Runnable() {
+            handler.postDelayed(new Runnable() {
               @Override
               public void run() {
                 enabledToggleButton.setEnabled(true);
@@ -196,7 +205,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, true));
             mContext.sendBroadcast(intent);
 
-            BaseAdapterExLabel.this.cancelNotify(position);
+//            BaseAdapterExLabel.this.cancelNotify(position);
 
 //            viewHolder.scheduleTextView.setText(R.string.probe_disabled);
             v.setEnabled(false);
@@ -222,89 +231,31 @@ public class BaseAdapterExLabel extends BaseAdapter {
     return itemLayout;
   }
 
-  private String getElapsedTimeUntilNow(long startTime) {
-    if (startTime == -1) return null;
-
-    long timeDelta = System.currentTimeMillis() - startTime;
-    String elapsedTime = null;
-
-    long secondsInMillis = 1000;
-    long minutesInMillis = secondsInMillis * 60;
-    long hoursInMillis = minutesInMillis * 60;
-    long daysInMillis = hoursInMillis * 24;
-
-    if (timeDelta < minutesInMillis) {
-      elapsedTime = String.valueOf(timeDelta / secondsInMillis) + " seconds";
-    } else if (timeDelta < hoursInMillis) {
-      elapsedTime = String.valueOf(timeDelta / minutesInMillis) + " minutes";
-    } else if (timeDelta < daysInMillis) {
-      elapsedTime = String.valueOf(timeDelta / hoursInMillis) + " hours";
-    } else {
-      elapsedTime = String.valueOf(timeDelta / daysInMillis) + " hours";
-    }
-
-    return elapsedTime;
-  }
-
-  /*
-  private void startTimerTask(int i) {
-    // Stop TimerTask if running
-    stopTimerTask();
-
-    // Run TimerTask immediately and repeat on every 1000ms
-    mTimers.get(i).schedule(mCountTimerTask, 0, 1000);
-  }
-
-  private void stopTimerTask() {
-    // Stop all TimerTasks
-    if (mCountTimerTask != null) {
-      mCountTimerTask.cancel();
-      mCountTimerTask = null;
-    }
-  }
-  */
-
-
   protected void notify(int mId, String title, String message,
                            String alert) {
-    Log.w("DEBUG", "BaseAdapterExLabel/ Start notification #" + mId + "- " +
-            title + ": " + message);
 
-//    // Create a new notification builder
-//    NotificationCompat.Builder notification =
-//            new NotificationCompat.Builder(this.mContext);
-//    notification.setContentTitle(title);
-//    notification.setContentText(message);
-//    notification.setTicker(alert);
-//    // notification.setSmallIcon(R.drawable.);
-//
-//    // Create an explicit intent for an Activity
-//    Intent resultIntent = new Intent(mContext, LaunchActivity.class);
-//    // Create a new stack builder
-//    TaskStackBuilder stackBuilder = TaskStackBuilder.create(this.mContext);
-//    stackBuilder.addParentStack((Activity)this.mContext);
-//    stackBuilder.addNextIntent(resultIntent);
-//    PendingIntent resultPendingIntent =
-//            stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-//    notification.setContentIntent(resultPendingIntent);
-//    notification.setContentIntent(PendingIntent.getActivity(mContext, 0,
-//                                  new Intent(), 0));
-
-    NotificationManager notificationMgr =
-            (NotificationManager)mContext.
-                    getSystemService(Context.NOTIFICATION_SERVICE);
-//    notificationMgr.notify(mId, notification.build());
+    // Create a new notification builder
+    NotificationCompat.Builder builder =
+       new NotificationCompat.Builder(mContext)
+              .setAutoCancel(false)
+              .setContentIntent(getPendingIntent(mId))
+              .setContentTitle(title)
+              .setContentText(message)
+              .setTicker(alert)
+              // .setDefaults(Notification.DEFAULT_ALL)
+              .setSmallIcon(R.mipmap.ic_launcher)
+              .setOngoing(true)
+              .setWhen(System.currentTimeMillis());
 
     @SuppressWarnings("deprecation")
-    Notification notification = new Notification(R.mipmap.ic_launcher, alert,
-            System.currentTimeMillis());
-    notification.setLatestEventInfo(mContext, title, message,
-            PendingIntent.getActivity(mContext, 0, new Intent(), 0));
+    Notification notification = builder.getNotification();
+    NotificationManager notificationMgr = (NotificationManager)mContext.
+                          getSystemService(Context.NOTIFICATION_SERVICE);
     notificationMgr.notify(mId, notification);
+
   }
 
   protected void cancelNotify(int mId) {
-    Log.w("DEBUG", "BaseAdapterExLabel/ Cancel notification #" + mId);
     NotificationManager notificationMgr =
             (NotificationManager)mContext.
                     getSystemService(Context.NOTIFICATION_SERVICE);
@@ -316,6 +267,11 @@ public class BaseAdapterExLabel extends BaseAdapter {
             (NotificationManager)mContext.
                     getSystemService(Context.NOTIFICATION_SERVICE);
     notificationMgr.cancelAll();
+  }
+
+  PendingIntent getPendingIntent(int id) {
+    Intent intent = new Intent(mContext, LaunchActivity.class);
+    return PendingIntent.getActivity(mContext, id, intent, 0);
   }
 
 

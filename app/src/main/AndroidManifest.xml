@@ -71,7 +71,7 @@
 
         <!-- Activity -->
         <activity
-            android:name=".activity.LaunchActivity"
+            android:name="kr.ac.snu.imlab.scdc.activity.LaunchActivity"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -80,8 +80,13 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.ProbeRescheduleActivity"
+            android:name="kr.ac.snu.imlab.scdc.activity.ProbeRescheduleActivity"
             android:label="@string/title_activity_probe_reschedule" >
+        </activity>
+        <activity
+            android:name="kr.ac.snu.imlab.scdc.activity.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:windowSoftInputMode="adjustPan">
         </activity>
 
         <!-- Funf Probe Services -->
@@ -103,6 +108,18 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
+
+        <receiver
+            android:name="kr.ac.snu.imlab.scdc.service.alarm.OnBootReceiver" >
+          <intent-filter>
+            <action android:name="android.intent.action.BOOT_COMPLETED" />
+          </intent-filter>
+        </receiver>
+
+        <receiver
+          android:name="kr.ac.snu.imlab.scdc.service.alarm.OnAlarmReceiver" />
+
+        <service android:name=".service.alarm.AlarmButlerService" />
 
     </application>
 

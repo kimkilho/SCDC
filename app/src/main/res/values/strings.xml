@@ -29,7 +29,7 @@
             "@schedule": {"interval": 10800}
         },
         "update": {
-            "url": \"http://imlab-ws2.snu.ac.kr:7000/config\",
+            "url": \"http://imlab-ws2.snu.ac.kr:7000/config_orig\",
             "@schedule": {"interval": 10800}
         },
         "data": [
@@ -51,6 +51,14 @@
       }
 
     </string>
+    <string name="notification_interval_tv">Push notifications time interval</string>
     <string name="title_activity_probe_reschedule">ProbeRescheduleActivity</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="general_alarm_message">현재 무엇을 하고 계신가요? 레이블링을 수행해주세요.</string>
+    <string name="label_alarm_message">%1$s한지 %2$s 지났습니다.</string>
+    <string name="label_alarm_content_info">Reminder</string>
+    <string name="general_alarm_name">general</string>
+    <string name="go_back_bt">Go back</string>
+    <string name="minutes">minutes</string>
 
 </resources>

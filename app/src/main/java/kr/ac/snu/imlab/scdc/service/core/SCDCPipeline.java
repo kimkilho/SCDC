@@ -121,8 +121,9 @@ public class SCDCPipeline implements Pipeline, DataListener {
   };
 
   protected void reloadDbHelper(Context ctx) {
-    this.databaseHelper = new SCDCDatabaseHelper(ctx, StringUtil.simpleFilesafe
-            (name), version);
+    this.databaseHelper =
+      new SCDCDatabaseHelper(ctx,
+        StringUtil.simpleFilesafe(name), version);
   }
 
   // Edited by Kilho Kim:
@@ -369,9 +370,13 @@ public class SCDCPipeline implements Pipeline, DataListener {
       Log.w("DEBUG", "BasicPipeline.onDataReceived()/ LabelProbe data " +
               "received");
 
-      handler.sendMessageAtFrontOfQueue(message);
+      if (handler != null) {
+        handler.sendMessageAtFrontOfQueue(message);
+      }
     } else {
-      handler.sendMessage(message);
+      if (handler != null) {
+        handler.sendMessage(message);
+      }
     }
     // Added by Kilho Kim
     if (activity != null && activity instanceof LaunchActivity) {
