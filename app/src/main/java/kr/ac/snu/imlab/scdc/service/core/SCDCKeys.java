@@ -74,8 +74,8 @@ public class SCDCKeys {
       ACTION_LABEL_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action" +
       ".LABEL_LOG",
       SLEEP_LABEL = "sleeping",
-      IN_CLASS_LABEL = "in class",
-      EATING_LABEL = "having a meal",
+      IN_CLASS_LABEL = "in_class",
+      EATING_LABEL = "having_a_meal",
       STUDYING_LABEL = "studying",
       DRINKING_LABEL = "drinking";
     // LABEL_TYPE = "label_type",
