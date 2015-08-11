@@ -54,7 +54,8 @@ import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
  import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 
-public class LaunchActivity extends ActionBarActivity {
+public class LaunchActivity extends ActionBarActivity
+                            implements OnDataReceivedListener {
 
     @Configurable
     protected int version = 1;
@@ -129,9 +130,9 @@ public class LaunchActivity extends ActionBarActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             funfManager = ((FunfManager.LocalBinder) service).getManager();
             // funfManager.setCallingActivity(LaunchActivity.this);
-            pipeline = (SCDCPipeline) funfManager.getRegisteredPipeline
+            pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
                                           (Config.PIPELINE_NAME);
-            pipeline.setActivity(LaunchActivity.this);
+//            pipeline.setDataReceivedListener(LaunchActivity.this);
 
             // Update probe schedules of pipeline
             HttpConfigUpdater hcu = new HttpConfigUpdater();
@@ -153,6 +154,7 @@ public class LaunchActivity extends ActionBarActivity {
                     if (funfManager != null) {
                         if (isChecked) {
                             funfManager.enablePipeline(pipeline.getName());
+                            pipeline.setDataReceivedListener(LaunchActivity.this);
                               // NOTE: funfManager automatically reloads the scdc pipeline
                               //       with newly updated schedules
 
@@ -179,6 +181,7 @@ public class LaunchActivity extends ActionBarActivity {
 
                           reminderToggleButton.setEnabled(isChecked);
                           reminderToggleButton.setChecked(spHandler.isReminderRunning());
+                          updateScanCount();
 
                         } else {
                             // Dynamically refresh the ListView items
@@ -194,6 +197,7 @@ public class LaunchActivity extends ActionBarActivity {
                                 public void run() {
                                     archiveButton.setEnabled(true);
                                     truncateDataButton.setEnabled(true);
+                                    updateScanCount();
                                     funfManager.disablePipeline(Config.PIPELINE_NAME);
                                 }
                             }, 2000L);
@@ -248,7 +252,6 @@ public class LaunchActivity extends ActionBarActivity {
             }
 
             mAdapter.notifyDataSetChanged();
-            updateScanCount();
         }
 
         @Override
@@ -449,24 +452,23 @@ public class LaunchActivity extends ActionBarActivity {
     /**
      * Queries the database of the pipeline to determine how many rows of data we have recorded so far.
      */
+    @Override
     public void updateScanCount() {
+      Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.updateScanCount(): entered updateScanCount())");
       if (pipeline.getDatabaseHelper() != null) {
         // Query the pipeline db for the count of rows in the data table
         SQLiteDatabase db = pipeline.getDb();
         final long dbSize = new File(db.getPath()).length();  // in bytes
-//      Cursor mcursor = db.rawQuery(TOTAL_COUNT_SQL, null);
-//      mcursor.moveToFirst();
-        // final int count = mcursor.getInt(0);
+
         // Update interface on main thread
         runOnUiThread(new Runnable() {
           @Override
           public void run() {
-//          dataCountView.setText("Data Count: " + count + "\n Size: "
-//                      + Math.round((dbSize/(1048576.0))*100.0)/100.0 + " MB");
             dataCountView.setText("Data size: " +
                     Math.round((dbSize / (1048576.0)) * 10.0) / 10.0 + " MB");
           }
         });
+      } else {
       }
     }
 

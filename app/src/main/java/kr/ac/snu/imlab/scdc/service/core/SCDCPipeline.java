@@ -1,6 +1,5 @@
 package kr.ac.snu.imlab.scdc.service.core;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -36,7 +35,7 @@ import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
 import edu.mit.media.funf.util.StringUtil;
-import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
+import kr.ac.snu.imlab.scdc.activity.OnDataReceivedListener;
 import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
 
@@ -74,7 +73,8 @@ public class SCDCPipeline implements Pipeline, DataListener {
   protected Map<String, Schedule> schedules = new HashMap<String, Schedule>();
 
   private UploadService uploader;
-  private Activity activity;
+  // private Activity activity;
+  private OnDataReceivedListener odrl;
 
   private boolean enabled;
   private FunfManager manager;
@@ -183,7 +183,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     this.handler = new Handler(looper, callback);
     enabled = true;
     for (JsonElement dataRequest : data) {
-      Log.d(SCDCKeys.LogKeys.DEBUG, "SCDCPipeline.onCreate(): dataRequest=" + dataRequest.toString());
+      // Log.d(SCDCKeys.LogKeys.DEBUG, "SCDCPipeline.onCreate(): dataRequest=" + dataRequest.toString());
       manager.requestData(this, dataRequest);
     }
     for (Map.Entry<String, Schedule> schedule : schedules.entrySet()) {
@@ -193,10 +193,11 @@ public class SCDCPipeline implements Pipeline, DataListener {
 
   /**
    * @author Kilho Kim
-   * @description Set calling activity for pipeline
+   * @description Set dataReceivedListener for this pipeline
    */
-  public void setActivity(Activity activity) {
-    this.activity = activity;
+  public void setDataReceivedListener(OnDataReceivedListener listener) {
+    odrl = listener;
+    Log.d(SCDCKeys.LogKeys.DEBUG, "SCDCPipeline.setDataReceivedListener(): odrl=" + odrl);
   }
 
   @Override
@@ -368,8 +369,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     Message message = Message.obtain(handler, DATA, record);
     if (probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString()
             .equals(LabelProbe.class.getName())) {
-      Log.w("DEBUG", "SCDCPipeline.onDataReceived()/ LabelProbe data " +
-              "received");
+      // Log.w("DEBUG", "SCDCPipeline.onDataReceived()/ LabelProbe data received");
 
       if (handler != null) {
         handler.sendMessageAtFrontOfQueue(message);
@@ -380,8 +380,12 @@ public class SCDCPipeline implements Pipeline, DataListener {
       }
     }
     // Added by Kilho Kim
-    if (activity != null && activity instanceof LaunchActivity) {
-      ((LaunchActivity)activity).updateScanCount();
+//    if (activity != null && activity instanceof LaunchActivity) {
+//      ((LaunchActivity)activity).updateScanCount();
+//    }
+    // Added by Kilho Kim:
+    if (odrl != null) {
+      odrl.updateScanCount();
     }
   }
 
