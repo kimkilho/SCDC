@@ -8,10 +8,10 @@ public class SCDCKeys {
   public static interface Config {
     public static final String
       PIPELINE_NAME = "scdc",
-      SCDC_PREFS = "kr.ac.snu.imlab.scdc.Label",
+      SCDC_PREFS = "kr.ac.snu.imlab.scdc.prefs",
       DEFAULT_USERNAME = "imlab_user",
-      DEFAULT_UPLOAD_URL = "http://imlab-ws2.snu.ac.kr:7000/data",
-      DEFAULT_UPDATE_URL = "http://imlab-ws2.snu.ac.kr:7000/config";
+      DEFAULT_UPLOAD_URL = "http://imlab-ws2.snu.ac.kr:8888/data/",
+      DEFAULT_UPDATE_URL = "http://imlab-ws2.snu.ac.kr:8888/conf/";
 
     public static final boolean
       DEFAULT_IS_FEMALE = false;

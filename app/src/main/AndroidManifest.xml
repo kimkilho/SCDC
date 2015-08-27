@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="kr.ac.snu.imlab.scdc"
     android:versionCode="1"
-    android:versionName="0.3.0" >
+    android:versionName="0.3.1" >
 
     <uses-sdk
         android:minSdkVersion="17"
@@ -33,9 +33,7 @@
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     -->
     <!-- HardwareInfo probe -->
-    <!--
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-    -->
     <!-- ImageCapture probe -->
     <!--
     <uses-permission android:name="android.permission.CAMERA" />
@@ -51,9 +49,7 @@
     <uses-permission android:name="android.permission.READ_SMS" />
     -->
     <!-- Wifi probe, Hardware Info probe -->
-    <!--
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    -->
     <!-- Wifi probe -->
     <!--
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />

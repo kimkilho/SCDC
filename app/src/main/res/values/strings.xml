@@ -20,33 +20,64 @@
         }
     </string>
     <string name="scdc_pipeline">
-      {
-        "@type":"kr.ac.snu.imlab.scdc.service.core.SCDCPipeline",
-        "name":"scdc",
+    {
+        "@type": "kr.ac.snu.imlab.scdc.service.core.SCDCPipeline",
+        "name": "scdc",
         "version": 1,
         "upload": {
-            "url": \"http://imlab-ws2.snu.ac.kr:7000/data\",
-            "@schedule": {"interval": 10800}
+            "url": \"http://imlab-ws2.snu.ac.kr:8888/data/\",
+            "@schedule": { "interval": 10800 }
         },
         "update": {
-            "url": \"http://imlab-ws2.snu.ac.kr:7000/config\",
-            "@schedule": {"interval": 10800}
+            "url": \"http://imlab-ws2.snu.ac.kr:8888/conf/\",
+            "@schedule": { "interval": 86400 }
         },
         "data": [
-          {"@type": "edu.mit.media.funf.probe.builtin.BatteryProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.LightSensorProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.MagneticFieldSensorProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.AudioFeaturesProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.GyroscopeSensorProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.OrientationSensorProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.SimpleLocationProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.BluetoothProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.RunningApplicationsProbe"},
-          {"@type": "edu.mit.media.funf.probe.builtin.ScreenProbe"},
-          {"@type": "kr.ac.snu.imlab.scdc.service.probe.LabelProbe"}
-        ]
-      }
+            {"@type": "edu.mit.media.funf.probe.builtin.BatteryProbe",
+             "@schedule": {"interval": 3000, "duration": 60}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.LightSensorProbe",
+             "@schedule": {"interval": 3000, "duration": 60}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.MagneticFieldSensorProbe",
+             "@schedule": {"interval": 3600, "duration": 60}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.AudioFeaturesProbe",
+             "@schedule": {"interval": 3600, "duration": 60}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe",
+             "@schedule": {"interval": 3600, "duration": 60}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.GyroscopeSensorProbe",
+             "@schedule": {"interval": 1800, "duration": 60}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.OrientationSensorProbe",
+             "@schedule": {"interval": 180, "duration": 15}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.SimpleLocationProbe",
+             "@schedule": {"interval": 1800, "duration": 60}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.BluetoothProbe",
+             "@schedule": {"interval": 300, "duration": 60}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.RunningApplicationsProbe",
+             "@schedule": {"interval": 0, "duration": 0, "opportunistic": true}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.ScreenProbe",
+             "@schedule": {"interval": 0, "duration": 0, "opportunistic": true}
+            },
+            {"@type": "kr.ac.snu.imlab.scdc.service.probe.NetworkSettingsProbe",
+             "@schedule": {"interval": 0, "duration": 0, "opportunistic": true}
+            },
+            {"@type": "kr.ac.snu.imlab.scdc.service.probe.SystemSettingsProbe",
+             "@schedule": {"interval": 0, "duration": 0, "opportunistic": true}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.HardwareInfoProbe",
+             "@schedule": {"interval": 0, "duration": 0, "opportunistic": true}
+            },
+            {"@type": "kr.ac.snu.imlab.scdc.service.probe.LabelProbe"}
+          ]
+    }
 
     </string>
     <string name="notification_interval_tv">Push notifications time interval</string>

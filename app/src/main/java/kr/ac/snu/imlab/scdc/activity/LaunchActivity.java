@@ -43,6 +43,8 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
  import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
  import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
+import kr.ac.snu.imlab.scdc.service.probe.NetworkSettingsProbe;
+import kr.ac.snu.imlab.scdc.service.probe.SystemSettingsProbe;
 import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
@@ -92,7 +94,12 @@ public class LaunchActivity extends ActionBarActivity
             BluetoothProbe.class,
             // Device Interaction Probes
             RunningApplicationsProbe.class,
-            ScreenProbe.class
+            ScreenProbe.class,
+            // Hardware Info Probe (for OHP)
+            HardwareInfoProbe.class,
+            // SCDC-defined Probes
+            NetworkSettingsProbe.class,
+            SystemSettingsProbe.class
     };
 
     private SCDCUploadService uploader;
