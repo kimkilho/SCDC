@@ -85,6 +85,7 @@ public class LaunchActivity extends ActionBarActivity
             LightSensorProbe.class,
             MagneticFieldSensorProbe.class,
             AudioFeaturesProbe.class,
+            ProximitySensorProbe.class,
             // Motion Probes
             AccelerometerSensorProbe.class,
             GyroscopeSensorProbe.class,
