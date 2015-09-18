@@ -385,9 +385,6 @@ public class LaunchActivity extends ActionBarActivity
                 upload = new MultipartEntityArchive(funfManager,
                         Config.DEFAULT_UPLOAD_URL, LaunchActivity.this);
                 uploader.run(archive, upload);
-                if (dbFile.exists()) {
-                  archive.remove(dbFile);
-                }
 
                 // uploader.stop();
 

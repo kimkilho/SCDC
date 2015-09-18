@@ -31,6 +31,7 @@ import edu.mit.media.funf.util.NameGenerator;
 import edu.mit.media.funf.util.NameGenerator.CompositeNameGenerator;
 import edu.mit.media.funf.util.NameGenerator.RequiredSuffixNameGenerator;
 import edu.mit.media.funf.util.StringUtil;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
@@ -68,6 +69,10 @@ public class ZipArchive extends DefaultArchive {
                   getTimestampedDbFileArchive(new File(rootSdCardPath + "archive"), context, key),
                   getTimestampedDbFileArchive(context.getDir("funf_" + getCleanedName() + "_archive", Context.MODE_PRIVATE), context, key)
           );
+          Log.w(LogKeys.DEBUG, "ZipArchive.getDelegateArchive(): rootSdCardPath + \"archive\" = " + rootSdCardPath + "archive");
+          Log.w(LogKeys.DEBUG, "ZipArchive.getDelegateArchive(): rootSdCardPath + \"backup\" = " + rootSdCardPath + "backup");
+          Log.w(LogKeys.DEBUG, "ZipArchive.getDelegateArchive(): \"funf_\" + getCleanedName() + \"archive\" = funf_" + getCleanedName() + "_archive");
+
           delegateArchive = new BackedUpArchive(mainArchive, backupArchive);
         }
       }

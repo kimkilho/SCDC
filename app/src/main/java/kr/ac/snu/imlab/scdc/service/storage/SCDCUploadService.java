@@ -114,7 +114,7 @@ public class SCDCUploadService extends UploadService {
       Log.i(LogUtil.TAG, "Archiving..." + file.getName());
       if (remoteArchive.add(file)) {
       // IMPORTANT: automatically remove file after done uploading
-        // archive.remove(file);
+        archive.remove(file);
         filesToUpload.remove(file);
       } else {
         Integer numFileFailures = fileFailures.get(file.getName());
