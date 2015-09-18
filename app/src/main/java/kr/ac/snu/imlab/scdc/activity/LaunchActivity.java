@@ -133,9 +133,6 @@ public class LaunchActivity extends ActionBarActivity
     private Button archiveButton, truncateDataButton;
     private TextView dataCountView;
 
-    // FIXME:
-    private SCDCDatabaseHelper delegateDatabaseHelper;
-
     private ServiceConnection funfManagerConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -183,7 +180,7 @@ public class LaunchActivity extends ActionBarActivity
                             handler.postDelayed(new Runnable() {
                                 @Override
                                 public void run() {
-                                    sendBroadcast(getLabelIntent());
+                                    sendBroadcast(getLabelIntent(true));
                                 }
                             }, 1000L);
 
@@ -205,7 +202,7 @@ public class LaunchActivity extends ActionBarActivity
                             // Dynamically refresh the ListView items
                             // by calling mAdapter.getView() again.
                             mAdapter.notifyDataSetChanged();
-                            sendBroadcast(getLabelIntent());
+                            sendBroadcast(getLabelIntent(false));
 
                             // Intentionally wait 2 seconds to send broadcast
                             // then terminate
@@ -510,9 +507,10 @@ public class LaunchActivity extends ActionBarActivity
         return funfManager;
     }
 
-    private Intent getLabelIntent() {
-      Log.w(LogKeys.DEBUG, "LaunchActivity/ Entering " +
-              "sendBroadcast(intent)");
+    // Get intent for broadcasting current logging status of labels
+    private Intent getLabelIntent(boolean isPipelineEnabled) {
+      Log.w(LogKeys.DEBUG, "LaunchActivity.getLabelIntent(): Entering " +
+              "getLabelIntent()");
       Intent intent = new Intent();
       intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
       intent.setAction(LabelKeys.ACTION_LABEL_LOG);
@@ -520,6 +518,7 @@ public class LaunchActivity extends ActionBarActivity
         intent.putExtra(labelEntries.get(i).getName(),
                 labelEntries.get(i).isLogged());
       }
+      intent.putExtra(LabelKeys.PIPELINE_KEY, isPipelineEnabled);
 
       return intent;
     }

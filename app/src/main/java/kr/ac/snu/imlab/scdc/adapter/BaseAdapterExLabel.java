@@ -122,6 +122,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
                                          enabledToggleButton.isChecked());
     viewHolder.endLogButton.setEnabled(mData.get(position).isLogged() &&
                                        enabledToggleButton.isChecked());
+    final boolean isPipelineEnabled = viewHolder.startLogButton.isEnabled() ||
+                                      viewHolder.endLogButton.isEnabled();
 
     handler = new Handler();
 
@@ -158,6 +160,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             for (int i = 0; i < mData.size(); i++) {
               intent.putExtra(mData.get(i).getName(), mData.get(i).isLogged());
             }
+            intent.putExtra(LabelKeys.PIPELINE_KEY, isPipelineEnabled);
 //            intent.putExtra(LabelKeys.LABEL_TYPE, mData.get(position).getName());
 //            intent.putExtra(LabelKeys.IS_LABELLED, true);
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, false));
@@ -199,6 +202,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             for (int i = 0; i < mData.size(); i++) {
               intent.putExtra(mData.get(i).getName(), mData.get(i).isLogged());
             }
+            intent.putExtra(LabelKeys.PIPELINE_KEY, isPipelineEnabled);
             // intent.putExtra(LabelKeys.LABEL_TYPE, mData.get(position).getName());
             // intent.putExtra(LabelKeys.IS_LABELLED, false);
             // Log.w("DEBUG", "LABEL_TYPE=" + intent.getStringExtra(LabelKeys.LABEL_TYPE) + ", IS_LABELLED=" + intent.getBooleanExtra(LabelKeys.IS_LABELLED, true));

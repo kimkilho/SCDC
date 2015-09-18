@@ -75,6 +75,7 @@ public class SCDCKeys {
       DEFAULT_NUM_LABELS = "5",
       ACTION_LABEL_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action" +
       ".LABEL_LOG",
+      PIPELINE_KEY = "isPipelineEnabled",
       SLEEP_LABEL = "sleeping",
       IN_CLASS_LABEL = "in_class",
       EATING_LABEL = "having_a_meal",

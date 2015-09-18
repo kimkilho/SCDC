@@ -61,32 +61,24 @@ public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
             for (String key : labels.keySet()) {
               data.addProperty(key, labels.get(key));
             }
+            data.addProperty(LabelKeys.PIPELINE_KEY,
+              intent.getBooleanExtra(LabelKeys.PIPELINE_KEY, false));
+
             Log.w("DEBUG", "LabelProbe/ JsonObject data=" + data.toString());
             sendData(data);
           }
         };
         getContext().registerReceiver(labelReceiver, filter);
-
-        // super.onEnable();
-//        listener = new LabelListener();
-//        getGson().fromJson(DEFAULT_CONFIG, LabelProbe.class)
-//                .registerPassiveListener
-//                (listener);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-//        getGson().fromJson(DEFAULT_CONFIG, LabelProbe.class).registerListener
-//                (listener);
-        // sendData(true);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-//        getGson().fromJson(DEFAULT_CONFIG, LabelProbe.class).unregisterListener
-//                (listener);
     }
 
     @Override
