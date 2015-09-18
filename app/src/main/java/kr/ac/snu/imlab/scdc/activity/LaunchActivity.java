@@ -196,8 +196,6 @@ public class LaunchActivity extends ActionBarActivity
                                 }
                             }, 1000L);
 
-                          reminderToggleButton.setEnabled(isChecked);
-                          reminderToggleButton.setChecked(spHandler.isReminderRunning());
                           boolean areButtonsOn =
                                   (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
                           archiveButton.setEnabled(areButtonsOn);
@@ -222,8 +220,6 @@ public class LaunchActivity extends ActionBarActivity
                               }
                             }, 2000L);
                           spHandler.setReminderRunning(isChecked);
-                          reminderToggleButton.setChecked(spHandler.isReminderRunning());
-                          reminderToggleButton.setEnabled(isChecked);
                         }
                     }
 
@@ -268,7 +264,9 @@ public class LaunchActivity extends ActionBarActivity
             archiveButton.setEnabled(areButtonsOn);
             truncateDataButton.setEnabled(areButtonsOn);
 
-            reminderToggleButton.setEnabled(enabledToggleButton.isChecked());
+            // Always enable reminderToggleButton
+            // either enabledToggleButton is checked or not
+            reminderToggleButton.setEnabled(true);
             if (reminderToggleButton.isEnabled()) {
               reminderToggleButton.setChecked(spHandler.isReminderRunning());
             }
@@ -456,12 +454,8 @@ public class LaunchActivity extends ActionBarActivity
     public void onPause() {
       super.onPause();
 
-      if (!enabledToggleButton.isChecked()) {
-        spHandler.setReminderRunning(false);
-      } else {
-        spHandler.setReminderRunning(reminderToggleButton.isChecked());
-      }
-
+      // Save running status of reminder
+      spHandler.setReminderRunning(reminderToggleButton.isChecked());
     }
 
 

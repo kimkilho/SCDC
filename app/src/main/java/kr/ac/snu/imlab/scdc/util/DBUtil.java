@@ -7,6 +7,7 @@ import edu.mit.media.funf.util.StringUtil;
 
 /**
   * Created by kilho on 15. 8. 3.
+  * @deprecated
   */
  public interface DBUtil {
   /**

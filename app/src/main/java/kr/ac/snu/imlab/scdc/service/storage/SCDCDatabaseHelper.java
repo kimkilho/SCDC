@@ -15,8 +15,6 @@ import java.util.UUID;
 import edu.mit.media.funf.time.TimeUtil;
 import edu.mit.media.funf.util.StringUtil;
 import edu.mit.media.funf.util.UuidUtil;
-import kr.ac.snu.imlab.scdc.util.DBUtil.Table;
-import kr.ac.snu.imlab.scdc.util.DBUtil.Column;
 
 /**
  * Created by kilho on 15. 7. 28.
