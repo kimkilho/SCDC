@@ -113,8 +113,8 @@ public class SCDCUploadService extends UploadService {
     if (numRemoteFailures < maxRemoteRetries && remoteArchive.isAvailable()) {
       Log.i(LogUtil.TAG, "Archiving..." + file.getName());
       if (remoteArchive.add(file)) {
-      // IMPORTANT: automatically remove file after done uploading
-        archive.remove(file);
+      // IMPORTANT: Keep this below commented (to make AsyncTask work properly)
+        // archive.remove(file);
         filesToUpload.remove(file);
       } else {
         Integer numFileFailures = fileFailures.get(file.getName());
