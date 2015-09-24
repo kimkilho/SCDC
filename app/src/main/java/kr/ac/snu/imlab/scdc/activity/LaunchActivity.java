@@ -21,6 +21,7 @@ import android.content.Intent;
  import edu.mit.media.funf.config.Configurable;
  import edu.mit.media.funf.config.HttpConfigUpdater;
  import edu.mit.media.funf.probe.builtin.*;
+import kr.ac.snu.imlab.scdc.service.SCDCManager;
 import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
 import kr.ac.snu.imlab.scdc.service.alarm.WakefulIntentService;
@@ -110,7 +111,7 @@ public class LaunchActivity extends ActionBarActivity
     private SCDCUploadService uploader;
 
     private Handler handler;
-    private FunfManager funfManager = null;
+    private SCDCManager funfManager = null;
     private SCDCPipeline pipeline = null;
     private SharedPrefsHandler spHandler = null;
 
@@ -140,7 +141,7 @@ public class LaunchActivity extends ActionBarActivity
     private ServiceConnection funfManagerConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            funfManager = ((FunfManager.LocalBinder) service).getManager();
+            funfManager = ((SCDCManager.LocalBinder) service).getManager();
             pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
                                           (Config.PIPELINE_NAME);
             Log.d(SCDCKeys.LogKeys.DEBUG, "pipeline.getName()=" +
@@ -431,8 +432,8 @@ public class LaunchActivity extends ActionBarActivity
         });
 
 
-        // Bind to the service, to create the connection with FunfManager
-        bindService(new Intent(this, FunfManager.class),
+        // Bind to the service, to create the connection with SCDCManager
+        bindService(new Intent(this, SCDCManager.class),
                 funfManagerConn, BIND_AUTO_CREATE);
     }
 
@@ -508,7 +509,7 @@ public class LaunchActivity extends ActionBarActivity
         }
     }
 
-    public FunfManager getActivityFunfManager() {
+    public SCDCManager getActivityFunfManager() {
         return funfManager;
     }
 

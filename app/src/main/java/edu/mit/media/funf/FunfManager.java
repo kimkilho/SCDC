@@ -197,7 +197,6 @@ public class FunfManager extends Service {
 	  Bundle metadata = getMetadata();
 	  if (prefs.contains(name)) {
 	    pipelineConfig = prefs.getString(name, null);
-      Log.d(SCDCKeys.LogKeys.DEBUG, "FunfManager.reload(): pipelineConfig=" + pipelineConfig);
 	  } else if (metadata.containsKey(name)) {
 	    pipelineConfig = metadata.getString(name);
 	  }
@@ -230,7 +229,6 @@ public class FunfManager extends Service {
   	    Pipeline pipeline = getGson().fromJson(config, Pipeline.class);
         return prefs.edit().putString(name, config.toString()).commit();
       } catch (Exception e) {
-        Log.e(LogUtil.TAG, "Unable to save config: " + config.toString());
         return false;
       }
 	}
@@ -355,9 +353,7 @@ public class FunfManager extends Service {
 				String pipelineAction = getAction(componentUri);
 				Pipeline pipeline = pipelines.get(pipelineName);
 				if (pipeline != null) {
-          if (pipelineAction.equals(BasicPipeline.ACTION_UPDATE)) {
-            pipeline.onRun(pipelineAction, null);  // BY KILHO KIM
-          }
+          pipeline.onRun(pipelineAction, null);  // BY KILHO KIM
 				}
 			}
 
