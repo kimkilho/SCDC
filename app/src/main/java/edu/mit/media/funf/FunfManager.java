@@ -147,23 +147,6 @@ public class FunfManager extends Service {
 	private Scheduler scheduler;
 
 
-  // TODO: Added getDataRequests method by Kilho Kim
-  /**
-   * @author Kilho Kim
-   * @param probeConfig
-   * @param listener
-   * @return
-   * @description Get data request schedules
-   */
-  public Schedule getDataRequestSchedule(IJsonObject probeConfig, DataListener listener) {
-      for (DataRequestInfo requestInfo : dataRequests.get(probeConfig)) {
-          if (requestInfo.listener == listener)
-              return requestInfo.schedule;
-      }
-      return null;
-  }
-
-
 	@Override
 	public void onCreate() {
 		super.onCreate();
