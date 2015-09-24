@@ -11,7 +11,10 @@ public class SCDCKeys {
       SCDC_PREFS = "kr.ac.snu.imlab.scdc.prefs",
       DEFAULT_USERNAME = "imlab_user",
       DEFAULT_UPLOAD_URL = "http://imlab-ws2.snu.ac.kr:8888/data/",
-      DEFAULT_UPDATE_URL = "http://imlab-ws2.snu.ac.kr:8888/conf/";
+      // Update URL for publish
+      DEFAULT_UPDATE_URL_PUBLISH = "http://imlab-ws2.snu.ac.kr:8888/conf/",
+      // Update URL for debug
+      DEFAULT_UPDATE_URL_DEBUG = "http://imlab-ws2.snu.ac.kr:7000/config";
 
     public static final boolean
       DEFAULT_IS_FEMALE = false;

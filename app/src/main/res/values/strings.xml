@@ -28,10 +28,6 @@
             "url": \"http://imlab-ws2.snu.ac.kr:8888/data/\",
             "@schedule": { "interval": 10800 }
         },
-        "update": {
-            "url": \"http://imlab-ws2.snu.ac.kr:8888/conf/\",
-            "@schedule": { "interval": 86400 }
-        },
         "data": [
             {"@type": "edu.mit.media.funf.probe.builtin.BatteryProbe",
              "@schedule": {"interval": 900, "duration": 180}

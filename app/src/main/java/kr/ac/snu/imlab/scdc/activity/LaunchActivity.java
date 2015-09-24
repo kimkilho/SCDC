@@ -60,6 +60,10 @@ public class LaunchActivity extends ActionBarActivity
                             implements OnDataReceivedListener {
 
     @Configurable
+    // FIXME: Change below to false when publishing
+    public static boolean DEBUGGING = true;
+
+    @Configurable
     protected int version = 1;
     @Configurable
     protected FileArchive archive = null;
@@ -146,7 +150,11 @@ public class LaunchActivity extends ActionBarActivity
 
             // Update probe schedules of pipeline
             HttpConfigUpdater hcu = new HttpConfigUpdater();
-            hcu.setUrl(Config.DEFAULT_UPDATE_URL);
+            if (DEBUGGING) {
+              hcu.setUrl(Config.DEFAULT_UPDATE_URL_DEBUG);
+            } else {
+              hcu.setUrl(Config.DEFAULT_UPDATE_URL_PUBLISH);
+            }
             pipeline.setUpdate(hcu);
             handler.post(new Runnable() {
               @Override
