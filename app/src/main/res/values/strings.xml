@@ -88,5 +88,7 @@
     <string name="general_alarm_name">general</string>
     <string name="go_back_bt">Go back</string>
     <string name="minutes">minutes</string>
+    <string name="archive_message">Archiving...</string>
+    <string name="truncate_message">Truncating...</string>
 
 </resources>

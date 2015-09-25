@@ -427,10 +427,10 @@ public class LaunchActivity extends ActionBarActivity
         truncateDataButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dropAndCreateTable();
-                dataCountView.setText("Data size: 0.0 MB");
-                // updateScanCount();
-
+              if (pipeline.getDatabaseHelper() != null) {
+                SQLiteDatabase db = pipeline.getWritableDb();
+                dropAndCreateTable(db);
+              }
             }
         });
 
@@ -500,16 +500,36 @@ public class LaunchActivity extends ActionBarActivity
      * @author Kilho Kim
      * Truncate table of the database of the pipeline.
      */
-    private void dropAndCreateTable() {
-        if (pipeline.getDatabaseHelper() != null) {
-            SQLiteDatabase db = pipeline.getWritableDb();
-            SCDCDatabaseHelper databaseHelper =
-                    (SCDCDatabaseHelper) pipeline.getDatabaseHelper();
-            databaseHelper.dropAndCreateDataTable(db);
-            updateScanCount();
-            Toast.makeText(getBaseContext(), "Dropped and re-created data table.",
-                    Toast.LENGTH_LONG).show();
+    private void dropAndCreateTable(final SQLiteDatabase db) {
+      new AsyncTask<SQLiteDatabase, Void, Boolean>() {
+
+        private ProgressDialog progressDialog;
+        private SCDCDatabaseHelper databaseHelper;
+
+        @Override
+        protected void onPreExecute() {
+          progressDialog = new ProgressDialog(LaunchActivity.this);
+          progressDialog.setMessage(getString(R.string.truncate_message));
+          progressDialog.setCancelable(false);
+          progressDialog.show();
+
+          databaseHelper = (SCDCDatabaseHelper) pipeline.getDatabaseHelper();
         }
+
+        @Override
+        protected Boolean doInBackground(SQLiteDatabase... dbs) {
+          return databaseHelper.dropAndCreateDataTable(dbs[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isSuccess) {
+          progressDialog.dismiss();
+          dataCountView.setText("Data size: 0.0 MB");
+          updateScanCount();
+          Toast.makeText(getBaseContext(), "Dropped and re-created data table.",
+                  Toast.LENGTH_LONG).show();
+        }
+      }.execute(db);
     }
 
     public SCDCManager getActivityFunfManager() {
@@ -543,7 +563,7 @@ public class LaunchActivity extends ActionBarActivity
         @Override
         protected void onPreExecute() {
           progressDialog = new ProgressDialog(LaunchActivity.this);
-          progressDialog.setMessage("Archiving...");
+          progressDialog.setMessage(getString(R.string.archive_message));
           progressDialog.setCancelable(false);
           progressDialog.show();
 

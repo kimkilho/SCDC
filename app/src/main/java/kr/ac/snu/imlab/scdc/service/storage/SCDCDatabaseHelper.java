@@ -6,6 +6,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Environment;
 
 import java.io.File;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -73,9 +74,15 @@ public class SCDCDatabaseHelper extends SQLiteOpenHelper {
      * @author Kilho Kim
      * Drop and re-Create 'data' table.
      */
-    public void dropAndCreateDataTable(SQLiteDatabase db) {
+    public boolean dropAndCreateDataTable(SQLiteDatabase db) {
+      try {
         db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE.name + ";");
         db.execSQL(DATA_TABLE.getCreateTableSQL());
+      } catch (Exception e) {
+        return false;
+      }
+
+      return true;
     }
 
     // TODO: Consider moving these to an external utils class
