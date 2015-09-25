@@ -42,7 +42,8 @@ public class SCDCKeys {
       GENERAL_REPEAT_TYPE = "general_repeat_type",
       GENERAL_REPEAT_INTERVAL = "general_repeat_interval",
       LABEL_EXP_ID = "expId",
-      LABEL_EXP_ID_PREFIX = "label_expId_";
+      LABEL_EXP_ID_PREFIX = "label_expId_",
+      LABEL_SENSOR_ID = "sensorId";
   }
 
   public static interface AlarmKeys {

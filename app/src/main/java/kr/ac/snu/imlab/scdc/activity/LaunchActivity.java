@@ -61,7 +61,7 @@ public class LaunchActivity extends ActionBarActivity
 
     @Configurable
     // FIXME: Change below to false when publishing
-    public static boolean DEBUGGING = true;
+    public static boolean DEBUGGING = false;
 
     @Configurable
     protected int version = 1;
@@ -208,6 +208,9 @@ public class LaunchActivity extends ActionBarActivity
                                   (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
                           archiveButton.setEnabled(areButtonsOn);
                           truncateDataButton.setEnabled(areButtonsOn);
+
+                          // Increment sensorId by 1
+                          spHandler.setSensorId(spHandler.getSensorId() + 1);
 
                         } else {
                             // Dynamically refresh the ListView items

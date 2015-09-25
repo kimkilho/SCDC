@@ -48,6 +48,27 @@ public class SharedPrefsHandler {
   }
 
 
+  // Id's related to data collection
+  // Methods to track expId's for each data emission from Probe
+  public int getExpId(String probeConfig) {
+    return prefs.getInt(SharedPrefs.LABEL_EXP_ID_PREFIX + probeConfig, 0);
+  }
+
+  public void setExpId(String componentString, int expId) {
+    prefs.edit().putInt(SharedPrefs.LABEL_EXP_ID_PREFIX +
+            componentString, expId).apply();
+  }
+
+  // Methods to track sensorId's for each sensor switch off-->on
+  public int getSensorId() {
+    return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
+  }
+
+  public void setSensorId(int sensorId) {
+    prefs.edit().putInt(SharedPrefs.LABEL_SENSOR_ID, sensorId).apply();
+  }
+
+
   // Labels
   public int getNumLabels() {
     return prefs.getInt(SharedPrefs.NUM_LABELS, 1);
@@ -83,16 +104,6 @@ public class SharedPrefsHandler {
     } else {
       return true;
     }
-  }
-
-  // Methods to track expId's for each label
-  public int getExpId(String probeConfig) {
-    return prefs.getInt(SharedPrefs.LABEL_EXP_ID + probeConfig, 0);
-  }
-
-  public void setExpId(String componentString, int expId) {
-    prefs.edit().putInt(SharedPrefs.LABEL_EXP_ID +
-                        componentString, expId).apply();
   }
 
 
