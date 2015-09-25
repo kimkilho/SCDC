@@ -85,7 +85,7 @@
         <!--
         <service android:name="edu.mit.media.funf.FunfManager" >
         -->
-        <service android:name="kr.ac.snu.imlab.scdc.service.SCDCManager" >
+        <service android:name="kr.ac.snu.imlab.scdc.service.core.SCDCManager" >
             <meta-data
                 android:name="scdc"
                 android:value="@string/scdc_pipeline" />

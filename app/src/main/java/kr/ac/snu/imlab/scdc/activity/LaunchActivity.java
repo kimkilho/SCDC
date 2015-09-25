@@ -17,11 +17,10 @@ import android.content.Intent;
  import android.widget.CompoundButton;
  import android.widget.CompoundButton.OnCheckedChangeListener;
 
- import edu.mit.media.funf.FunfManager;
- import edu.mit.media.funf.config.Configurable;
+import edu.mit.media.funf.config.Configurable;
  import edu.mit.media.funf.config.HttpConfigUpdater;
  import edu.mit.media.funf.probe.builtin.*;
-import kr.ac.snu.imlab.scdc.service.SCDCManager;
+import kr.ac.snu.imlab.scdc.service.core.SCDCManager;
 import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
 import kr.ac.snu.imlab.scdc.service.alarm.WakefulIntentService;
@@ -151,11 +150,14 @@ public class LaunchActivity extends ActionBarActivity
 
             // Update probe schedules of pipeline
             HttpConfigUpdater hcu = new HttpConfigUpdater();
+            String updateUrl;
             if (DEBUGGING) {
-              hcu.setUrl(Config.DEFAULT_UPDATE_URL_DEBUG);
+              updateUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
             } else {
-              hcu.setUrl(Config.DEFAULT_UPDATE_URL_PUBLISH);
+              updateUrl = Config.DEFAULT_UPDATE_URL_PUBLISH;
             }
+            Log.d(LogKeys.DEBUG, "url=" + updateUrl);
+            hcu.setUrl(updateUrl);
             pipeline.setUpdate(hcu);
             handler.post(new Runnable() {
               @Override

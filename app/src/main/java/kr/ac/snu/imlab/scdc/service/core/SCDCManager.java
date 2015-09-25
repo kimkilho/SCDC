@@ -1,4 +1,4 @@
-package kr.ac.snu.imlab.scdc.service;
+package kr.ac.snu.imlab.scdc.service.core;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -52,7 +52,6 @@ import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.config.SingletonTypeAdapterFactory;
 import edu.mit.media.funf.json.IJsonObject;
 import edu.mit.media.funf.json.JsonUtils;
-import edu.mit.media.funf.pipeline.BasicPipeline;
 import edu.mit.media.funf.pipeline.Pipeline;
 import edu.mit.media.funf.pipeline.PipelineFactory;
 import edu.mit.media.funf.probe.Probe;
@@ -67,10 +66,10 @@ import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.HttpArchive;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.time.TimeUtil;
-import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.StringUtil;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
-import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
+import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
  * Created by kilho on 15. 8. 3.
@@ -109,6 +108,8 @@ public class SCDCManager extends FunfManager {
     private JsonElement checkpoint;
   }
 
+  private SharedPrefsHandler spHandler;
+
   private StateListener probeStateListener = new StateListener() {
     @Override
     public void onStateChanged(Probe probe, State previousState) {
@@ -143,6 +144,8 @@ public class SCDCManager extends FunfManager {
     this.disabledPipelines = new HashMap<String, Pipeline>();
     this.disabledPipelineNames = new HashSet<String>(Arrays.asList(prefs.getString(DISABLED_PIPELINE_LIST, "").split(",")));
     this.disabledPipelineNames.remove(""); // Remove the empty name, if no disabled pipelines exist
+    this.spHandler = SharedPrefsHandler.getInstance(this,
+                      Config.SCDC_PREFS, Context.MODE_PRIVATE);
     reload();
   }
 
@@ -269,6 +272,14 @@ public class SCDCManager extends FunfManager {
         if (probe != null) {
           if (PROBE_ACTION_REGISTER.equals(probeAction)) {
             if (requests != null) {
+
+              // expId counter:
+              String currProbeConfig = probeConfig.toString();
+              int currExpId = spHandler.getExpId(currProbeConfig);
+              spHandler.setExpId(currProbeConfig, currExpId+1);
+              Log.d(LogKeys.DEBUG, "SCDCManager.onStartCommand(): probeConfig=" + probeConfig.toString() +
+                      ", probeAction=" + probeAction + ", currExpId=" + spHandler.getExpId(currProbeConfig));
+
               List<DataListener> listenersThatNeedData = new ArrayList<Probe.DataListener>();
               List<DataRequestInfo> infoForListenersThatNeedData = new ArrayList<SCDCManager.DataRequestInfo>();
               for (DataRequestInfo requestInfo : requests) {
@@ -697,6 +708,9 @@ public class SCDCManager extends FunfManager {
     scheduler.cancel(PROBE_TYPE, getComponenentUri(probeConfig, PROBE_ACTION_UNREGISTER));
     scheduler.cancel(PROBE_TYPE, getComponenentUri(probeConfig, PROBE_ACTION_REGISTER_PASSIVE));
     scheduler.cancel(PROBE_TYPE, getComponenentUri(probeConfig, PROBE_ACTION_UNREGISTER_PASSIVE));
+
+    // Set expId back to 0
+    spHandler.setExpId(probeConfig.toString(), 0);
   }
 
   ////////////////////////////////////////////////////
@@ -800,177 +814,5 @@ public class SCDCManager extends FunfManager {
     // This allows separate probes if required
     // Allows creation of database services to be determined by pipeline
   }
-
-//  private static final String
-//          PROBE_TYPE = "funf/probe",
-//          PIPELINE_TYPE = "funf/pipeline";
-//
-//  private static final String
-//          DISABLED_PIPELINE_LIST = "__DISABLED__";
-//
-//  private static final String
-//          PROBE_ACTION_REGISTER = "register",
-//          PROBE_ACTION_UNREGISTER = "unregister",
-//          PROBE_ACTION_REGISTER_PASSIVE = "register-passive",
-//          PROBE_ACTION_UNREGISTER_PASSIVE = "unregister-passive";
-//
-//  private Handler handler;
-//  private JsonParser parser;
-//  private SharedPreferences prefs;
-//  private Map<String,Pipeline> pipelines;
-//  private Map<String,Pipeline> disabledPipelines;
-//  private Set<String> disabledPipelineNames;
-//  private Map<IJsonObject,List<DataRequestInfo>> dataRequests;
-//  private class DataRequestInfo {
-//    private DataListener listener;
-//    private Schedule schedule;
-//    private BigDecimal lastSatisfied;
-//    private JsonElement checkpoint;
-//  }
-//
-//  @Override
-//  public void onCreate() {
-//    super.onCreate();
-//  }
-//
-//  @Override
-//  public void onDestroy() {
-//    super.onDestroy();
-//  }
-//
-//  @Override
-//  public int onStartCommand(Intent intent, int flags, int startId) {
-//    String action = intent.getAction();
-//    if (action == null || ACTION_KEEP_ALIVE.equals(action)) {
-//      // Does nothing, but wakes up SCDCManager
-//    } else if (ACTION_INTERNAL.equals(action)) {
-//      String type = intent.getType();
-//      Uri componentUri = intent.getData();
-//      if (PROBE_TYPE.equals(type)) {
-//        // Handle probe action
-//        IJsonObject probeConfig = (IJsonObject)JsonUtils.immutable(parser.parse(getComponentName(componentUri)));
-//        String probeAction = getAction(componentUri);
-//
-//        BigDecimal now = TimeUtil.getTimestamp();
-//        final Probe probe = getGson().fromJson(probeConfig, Probe.class);
-//        List<DataRequestInfo> requests = dataRequests.get(probeConfig);
-//
-//        // TODO: Need to allow for some listeners to be registered and unregistered on different schedules
-//        if (probe != null) {
-//          if (PROBE_ACTION_REGISTER.equals(probeAction)) {
-//            if (requests != null) {
-//              List<DataListener> listenersThatNeedData = new ArrayList<Probe.DataListener>();
-//              List<DataRequestInfo> infoForListenersThatNeedData = new ArrayList<SCDCManager.DataRequestInfo>();
-//              for (DataRequestInfo requestInfo : requests) {
-//                BigDecimal interval = requestInfo.schedule.getInterval();
-//                // Compare date last satisfied to schedule interval
-//                if (requestInfo.lastSatisfied == null || now.subtract(requestInfo.lastSatisfied).compareTo(interval) >= 0) {
-//                  listenersThatNeedData.add(requestInfo.listener);
-//                  infoForListenersThatNeedData.add(requestInfo);
-//                }
-//              }
-//
-//
-//              final DataListener[] listenerArray = new DataListener[listenersThatNeedData.size()];
-//              listenersThatNeedData.toArray(listenerArray);
-//              if (listenerArray.length > 0) {
-//                if (probe instanceof ContinuableProbe) {
-//                  // TODO: how do we take care of multiple registrants with different checkpoints
-//                  ((ContinuableProbe)probe).setCheckpoint(requests.get(0).checkpoint);
-//                }
-//                probe.registerListener(listenerArray);
-//              }
-//
-//              Log.d(LogKeys.DEBUG, "Request: " + probe.getClass().getName());
-//
-//              // Schedule unregister if continuous
-//              // TODO: do different durations for each schedule
-//              if (probe instanceof ContinuousProbe) {
-//                Schedule mergedSchedule = getMergedSchedule(infoForListenersThatNeedData);
-//                if (mergedSchedule != null) {
-//                  long duration = TimeUtil.secondsToMillis(mergedSchedule.getDuration());
-//                  Log.d(LogKeys.DEBUG, "DURATION: " + duration);
-//                  if (duration > 0) {
-//                    handler.postDelayed(new Runnable() {
-//                      @Override
-//                      public void run() {
-//                        ((ContinuousProbe) probe).unregisterListener(listenerArray);
-//                      }
-//                    }, TimeUtil.secondsToMillis(mergedSchedule.getDuration()));
-//                  }
-//                }
-//              }
-//            }
-//          } else if (PROBE_ACTION_UNREGISTER.equals(probeAction) && probe instanceof ContinuousProbe) {
-//            for (DataRequestInfo requestInfo : requests) {
-//              ((ContinuousProbe)probe).unregisterListener(requestInfo.listener);
-//            }
-//          } else if (PROBE_ACTION_REGISTER_PASSIVE.equals(probeAction) && probe instanceof PassiveProbe) {
-//            if (requests != null) {
-//              for (DataRequestInfo requestInfo : requests) {
-//                if (requestInfo.schedule.isOpportunistic()) {
-//                  ((PassiveProbe)probe).registerPassiveListener(requestInfo.listener);
-//                }
-//              }
-//            }
-//          } else if (PROBE_ACTION_UNREGISTER_PASSIVE.equals(probeAction) && probe instanceof PassiveProbe) {
-//            if (requests != null) {
-//              for (DataRequestInfo requestInfo : requests) {
-//                ((PassiveProbe)probe).unregisterPassiveListener(requestInfo.listener);
-//              }
-//            }
-//          }
-//        }
-//
-//        // TODO: Calculate new schedule for probe
-//      } else if (PIPELINE_TYPE.equals(type)) {
-//        // Handle pipeline action
-//        String pipelineName = getComponentName(componentUri);
-//        String pipelineAction = getAction(componentUri);
-//        Pipeline pipeline = pipelines.get(pipelineName);
-//        if (pipeline != null) {
-//          if (pipelineAction.equals(SCDCPipeline.ACTION_UPDATE)) {
-//            pipeline.onRun(pipelineAction, null);  // BY KILHO KIM
-//          }
-//        }
-//      }
-//
-//    }
-//    return Service.START_FLAG_RETRY; // TODO: may want the last intent always redelivered to make sure system starts up
-//  }
-//
-//  private Schedule getMergedSchedule(List<DataRequestInfo> requests) {
-//    BasicSchedule mergedSchedule = null;
-//    for (DataRequestInfo request: requests) {
-//      if (mergedSchedule == null) {
-//        mergedSchedule = new BasicSchedule(request.schedule);
-//      } else {
-//        // Min interval
-//        mergedSchedule.setInterval(mergedSchedule.getInterval().min(request.schedule.getInterval()));
-//        // Max duration
-//        mergedSchedule.setDuration(mergedSchedule.getDuration().max(request.schedule.getDuration()));
-//        // Strict if one is strict
-//        mergedSchedule.setStrict(mergedSchedule.isStrict() || request.schedule.isStrict());
-//      }
-//    }
-//    return mergedSchedule;
-//  }
-//
-//  private static String getComponentName(Uri componentUri) {
-//    return componentUri.getPath().substring(1); // Remove automatically prepended slash from beginning
-//  }
-//
-//  private static String getAction(Uri componentUri) {
-//    return componentUri.getFragment();
-//  }
-//
-//  private static Intent getFunfIntent(Context context, String type, Uri componentUri) {
-//    Intent intent = new Intent();
-//    intent.setClass(context, SCDCManager.class);
-//    intent.setPackage(context.getPackageName());
-//    intent.setAction(ACTION_INTERNAL);
-//    intent.setDataAndType(componentUri, type);
-//    return intent;
-//  }
 
 }

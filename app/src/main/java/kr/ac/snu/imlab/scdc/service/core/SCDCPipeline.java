@@ -38,6 +38,10 @@ import edu.mit.media.funf.util.StringUtil;
 import kr.ac.snu.imlab.scdc.activity.OnDataReceivedListener;
 import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
+import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
  * Created by kilho on 15. 7. 28.
@@ -75,9 +79,10 @@ public class SCDCPipeline implements Pipeline, DataListener {
   private UploadService uploader;
   // private Activity activity;
   private OnDataReceivedListener odrl;
+  private SharedPrefsHandler spHandler;
 
   private boolean enabled;
-  private FunfManager manager;
+  private SCDCManager manager;
   private SQLiteOpenHelper databaseHelper = null;
   private Looper looper;
   private Handler handler;
@@ -89,7 +94,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
       switch (msg.what) {
         case ARCHIVE:
           if (archive != null) {
-            Log.w(SCDCKeys.LogKeys.DEBUG,
+            Log.w(LogKeys.DEBUG,
                     "SCDCPipeline.Handler.Callback().handleMessage(): " +
                     "running runArchive()");
             runArchive();
@@ -97,7 +102,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
           break;
         case UPLOAD:
           if (archive != null && upload != null && uploader != null) {
-            Log.w(SCDCKeys.LogKeys.DEBUG,
+            Log.w(LogKeys.DEBUG,
                     "SCDCPipeline.Handler.Callback().handleMessage(): " +
                     "running uploader.run(archive, upload)");
             // uploader.start();
@@ -177,7 +182,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
       uploader = new UploadService(manager);
       uploader.start();
     }
-    this.manager = manager;
+    this.manager = (SCDCManager)manager;
     reloadDbHelper(manager);
     HandlerThread thread = new HandlerThread(getClass().getName());
     Log.w("DEBUG", "new thread=" + thread.getName());
@@ -185,8 +190,10 @@ public class SCDCPipeline implements Pipeline, DataListener {
     this.looper = thread.getLooper();
     this.handler = new Handler(looper, callback);
     enabled = true;
+    this.spHandler = SharedPrefsHandler.getInstance(this.manager,
+                     Config.SCDC_PREFS, Context.MODE_PRIVATE);
     for (JsonElement dataRequest : data) {
-      // Log.d(SCDCKeys.LogKeys.DEBUG, "SCDCPipeline.onCreate(): dataRequest=" + dataRequest.toString());
+      // Log.d(LogKeys.DEBUG, "SCDCPipeline.onCreate(): dataRequest=" + dataRequest.toString());
       manager.requestData(this, dataRequest);
     }
     for (Map.Entry<String, Schedule> schedule : schedules.entrySet()) {
@@ -200,7 +207,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
    */
   public void setDataReceivedListener(OnDataReceivedListener listener) {
     odrl = listener;
-    Log.d(SCDCKeys.LogKeys.DEBUG, "SCDCPipeline.setDataReceivedListener(): odrl=" + odrl);
+    Log.d(LogKeys.DEBUG, "SCDCPipeline.setDataReceivedListener(): odrl=" + odrl);
   }
 
   @Override
@@ -366,9 +373,17 @@ public class SCDCPipeline implements Pipeline, DataListener {
 
   @Override
   public void onDataReceived(IJsonObject probeConfig, IJsonObject data) {
+    // Add expId to the original data
+    JsonObject dataClone = data.getAsJsonObject();
+    dataClone.addProperty(SharedPrefs.LABEL_EXP_ID,
+                                  spHandler.getExpId(probeConfig.toString()));
+    IJsonObject dataWithExpId = new IJsonObject(dataClone);
+    Log.d(LogKeys.DEBUG, "SCDCPipeline.onDataReceived(): probeConfig=" + probeConfig.toString() +
+            ", data=" + dataWithExpId.toString());
     JsonObject record = new JsonObject();
     record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
-    record.add("value", data);
+    // add dataWithExpId instead of the original data
+    record.add("value", dataWithExpId);
     Message message = Message.obtain(handler, DATA, record);
     if (probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString()
             .equals(LabelProbe.class.getName())) {

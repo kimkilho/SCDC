@@ -85,6 +85,16 @@ public class SharedPrefsHandler {
     }
   }
 
+  // Methods to track expId's for each label
+  public int getExpId(String probeConfig) {
+    return prefs.getInt(SharedPrefs.LABEL_EXP_ID + probeConfig, 0);
+  }
+
+  public void setExpId(String componentString, int expId) {
+    prefs.edit().putInt(SharedPrefs.LABEL_EXP_ID +
+                        componentString, expId).apply();
+  }
+
 
   // Alarm - General
   public int getGeneralRepeatType() {

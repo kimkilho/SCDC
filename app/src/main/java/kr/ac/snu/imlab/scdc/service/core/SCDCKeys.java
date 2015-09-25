@@ -40,7 +40,9 @@ public class SCDCKeys {
       DEFAULT_HOUR = "default_hour",
       IS_REMINDER_RUNNING = "is_reminder_running",
       GENERAL_REPEAT_TYPE = "general_repeat_type",
-      GENERAL_REPEAT_INTERVAL = "general_repeat_interval";
+      GENERAL_REPEAT_INTERVAL = "general_repeat_interval",
+      LABEL_EXP_ID = "expId",
+      LABEL_EXP_ID_PREFIX = "label_expId_";
   }
 
   public static interface AlarmKeys {
