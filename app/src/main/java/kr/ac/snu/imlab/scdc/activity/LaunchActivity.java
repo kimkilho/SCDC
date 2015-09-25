@@ -1,7 +1,10 @@
 package kr.ac.snu.imlab.scdc.activity;
 
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
  import android.content.ServiceConnection;
@@ -65,10 +68,11 @@ public class LaunchActivity extends ActionBarActivity
 
     @Configurable
     protected int version = 1;
-    @Configurable
-    protected FileArchive archive = null;
-    @Configurable
-    protected MultipartEntityArchive upload = null;
+//    @Configurable
+//    protected FileArchive archive = null;
+//    private SCDCUploadService uploader;
+//    @Configurable
+//    protected MultipartEntityArchive upload = null;
 
     // FIXME: The list of labels available
     @Configurable
@@ -106,8 +110,6 @@ public class LaunchActivity extends ActionBarActivity
             NetworkSettingsProbe.class,
             SystemSettingsProbe.class
     };
-
-    private SCDCUploadService uploader;
 
     private Handler handler;
     private SCDCManager funfManager = null;
@@ -384,23 +386,19 @@ public class LaunchActivity extends ActionBarActivity
               if (pipeline.getDatabaseHelper() != null) {
                 v.setEnabled(false);
 
-                Toast.makeText(getBaseContext(), "Compressing DB file. Please wait...",
-                        Toast.LENGTH_LONG).show();
-                archive = new ZipArchive(funfManager, Config.PIPELINE_NAME);
-                uploader = new SCDCUploadService(funfManager);
-                uploader.setContext(LaunchActivity.this);
-                uploader.start();
-
+//                Toast.makeText(getBaseContext(), "Compressing DB file. Please wait...",
+//                        Toast.LENGTH_LONG).show();
                 SQLiteDatabase db = pipeline.getWritableDb();
                 Log.w(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
                 File dbFile = new File(db.getPath());
                 db.close();
-                archive.add(dbFile);
-                upload = new MultipartEntityArchive(funfManager,
-                        Config.DEFAULT_UPLOAD_URL, LaunchActivity.this);
-                uploader.run(archive, upload);
 
-                // uploader.stop();
+                // Asynchronously archive and upload dbFile
+                archiveAndUploadDatabase(dbFile);
+
+//                if (dbFile.exists()) {
+//                  archive.remove(dbFile);
+//                }
 
                 // Wait 1 second for archive to finish, then refresh the UI
                 // (Note: this is kind of a hack since archiving is seamless
@@ -532,6 +530,43 @@ public class LaunchActivity extends ActionBarActivity
       intent.putExtra(LabelKeys.PIPELINE_KEY, isPipelineEnabled);
 
       return intent;
+    }
+
+    private void archiveAndUploadDatabase(final File dbFile) {
+      new AsyncTask<File, Void, Boolean>() {
+
+        private ProgressDialog progressDialog;
+        private FileArchive archive;
+        private MultipartEntityArchive upload;
+        private SCDCUploadService uploader;
+
+        @Override
+        protected void onPreExecute() {
+          progressDialog = new ProgressDialog(LaunchActivity.this);
+          progressDialog.setMessage("Archiving...");
+          progressDialog.setCancelable(false);
+          progressDialog.show();
+
+          archive = new ZipArchive(funfManager, Config.PIPELINE_NAME);
+          upload = new MultipartEntityArchive(funfManager,
+                       Config.DEFAULT_UPLOAD_URL, LaunchActivity.this);
+          uploader = new SCDCUploadService(funfManager);
+          uploader.setContext(LaunchActivity.this);
+          uploader.start();
+        }
+
+        @Override
+        protected Boolean doInBackground(File... files) {
+          return archive.add(files[0]);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean isSuccess) {
+          progressDialog.dismiss();
+          uploader.run(archive, upload);
+          // uploader.stop();
+        }
+      }.execute(dbFile);
     }
 
 
