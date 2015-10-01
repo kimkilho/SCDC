@@ -12,6 +12,7 @@ public class SCDCKeys {
       DEFAULT_USERNAME = "imlab_user",
       DEFAULT_UPLOAD_URL = "http://imlab-ws2.snu.ac.kr:8888/data/",
       // Update URL for publish
+      DEFAULT_USERINFO_URL = "http://imlab-ws2.snu.ac.kr:8888/userinfo/",
       DEFAULT_UPDATE_URL_PUBLISH = "http://imlab-ws2.snu.ac.kr:8888/conf/",
       // Update URL for debug
       DEFAULT_UPDATE_URL_DEBUG = "http://imlab-ws2.snu.ac.kr:7000/config";
@@ -22,8 +23,9 @@ public class SCDCKeys {
 
   public static interface SharedPrefs {
     public static final String
-      USERNAME = "userName",
+      USERNAME = "username",
       IS_FEMALE = "isFemale",
+      DEVICE_ID = "deviceId",
       NUM_LABELS = "total_num_labels",
       LABEL_NAME_PREFIX = "label_name_",
       LABEL_IS_COMPLETED_PREFIX = "label_is_completed_",

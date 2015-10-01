@@ -2,10 +2,27 @@ package kr.ac.snu.imlab.scdc.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
+import android.provider.Settings.Secure;
+import android.util.Log;
+import android.widget.EditText;
+import android.widget.RadioButton;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlarmKeys;
+import kr.ac.snu.imlab.scdc.R;
 
 /**
  * Created by kilho on 15. 8. 5.
@@ -15,6 +32,8 @@ public class SharedPrefsHandler {
   private Context context;
   private SharedPreferences prefs;
   private static SharedPrefsHandler instance;
+  private String deviceId;
+  private String userinfoUrl;
 
   private SharedPrefsHandler() {
   }
@@ -22,6 +41,12 @@ public class SharedPrefsHandler {
   private SharedPrefsHandler(Context context, String name, int mode) {
     this.context = context;
     this.prefs = context.getSharedPreferences(name, mode);
+    this.deviceId = Secure.getString(this.context.getContentResolver(),
+            Secure.ANDROID_ID);
+    this.userinfoUrl = Config.DEFAULT_USERINFO_URL;
+    Log.d(LogKeys.DEBUG,
+      "SharedPrefsHandler.SharedPrefsHandler(): deviceId=" + this.deviceId);
+    new GetPrefsFromServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
   public static synchronized SharedPrefsHandler
@@ -32,11 +57,35 @@ public class SharedPrefsHandler {
 
   // User info
   public String getUsername() {
+//    try {
+      // DEFAULT_USERINFO_URL = "http://imlab-ws2.snu.ac.kr:8888/userinfo/",
+//      String response = HttpUtil.sendGet(userinfoUrl + deviceId + "/");
+//      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): response=" + response);
+//      JsonObject userInfo = new JsonParser().parse(response).getAsJsonObject();
+//      // prefs.edit().putString(SharedPrefs.USERNAME,
+//              // userInfo.get(SharedPrefs.USERNAME).toString()).apply();
+//      return userInfo.get(SharedPrefs.USERNAME).toString();
+//    } catch (Exception e) {
+//      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): error=", e);
+//      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
+////    } finally {
+////      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
+//    }
     return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
   }
 
   public void setUsername(String username) {
+//    try {
+//      List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+//      nameValuePairs.add(new BasicNameValuePair(SharedPrefs.USERNAME, username));
+//      String response =
+//        HttpUtil.sendPost(userinfoUrl + deviceId + "/", nameValuePairs);
+//      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.setUsername(): response=" + response);
+//    } catch (Exception e) {
+//      prefs.edit().putString(SharedPrefs.USERNAME, username).apply();
+//    }
     prefs.edit().putString(SharedPrefs.USERNAME, username).apply();
+    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
   public boolean getIsFemale() {
@@ -45,6 +94,7 @@ public class SharedPrefsHandler {
 
   public void setIsFemale(boolean isFemale) {
     prefs.edit().putBoolean(SharedPrefs.IS_FEMALE, isFemale).apply();
+    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
 
@@ -66,6 +116,7 @@ public class SharedPrefsHandler {
 
   public void setSensorId(int sensorId) {
     prefs.edit().putInt(SharedPrefs.LABEL_SENSOR_ID, sensorId).apply();
+    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
 
@@ -258,4 +309,84 @@ public class SharedPrefsHandler {
     prefs.edit().putBoolean(SharedPrefs.IS_REMINDER_RUNNING,
                             isRunning).apply();
   }
+
+
+  private class GetPrefsFromServerTask extends AsyncTask<String, Void, Boolean> {
+    @Override
+    protected Boolean doInBackground(String... urls) {
+      try {
+        String response = HttpUtil.sendGet(urls[0]);
+        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.GetPrefsFromServerTask" +
+                              ".doInBackground(): response=" + response);
+        JsonObject userInfo = new JsonParser().parse(response).getAsJsonObject();
+        String newUsername = userInfo.get(SharedPrefs.USERNAME).getAsString();
+        int newIsFemale = userInfo.get(SharedPrefs.IS_FEMALE).getAsInt();
+        int newSensorId = userInfo.get(SharedPrefs.LABEL_SENSOR_ID).getAsInt();
+
+        int currIsFemale = getIsFemale() ? 1 : 0;
+
+        if (!getUsername().equals(newUsername)) setUsername(newUsername);
+        if (currIsFemale != newIsFemale) setIsFemale(!getIsFemale());
+        if (getSensorId() != newSensorId) setSensorId(newSensorId);
+
+        return true;
+
+      } catch (Exception e) {
+        Log.e(LogKeys.DEBUG, "SharedPrefsHandler.GetPrefsFromServerTask" +
+                              ".onPostExecute(): error=", e);
+        return false;
+      }
+    }
+
+    @Override
+    protected void onPostExecute(Boolean result) {
+      // Change UI of LaunchActivity
+      EditText username;
+      RadioButton isMaleRadioButton, isFemaleRadioButton;
+      if (context instanceof LaunchActivity) {
+        username = (EditText)((LaunchActivity)context)
+                .findViewById(R.id.user_name);
+        username.setText(getUsername());
+        isMaleRadioButton = (RadioButton)((LaunchActivity)context).findViewById(R.id.radio_male);
+        isFemaleRadioButton = (RadioButton)((LaunchActivity)context).findViewById(R.id.radio_female);
+        isMaleRadioButton.setChecked(!getIsFemale());
+        isFemaleRadioButton.setChecked(getIsFemale());
+      }
+      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.GetPrefsFromServerTask" +
+                            ".onPostExecute(): get prefs from server complete");
+    }
+  }
+
+  private class SetPrefsToServerTask extends AsyncTask<String, Void, Boolean> {
+    @Override
+    protected Boolean doInBackground(String... urls) {
+      try {
+        List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+        nameValuePairs.add(new BasicNameValuePair(SharedPrefs.USERNAME,
+                                                  getUsername()));
+        nameValuePairs.add(new BasicNameValuePair(SharedPrefs.DEVICE_ID,
+                                              deviceId));
+        int currIsFemale = getIsFemale() ? 1 : 0;
+        nameValuePairs.add(new BasicNameValuePair(SharedPrefs.IS_FEMALE,
+                                              String.valueOf(currIsFemale)));
+        nameValuePairs.add(new BasicNameValuePair(SharedPrefs.LABEL_SENSOR_ID,
+                                              String.valueOf(getSensorId())));
+        String response = HttpUtil.sendPost(urls[0], nameValuePairs);
+        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.SetPrefsToServerTask" +
+                              ".doInBackground(): response=" + response);
+        return true;
+      } catch (Exception e) {
+        Log.e(LogKeys.DEBUG, "SharedPrefsHandler.SetPrefsToServerTask" +
+                              ".onPostExecute(): error=", e);
+        return false;
+      }
+    }
+
+    @Override
+    protected void onPostExecute(Boolean result) {
+      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.SetPrefsToServerTask" +
+                            ".onPostExecute(): set prefs to server complete");
+    }
+  }
+
 }
