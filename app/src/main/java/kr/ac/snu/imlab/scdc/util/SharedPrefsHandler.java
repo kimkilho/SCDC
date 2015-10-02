@@ -34,7 +34,7 @@ public class SharedPrefsHandler {
   private static SharedPrefsHandler instance;
   private String deviceId;
   private String userinfoUrl;
-  private boolean updated;
+  private static boolean updated = false;
 
   private SharedPrefsHandler() {
   }
@@ -45,13 +45,14 @@ public class SharedPrefsHandler {
     this.deviceId = Secure.getString(this.context.getContentResolver(),
             Secure.ANDROID_ID);
     this.userinfoUrl = Config.DEFAULT_USERINFO_URL;
-    this.updated = false;
     Log.d(LogKeys.DEBUG,
       "SharedPrefsHandler.SharedPrefsHandler(): deviceId=" + this.deviceId);
-    try {
-      this.updated = new GetPrefsFromServerTask().execute(userinfoUrl + deviceId + "/").get();
-    } catch (Exception e) {
-      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.SharedPrefsHandler(): error=", e);
+    if (!updated) {
+      try {
+        this.updated = new GetPrefsFromServerTask().execute(userinfoUrl + deviceId + "/").get();
+      } catch (Exception e) {
+        Log.e(LogKeys.DEBUG, "SharedPrefsHandler.SharedPrefsHandler(): error=", e);
+      }
     }
   }
 
@@ -87,7 +88,9 @@ public class SharedPrefsHandler {
 ////    } finally {
 ////      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
 //    }
+    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): updated=" + updated);
     try {
+      // Wait until the SharedPrefs is synchronized with the server side
       while (!updated) {
 //        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): sleeping");
         Thread.sleep(100);
@@ -114,6 +117,8 @@ public class SharedPrefsHandler {
   }
 
   public boolean getIsFemale() {
+    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): updated=" + updated);
+    // Wait until the SharedPrefs is synchronized with the server side
     try {
       while (!updated) {
 //        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): sleeping");
@@ -145,6 +150,8 @@ public class SharedPrefsHandler {
 
   // Methods to track sensorId's for each sensor switch off-->on
   public int getSensorId() {
+    // Wait until the SharedPrefs is synchronized with the server side
+    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): updated=" + updated);
     try {
       while (!updated) {
 //        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): sleeping");
