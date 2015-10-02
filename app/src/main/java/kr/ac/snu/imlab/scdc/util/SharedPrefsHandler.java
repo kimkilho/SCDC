@@ -34,6 +34,7 @@ public class SharedPrefsHandler {
   private static SharedPrefsHandler instance;
   private String deviceId;
   private String userinfoUrl;
+  private boolean updated;
 
   private SharedPrefsHandler() {
   }
@@ -44,9 +45,14 @@ public class SharedPrefsHandler {
     this.deviceId = Secure.getString(this.context.getContentResolver(),
             Secure.ANDROID_ID);
     this.userinfoUrl = Config.DEFAULT_USERINFO_URL;
+    this.updated = false;
     Log.d(LogKeys.DEBUG,
       "SharedPrefsHandler.SharedPrefsHandler(): deviceId=" + this.deviceId);
-    new GetPrefsFromServerTask().execute(userinfoUrl + deviceId + "/");
+    try {
+      this.updated = new GetPrefsFromServerTask().execute(userinfoUrl + deviceId + "/").get();
+    } catch (Exception e) {
+      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.SharedPrefsHandler(): error=", e);
+    }
   }
 
   public static synchronized SharedPrefsHandler
@@ -54,6 +60,16 @@ public class SharedPrefsHandler {
     instance = new SharedPrefsHandler(context, name, mode);
     return instance;
   }
+
+  // Funf sensor
+  public boolean isSensorOn() {
+    return prefs.getBoolean(SharedPrefs.SENSOR_ON, Config.DEFAULT_SENSOR_ON);
+  }
+
+  public void setSensorOn(boolean isSensorOn) {
+    prefs.edit().putBoolean(SharedPrefs.SENSOR_ON, isSensorOn).apply();
+  }
+
 
   // User info
   public String getUsername() {
@@ -71,7 +87,16 @@ public class SharedPrefsHandler {
 ////    } finally {
 ////      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
 //    }
-    return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
+    try {
+      while (!updated) {
+//        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): sleeping");
+        Thread.sleep(100);
+      }
+      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
+    } catch (InterruptedException e) {
+      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): error=", e);
+      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
+    }
   }
 
   public void setUsername(String username) {
@@ -89,7 +114,16 @@ public class SharedPrefsHandler {
   }
 
   public boolean getIsFemale() {
-    return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
+    try {
+      while (!updated) {
+//        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): sleeping");
+        Thread.sleep(100);
+      }
+      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
+    } catch (InterruptedException e) {
+      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): error=", e);
+      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
+    }
   }
 
   public void setIsFemale(boolean isFemale) {
@@ -111,7 +145,16 @@ public class SharedPrefsHandler {
 
   // Methods to track sensorId's for each sensor switch off-->on
   public int getSensorId() {
-    return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
+    try {
+      while (!updated) {
+//        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): sleeping");
+        Thread.sleep(100);
+      }
+      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
+    } catch (InterruptedException e) {
+      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): error=", e);
+      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
+    }
   }
 
   public void setSensorId(int sensorId) {
@@ -131,7 +174,7 @@ public class SharedPrefsHandler {
 
   public String getLabelName(int labelId) {
     return prefs.getString(SharedPrefs.LABEL_NAME_PREFIX +
-                           String.valueOf(labelId), null);
+            String.valueOf(labelId), null);
   }
 
   public void setLabelName(int labelId, String labelName) {
@@ -141,12 +184,12 @@ public class SharedPrefsHandler {
 
   public long getStartLoggingTime(int labelId) {
     return prefs.getLong(SharedPrefs.LABEL_START_LOGGING_TIME_PREFIX +
-                         String.valueOf(labelId), -1);
+            String.valueOf(labelId), -1);
   }
 
   public void setStartLoggingTime(int labelId, long startLoggingTime) {
     prefs.edit().putLong(SharedPrefs.LABEL_START_LOGGING_TIME_PREFIX +
-                         String.valueOf(labelId), startLoggingTime).apply();
+            String.valueOf(labelId), startLoggingTime).apply();
   }
 
   public boolean getIsLogged(int labelId) {
@@ -185,7 +228,7 @@ public class SharedPrefsHandler {
   // Alarm - Labels
   public boolean getIsCompleted(int labelId) {
     return prefs.getBoolean(SharedPrefs.LABEL_IS_COMPLETED_PREFIX +
-                            String.valueOf(labelId), true);
+            String.valueOf(labelId), true);
   }
 
   public void setIsCompleted(int labelId, boolean isCompleted) {
@@ -231,7 +274,7 @@ public class SharedPrefsHandler {
 
   public int getRepeatType(int labelId) {
     return prefs.getInt(SharedPrefs.LABEL_REPEAT_TYPE_PREFIX +
-            String.valueOf(labelId),
+                    String.valueOf(labelId),
             Integer.parseInt(AlarmKeys.DEFAULT_REPEAT_TYPE));
   }
 
@@ -245,7 +288,7 @@ public class SharedPrefsHandler {
 
   public int getRepeatInterval(int labelId) {
     return prefs.getInt(SharedPrefs.LABEL_REPEAT_INTERVAL_PREFIX +
-            String.valueOf(labelId),
+                    String.valueOf(labelId),
             Integer.parseInt(AlarmKeys.DEFAULT_REPEAT_INTERVAL));
   }
 
@@ -261,8 +304,8 @@ public class SharedPrefsHandler {
   // FIXME:
   public long getDateDue(int labelId) {
     return prefs.getLong(SharedPrefs.LABEL_DATE_DUE_PREFIX +
-                         String.valueOf(labelId),
-                         Long.parseLong(AlarmKeys.DEFAULT_DATE_DUE));
+                    String.valueOf(labelId),
+            Long.parseLong(AlarmKeys.DEFAULT_DATE_DUE));
   }
 
   public void setDateDue(int labelId, long dateDue) {
@@ -286,7 +329,7 @@ public class SharedPrefsHandler {
   // for reminder
   public String getReminderTime() {
     return prefs.getString(SharedPrefs.REMINDER_TIME,
-                           AlarmKeys.DEFAULT_REMINDER_TIME);
+            AlarmKeys.DEFAULT_REMINDER_TIME);
   }
 
   // for notification
@@ -297,7 +340,7 @@ public class SharedPrefsHandler {
   // for time settings
   public String getDefaultHour() {
     return prefs.getString(SharedPrefs.DEFAULT_HOUR,
-                           AlarmKeys.DEFAULT_HOUR_VALUE);
+            AlarmKeys.DEFAULT_HOUR_VALUE);
   }
 
   // Save reminderToggleButton state
@@ -323,11 +366,19 @@ public class SharedPrefsHandler {
         int newIsFemale = userInfo.get(SharedPrefs.IS_FEMALE).getAsInt();
         int newSensorId = userInfo.get(SharedPrefs.LABEL_SENSOR_ID).getAsInt();
 
-        int currIsFemale = getIsFemale() ? 1 : 0;
+        String currUsername = prefs.getString(SharedPrefs.USERNAME,
+                                              Config.DEFAULT_USERNAME);
+        boolean currIsFemale =
+          prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
+        int currSensorId = prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
 
-        if (!getUsername().equals(newUsername)) setUsername(newUsername);
-        if (currIsFemale != newIsFemale) setIsFemale(!getIsFemale());
-        if (getSensorId() != newSensorId) setSensorId(newSensorId);
+        if (!currUsername.equals(newUsername))
+          prefs.edit().putString(SharedPrefs.USERNAME, newUsername).apply();
+        if ((currIsFemale ? 1 : 0) != newIsFemale)
+          prefs.edit().putBoolean(SharedPrefs.IS_FEMALE,
+                                  (newIsFemale == 1)).apply();
+        if (currSensorId != newSensorId)
+          prefs.edit().putInt(SharedPrefs.LABEL_SENSOR_ID, newSensorId).apply();
 
         return true;
 
@@ -340,6 +391,8 @@ public class SharedPrefsHandler {
 
     @Override
     protected void onPostExecute(Boolean result) {
+      // updated = result;
+      /*
       // Change UI of LaunchActivity
       EditText username;
       RadioButton isMaleRadioButton, isFemaleRadioButton;
@@ -352,6 +405,7 @@ public class SharedPrefsHandler {
         isMaleRadioButton.setChecked(!getIsFemale());
         isFemaleRadioButton.setChecked(getIsFemale());
       }
+      */
       Log.d(LogKeys.DEBUG, "SharedPrefsHandler.GetPrefsFromServerTask" +
                             ".onPostExecute(): get prefs from server complete");
     }
@@ -361,16 +415,22 @@ public class SharedPrefsHandler {
     @Override
     protected Boolean doInBackground(String... urls) {
       try {
+        String currUsername = prefs.getString(SharedPrefs.USERNAME,
+                Config.DEFAULT_USERNAME);
+        boolean currIsFemale =
+                prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
+
+        int currSensorId = prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
+
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-        nameValuePairs.add(new BasicNameValuePair(SharedPrefs.USERNAME,
-                                                  getUsername()));
         nameValuePairs.add(new BasicNameValuePair(SharedPrefs.DEVICE_ID,
-                                              deviceId));
-        int currIsFemale = getIsFemale() ? 1 : 0;
+                                                  deviceId));
+        nameValuePairs.add(new BasicNameValuePair(SharedPrefs.USERNAME,
+                                                  currUsername));
         nameValuePairs.add(new BasicNameValuePair(SharedPrefs.IS_FEMALE,
-                                              String.valueOf(currIsFemale)));
+                              String.valueOf((currIsFemale) ? 1 : 0)));
         nameValuePairs.add(new BasicNameValuePair(SharedPrefs.LABEL_SENSOR_ID,
-                                              String.valueOf(getSensorId())));
+                                              String.valueOf(currSensorId)));
         String response = HttpUtil.sendPost(urls[0], nameValuePairs);
         Log.d(LogKeys.DEBUG, "SharedPrefsHandler.SetPrefsToServerTask" +
                               ".doInBackground(): response=" + response);

@@ -146,7 +146,8 @@ public class LaunchActivity extends ActionBarActivity
             funfManager = ((SCDCManager.LocalBinder) service).getManager();
             pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
                                           (Config.PIPELINE_NAME);
-            Log.d(SCDCKeys.LogKeys.DEBUG, "pipeline.getName()=" +
+            Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.funfManagerConn" +
+                    ".onServiceConnected(): pipeline.getName()=" +
               pipeline.getName() + ", pipeline.isEnabled()=" + pipeline.isEnabled() +
               ", pipeline.getDatabaseHelper()=" + pipeline.getDatabaseHelper());
             pipeline.setDataReceivedListener(LaunchActivity.this);
@@ -171,19 +172,34 @@ public class LaunchActivity extends ActionBarActivity
               }
             });
 
+            // Set UI ready to use, by enabling buttons
+            // IMPORTANT: setChecked method should appear before
+            //            setOnCheckedChangeListener
+            enabledToggleButton.setEnabled(true);
+            enabledToggleButton.setChecked(spHandler.isSensorOn());
+            boolean areButtonsOn =
+                    (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+            archiveButton.setEnabled(areButtonsOn);
+            truncateDataButton.setEnabled(areButtonsOn);
+
 
             // This checkbox enables or disables the pipeline
             enabledToggleButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     if (funfManager != null) {
+                        spHandler.setSensorOn(isChecked);
+
                         if (isChecked) {
+                          Log.d(LogKeys.DEBUG, "LaunchActivity.enabledToggleButton" +
+                                  ".onCheckedChanged(): isChecked=" + isChecked);
                             funfManager.enablePipeline(pipeline.getName());
                             pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
                                           (Config.PIPELINE_NAME);
-                            Log.d(SCDCKeys.LogKeys.DEBUG, "pipeline.getName()=" +
-                                    pipeline.getName() + ", pipeline.isEnabled()=" + pipeline.isEnabled() +
-                                    ", pipeline.getDatabaseHelper()=" + pipeline.getDatabaseHelper());
+//                            Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.funfManagerConn" +
+//                    ".onServiceConnected(): pipeline.getName()=" +
+//                                    pipeline.getName() + ", pipeline.isEnabled()=" + pipeline.isEnabled() +
+//                                    ", pipeline.getDatabaseHelper()=" + pipeline.getDatabaseHelper());
                             pipeline.setDataReceivedListener(LaunchActivity.this);
                               // NOTE: funfManager automatically reloads the scdc pipeline
                               //       with newly updated schedules
@@ -219,6 +235,8 @@ public class LaunchActivity extends ActionBarActivity
                             Toast.LENGTH_SHORT).show();
 
                         } else {
+                          Log.d(LogKeys.DEBUG, "LaunchActivity.enabledToggleButton" +
+                                  ".onCheckedChanged(): isChecked=" + isChecked);
                             // Dynamically refresh the ListView items
                             // by calling mAdapter.getView() again.
                             mAdapter.notifyDataSetChanged();
@@ -272,14 +290,6 @@ public class LaunchActivity extends ActionBarActivity
                 }
               }
             });
-
-            // Set UI ready to use, by enabling buttons
-            enabledToggleButton.setEnabled(true);
-            enabledToggleButton.setChecked(pipeline.isEnabled());
-            boolean areButtonsOn =
-              (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
-            archiveButton.setEnabled(areButtonsOn);
-            truncateDataButton.setEnabled(areButtonsOn);
 
             // Always enable reminderToggleButton
             // either enabledToggleButton is checked or not

@@ -18,11 +18,13 @@ public class SCDCKeys {
       DEFAULT_UPDATE_URL_DEBUG = "http://imlab-ws2.snu.ac.kr:7000/config";
 
     public static final boolean
+      DEFAULT_SENSOR_ON = false,
       DEFAULT_IS_FEMALE = false;
   }
 
   public static interface SharedPrefs {
     public static final String
+      SENSOR_ON = "sensor_on",
       USERNAME = "username",
       IS_FEMALE = "isFemale",
       DEVICE_ID = "deviceId",
