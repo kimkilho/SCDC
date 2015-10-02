@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">SCDC v0.3</string>
+    <string name="app_name">SCDC v0.4</string>
     <string name="action_settings">Settings</string>
     <string name="default_config">{ @type: edu.mit.media.funf.journal.JournalPipeline, name: default, version: 1, data: [ {@type: edu.mit.media.funf.probe.builtin.SimpleLocationProbe}, {@type: edu.mit.media.funf.probe.builtin.ActivityProbe}, {@type: edu.mit.media.funf.probe.builtin.AndroidInfoProbe}, {@type: edu.mit.media.funf.probe.builtin.ApplicationsProbe}, {@type: edu.mit.media.funf.probe.builtin.BatteryProbe}, {@type: edu.mit.media.funf.probe.builtin.BluetoothProbe}, {@type: edu.mit.media.funf.probe.builtin.CellTowerProbe}, {@type: edu.mit.media.funf.probe.builtin.HardwareInfoProbe}, {@type: edu.mit.media.funf.probe.builtin.ProximitySensorProbe}, {@type: edu.mit.media.funf.probe.builtin.RunningApplicationsProbe}, {@type: edu.mit.media.funf.probe.builtin.ScreenProbe}, {@type: edu.mit.media.funf.probe.builtin.TimeOffsetProbe}, {@type: edu.mit.media.funf.probe.builtin.WifiProbe} ] }</string>
     <string name="all_probes_config">{ @type: edu.mit.media.funf.journal.JournalPipeline, name: default, version: 1, data: [ {@type: edu.mit.media.funf.probe.builtin.AccelerometerFeaturesProbe}, {@type: edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.AccountsProbe}, {@type: edu.mit.media.funf.probe.builtin.ActivityProbe}, {@type: edu.mit.media.funf.probe.builtin.AndroidInfoProbe}, {@type: edu.mit.media.funf.probe.builtin.ApplicationsProbe}, {@type: edu.mit.media.funf.probe.builtin.AudioFeaturesProbe}, {@type: edu.mit.media.funf.probe.builtin.AudioMediaProbe}, {@type: edu.mit.media.funf.probe.builtin.BatteryProbe}, {@type: edu.mit.media.funf.probe.builtin.BluetoothProbe}, {@type: edu.mit.media.funf.probe.builtin.BrowserBookmarksProbe}, {@type: edu.mit.media.funf.probe.builtin.BrowserSearchesProbe}, {@type: edu.mit.media.funf.probe.builtin.CallLogProbe}, {@type: edu.mit.media.funf.probe.builtin.CellTowerProbe}, {@type: edu.mit.media.funf.probe.builtin.ContactProbe}, {@type: edu.mit.media.funf.probe.builtin.GravitySensorProbe}, {@type: edu.mit.media.funf.probe.builtin.GyroscopeSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.HardwareInfoProbe}, {@type: edu.mit.media.funf.probe.builtin.ImageMediaProbe}, {@type: edu.mit.media.funf.probe.builtin.LightSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.LinearAccelerationSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.LocationProbe}, {@type: edu.mit.media.funf.probe.builtin.MagneticFieldSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.OrientationSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.PressureSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.ProcessStatisticsProbe}, {@type: edu.mit.media.funf.probe.builtin.ProximitySensorProbe}, {@type: edu.mit.media.funf.probe.builtin.RotationVectorSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.RunningApplicationsProbe}, {@type: edu.mit.media.funf.probe.builtin.ScreenProbe}, {@type: edu.mit.media.funf.probe.builtin.ServicesProbe}, {@type: edu.mit.media.funf.probe.builtin.SimpleLocationProbe}, {@type: edu.mit.media.funf.probe.builtin.SmsProbe}, {@type: edu.mit.media.funf.probe.builtin.TelephonyProbe}, {@type: edu.mit.media.funf.probe.builtin.TemperatureSensorProbe}, {@type: edu.mit.media.funf.probe.builtin.TimeOffsetProbe}, {@type: edu.mit.media.funf.probe.builtin.VideoMediaProbe}, {@type: edu.mit.media.funf.probe.builtin.WifiProbe} ] }</string>
@@ -87,8 +87,19 @@
     <string name="label_alarm_content_info">Reminder</string>
     <string name="general_alarm_name">general</string>
     <string name="go_back_bt">Go back</string>
+    <string name="archive_bt">Upload data to server</string>
+    <string name="truncate_bt">Truncate</string>
+    <string name="sensor_bt">Sensor</string>
+    <string name="push_bt">Push</string>
+    <string name="user_name_tv">Name</string>
+    <string name="radio_female">Female</string>
+    <string name="radio_male">Male</string>
+    <string name="data_count_none_tv">None</string>
     <string name="minutes">minutes</string>
+    <string name="save">Save</string>
+    <string name="edit">Edit</string>
     <string name="archive_message">Archiving...</string>
     <string name="truncate_message">Truncating...</string>
+    <string name="truncate_complete_message">Dropped and re-created data table.</string>
 
 </resources>

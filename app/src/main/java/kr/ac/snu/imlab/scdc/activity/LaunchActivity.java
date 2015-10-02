@@ -70,6 +70,7 @@ public class LaunchActivity extends ActionBarActivity
     protected int version = 1;
 //    @Configurable
 //    protected FileArchive archive = null;
+
 //    private SCDCUploadService uploader;
 //    @Configurable
 //    protected MultipartEntityArchive upload = null;
@@ -213,6 +214,9 @@ public class LaunchActivity extends ActionBarActivity
 
                           // Increment sensorId by 1
                           spHandler.setSensorId(spHandler.getSensorId() + 1);
+                          Toast.makeText(LaunchActivity.this,
+                            SCDCKeys.SharedPrefs.LABEL_SENSOR_ID + ": " + spHandler.getSensorId(),
+                            Toast.LENGTH_SHORT).show();
 
                         } else {
                             // Dynamically refresh the ListView items
@@ -329,7 +333,7 @@ public class LaunchActivity extends ActionBarActivity
                     isMaleRadioButton.setEnabled(true);
                     isFemaleRadioButton.setEnabled(true);
                     isEdited = true;
-                    userNameButton.setText("Save");
+                    userNameButton.setText(getString(R.string.save));
                     // If it has just finished being edited:
                 } else {
                   spHandler.setUsername(userName.getText().toString());
@@ -339,7 +343,7 @@ public class LaunchActivity extends ActionBarActivity
                   isMaleRadioButton.setEnabled(false);
                   isFemaleRadioButton.setEnabled(false);
                   isEdited = false;
-                  userNameButton.setText("Modify");
+                  userNameButton.setText(getString(R.string.edit));
                 }
             }
         });
@@ -389,7 +393,7 @@ public class LaunchActivity extends ActionBarActivity
 //                Toast.makeText(getBaseContext(), "Compressing DB file. Please wait...",
 //                        Toast.LENGTH_LONG).show();
                 SQLiteDatabase db = pipeline.getWritableDb();
-                Log.w(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
+                Log.d(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
                 File dbFile = new File(db.getPath());
                 db.close();
 
@@ -526,7 +530,7 @@ public class LaunchActivity extends ActionBarActivity
           progressDialog.dismiss();
           dataCountView.setText("Data size: 0.0 MB");
           updateScanCount();
-          Toast.makeText(getBaseContext(), "Dropped and re-created data table.",
+          Toast.makeText(getBaseContext(), getString(R.string.truncate_complete_message),
                   Toast.LENGTH_LONG).show();
         }
       }.execute(db);
@@ -538,7 +542,7 @@ public class LaunchActivity extends ActionBarActivity
 
     // Get intent for broadcasting current logging status of labels
     private Intent getLabelIntent(boolean isPipelineEnabled) {
-      Log.w(LogKeys.DEBUG, "LaunchActivity.getLabelIntent(): Entering " +
+      Log.d(LogKeys.DEBUG, "LaunchActivity.getLabelIntent(): Entering " +
               "getLabelIntent()");
       Intent intent = new Intent();
       intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);

@@ -23,8 +23,8 @@
                       android:layout_gravity="center_vertical"
                       android:layout_alignTop="@id/app_title"
                       android:layout_alignParentRight="true"
-                      android:textOn="Sensor"
-                      android:textOff="Sensor" />
+                      android:textOn="@string/sensor_bt"
+                      android:textOff="@string/sensor_bt" />
 
         <ToggleButton android:id="@+id/reminderToggleButton"
                       android:layout_width="wrap_content"
@@ -32,8 +32,8 @@
                       android:layout_gravity="center_vertical"
                       android:layout_alignTop="@id/app_title"
                       android:layout_toLeftOf="@id/enabledToggleButton"
-                      android:textOn="Push"
-                      android:textOff="Push" />
+                      android:textOn="@string/push_bt"
+                      android:textOff="@string/push_bt" />
       </RelativeLayout>
 
 
@@ -45,7 +45,7 @@
           android:gravity="left|center" >
 
           <TextView android:id="@+id/user_name_tv"
-              android:text="Name"
+              android:text="@string/user_name_tv"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:textSize="16sp" />
@@ -67,12 +67,12 @@
               <RadioButton android:id="@+id/radio_female"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:text="Female" />
+                   android:text="@string/radio_female" />
 
               <RadioButton android:id="@+id/radio_male"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
-                   android:text="Male" />
+                   android:text="@string/radio_male" />
 
 
           </RadioGroup>
@@ -81,7 +81,7 @@
               android:layout_alignParentRight="true"
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:text="Modify" />
+              android:text="@string/edit" />
 
       </RelativeLayout>
 
@@ -91,21 +91,21 @@
           android:gravity="left|center" >
 
         <TextView android:id="@+id/dataCountText"
-                  android:text="None"
+                  android:text="@string/data_count_none_tv"
                   android:textSize="16sp"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"/>
 
         <Button android:id="@+id/truncateDataButton"
                 android:layout_alignParentRight="true"
-                android:text="Truncate"
+                android:text="@string/truncate_bt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
       </RelativeLayout>
 
       <Button android:id="@+id/archiveButton"
-              android:text="Upload data to server"
+              android:text="@string/archive_bt"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"/>
 
