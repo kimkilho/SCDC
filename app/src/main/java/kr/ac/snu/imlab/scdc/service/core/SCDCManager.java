@@ -256,6 +256,8 @@ public class SCDCManager extends FunfManager {
     String action = intent.getAction();
     if (action == null || ACTION_KEEP_ALIVE.equals(action)) {
       // Does nothing, but wakes up SCDCManager
+    } else if (!spHandler.isSensorOn()) {
+      // Does nothing if sensor button is not on
     } else if (ACTION_INTERNAL.equals(action)) {
       String type = intent.getType();
       Uri componentUri = intent.getData();

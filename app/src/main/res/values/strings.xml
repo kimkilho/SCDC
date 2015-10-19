@@ -98,6 +98,8 @@
     <string name="minutes">minutes</string>
     <string name="save">Save</string>
     <string name="edit">Edit</string>
+    <string name="check_internet_connection_message">Please connect to network to proceed.</string>
+    <string name="get_prefs_from_server_message">Synchronizing preferences with server...</string>
     <string name="archive_message">Archiving...</string>
     <string name="truncate_message">Truncating...</string>
     <string name="truncate_complete_message">Dropped and re-created data table.</string>

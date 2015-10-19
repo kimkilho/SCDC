@@ -1,6 +1,8 @@
 package kr.ac.snu.imlab.scdc.util;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.provider.Settings.Secure;
@@ -34,7 +36,7 @@ public class SharedPrefsHandler {
   private static SharedPrefsHandler instance;
   private String deviceId;
   private String userinfoUrl;
-  private static boolean updated = false;
+  private static boolean firstrun = true;
 
   private SharedPrefsHandler() {
   }
@@ -47,9 +49,10 @@ public class SharedPrefsHandler {
     this.userinfoUrl = Config.DEFAULT_USERINFO_URL;
     Log.d(LogKeys.DEBUG,
       "SharedPrefsHandler.SharedPrefsHandler(): deviceId=" + this.deviceId);
-    if (!updated) {
+    firstrun = prefs.getBoolean("firstrun", true);
+    if (firstrun && context instanceof LaunchActivity) {
       try {
-        this.updated = new GetPrefsFromServerTask().execute(userinfoUrl + deviceId + "/").get();
+        new GetPrefsFromServerTask().execute(userinfoUrl + deviceId + "/");
       } catch (Exception e) {
         Log.e(LogKeys.DEBUG, "SharedPrefsHandler.SharedPrefsHandler(): error=", e);
       }
@@ -64,11 +67,13 @@ public class SharedPrefsHandler {
 
   // Funf sensor
   public boolean isSensorOn() {
+    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.isSensorOn(): called");
     return prefs.getBoolean(SharedPrefs.SENSOR_ON, Config.DEFAULT_SENSOR_ON);
   }
 
-  public void setSensorOn(boolean isSensorOn) {
+  public boolean setSensorOn(boolean isSensorOn) {
     prefs.edit().putBoolean(SharedPrefs.SENSOR_ON, isSensorOn).apply();
+    return true;
   }
 
 
@@ -88,18 +93,20 @@ public class SharedPrefsHandler {
 ////    } finally {
 ////      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
 //    }
-    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): updated=" + updated);
-    try {
-      // Wait until the SharedPrefs is synchronized with the server side
-      while (!updated) {
-//        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): sleeping");
-        Thread.sleep(100);
-      }
+    // Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): updated=" + updated);
+      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): firstrun=" + firstrun);
       return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
-    } catch (InterruptedException e) {
-      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): error=", e);
-      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
-    }
+//    try {
+//      // Wait until the SharedPrefs is synchronized with the server side
+//      while (firstrun) {
+////        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): sleeping");
+//        Thread.sleep(100);
+//      }
+//      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
+//    } catch (InterruptedException e) {
+//      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): error=", e);
+//      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
+//    }
   }
 
   public void setUsername(String username) {
@@ -113,27 +120,29 @@ public class SharedPrefsHandler {
 //      prefs.edit().putString(SharedPrefs.USERNAME, username).apply();
 //    }
     prefs.edit().putString(SharedPrefs.USERNAME, username).apply();
-    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
+//    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
   public boolean getIsFemale() {
-    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): updated=" + updated);
+//    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): updated=" + updated);
+      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): firstrun=" + firstrun);
+      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
     // Wait until the SharedPrefs is synchronized with the server side
-    try {
-      while (!updated) {
-//        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): sleeping");
-        Thread.sleep(100);
-      }
-      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
-    } catch (InterruptedException e) {
-      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): error=", e);
-      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
-    }
+//    try {
+//      while (firstrun) {
+////        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): sleeping");
+//        Thread.sleep(100);
+//      }
+//      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
+//    } catch (InterruptedException e) {
+//      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): error=", e);
+//      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
+//    }
   }
 
   public void setIsFemale(boolean isFemale) {
     prefs.edit().putBoolean(SharedPrefs.IS_FEMALE, isFemale).apply();
-    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
+//    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
 
@@ -151,21 +160,29 @@ public class SharedPrefsHandler {
   // Methods to track sensorId's for each sensor switch off-->on
   public int getSensorId() {
     // Wait until the SharedPrefs is synchronized with the server side
-    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): updated=" + updated);
-    try {
-      while (!updated) {
-//        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): sleeping");
-        Thread.sleep(100);
-      }
+//    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): updated=" + updated);
+//      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): firstrun=" + firstrun);
       return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
-    } catch (InterruptedException e) {
-      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): error=", e);
-      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
-    }
+//    try {
+//      while (!updated) {
+////        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): sleeping");
+//        Thread.sleep(100);
+//      }
+//      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
+//    } catch (InterruptedException e) {
+//      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): error=", e);
+//      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
+//    }
   }
 
   public void setSensorId(int sensorId) {
     prefs.edit().putInt(SharedPrefs.LABEL_SENSOR_ID, sensorId).apply();
+//    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
+  }
+
+  // Synchronize preferences with server
+  // IMPORTANT: This method is only executed while uploading
+  public void setPrefsToServer() {
     new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
@@ -362,6 +379,17 @@ public class SharedPrefsHandler {
 
 
   private class GetPrefsFromServerTask extends AsyncTask<String, Void, Boolean> {
+
+    private ProgressDialog progressDialog;
+
+    @Override
+    protected void onPreExecute() {
+      progressDialog = new ProgressDialog(context);
+      progressDialog.setMessage(context.getString(R.string.get_prefs_from_server_message));
+      progressDialog.setCancelable(false);
+      progressDialog.show();
+    }
+
     @Override
     protected Boolean doInBackground(String... urls) {
       try {
@@ -399,8 +427,9 @@ public class SharedPrefsHandler {
     @Override
     protected void onPostExecute(Boolean result) {
       // updated = result;
-      /*
       // Change UI of LaunchActivity
+      prefs.edit().putBoolean("firstrun", false).apply();
+
       EditText username;
       RadioButton isMaleRadioButton, isFemaleRadioButton;
       if (context instanceof LaunchActivity) {
@@ -412,7 +441,8 @@ public class SharedPrefsHandler {
         isMaleRadioButton.setChecked(!getIsFemale());
         isFemaleRadioButton.setChecked(getIsFemale());
       }
-      */
+
+      progressDialog.dismiss();
       Log.d(LogKeys.DEBUG, "SharedPrefsHandler.GetPrefsFromServerTask" +
                             ".onPostExecute(): get prefs from server complete");
     }

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
@@ -193,9 +194,11 @@ public class LaunchActivity extends ActionBarActivity
                         if (isChecked) {
                           Log.d(LogKeys.DEBUG, "LaunchActivity.enabledToggleButton" +
                                   ".onCheckedChanged(): isChecked=" + isChecked);
-                            funfManager.enablePipeline(pipeline.getName());
+                            // FIXME: Don't know why, but have to add the line below:
+                            funfManager.reload();
                             pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
                                           (Config.PIPELINE_NAME);
+                            funfManager.enablePipeline(pipeline.getName());
 //                            Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.funfManagerConn" +
 //                    ".onServiceConnected(): pipeline.getName()=" +
 //                                    pipeline.getName() + ", pipeline.isEnabled()=" + pipeline.isEnabled() +
@@ -397,40 +400,50 @@ public class LaunchActivity extends ActionBarActivity
         archiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
-              if (pipeline.getDatabaseHelper() != null) {
-                v.setEnabled(false);
+              if (isNetworkConnected()) {
+                if (pipeline.getDatabaseHelper() != null) {
+                  v.setEnabled(false);
+
+                  // Asynchronously synchronize preferences with server
+                  spHandler.setPrefsToServer();
 
 //                Toast.makeText(getBaseContext(), "Compressing DB file. Please wait...",
 //                        Toast.LENGTH_LONG).show();
-                SQLiteDatabase db = pipeline.getWritableDb();
-                Log.d(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
-                File dbFile = new File(db.getPath());
-                db.close();
+                  SQLiteDatabase db = pipeline.getWritableDb();
+                  Log.d(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
+                  File dbFile = new File(db.getPath());
+                  db.close();
 
-                // Asynchronously archive and upload dbFile
-                archiveAndUploadDatabase(dbFile);
+                  // Asynchronously archive and upload dbFile
+                  archiveAndUploadDatabase(dbFile);
 
 //                if (dbFile.exists()) {
 //                  archive.remove(dbFile);
 //                }
 
-                // Wait 1 second for archive to finish, then refresh the UI
-                // (Note: this is kind of a hack since archiving is seamless
-                //         and there are no messages when it occurs)
-                handler.postDelayed(new Runnable() {
-                  @Override
-                  public void run() {
+                  // Wait 1 second for archive to finish, then refresh the UI
+                  // (Note: this is kind of a hack since archiving is seamless
+                  //         and there are no messages when it occurs)
+                  handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
 //              Toast.makeText(getBaseContext(), "Archived! Will be uploaded " +
 //                              "in a few seconds...",
 //                              Toast.LENGTH_LONG).show();
 //              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
 //              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-                    updateScanCount();
-                    if (!enabledToggleButton.isEnabled()) {
-                      v.setEnabled(true);
+                      updateScanCount();
+                      if (!enabledToggleButton.isEnabled()) {
+                        v.setEnabled(true);
+                      }
                     }
-                  }
-                }, 5000L);
+                  }, 5000L);
+
+                }
+              } else {
+                Toast.makeText(getBaseContext(),
+                      getString(R.string.check_internet_connection_message),
+                      Toast.LENGTH_LONG).show();
 
               }
             }
@@ -624,5 +637,11 @@ public class LaunchActivity extends ActionBarActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean isNetworkConnected() {
+        ConnectivityManager cm =
+          (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        return cm.getActiveNetworkInfo() != null;
     }
 }
