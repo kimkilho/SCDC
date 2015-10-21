@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
@@ -162,7 +163,7 @@ public class SharedPrefsHandler {
     // Wait until the SharedPrefs is synchronized with the server side
 //    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): updated=" + updated);
 //      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): firstrun=" + firstrun);
-      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
+      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, SharedPrefs.DEFAULT_SENSOR_ID);
 //    try {
 //      while (!updated) {
 ////        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): sleeping");

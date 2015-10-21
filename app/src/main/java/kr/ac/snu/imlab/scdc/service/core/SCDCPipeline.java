@@ -128,7 +128,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     }
   };
 
-  protected void reloadDbHelper(Context ctx) {
+  public void reloadDbHelper(Context ctx) {
     this.databaseHelper =
       new SCDCDatabaseHelper(ctx,
         StringUtil.simpleFilesafe(name), version);

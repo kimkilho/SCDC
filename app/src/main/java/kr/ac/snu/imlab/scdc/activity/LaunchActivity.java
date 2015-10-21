@@ -226,6 +226,7 @@ public class LaunchActivity extends ActionBarActivity
                                 }
                             }, 1000L);
 
+                          pipeline.reloadDbHelper(funfManager);
                           boolean areButtonsOn =
                                   (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
                           archiveButton.setEnabled(areButtonsOn);
@@ -250,7 +251,10 @@ public class LaunchActivity extends ActionBarActivity
                             handler.postDelayed(new Runnable() {
                               @Override
                               public void run() {
+                                Log.d(LogKeys.DEBUG, "LaunchActivity.enabledToggleButton" +
+                                      ".onCheckedChanged(): enabling Buttons after 2 seconds");
                                 funfManager.disablePipeline(Config.PIPELINE_NAME);
+                                pipeline.reloadDbHelper(funfManager);
                                 boolean areButtonsOn =
                                         (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
                                 archiveButton.setEnabled(areButtonsOn);
@@ -350,8 +354,7 @@ public class LaunchActivity extends ActionBarActivity
                     // If it has just finished being edited:
                 } else {
                   spHandler.setUsername(userName.getText().toString());
-                  spHandler.setIsFemale(isFemaleRadioButton
-                                        .isChecked());
+                  spHandler.setIsFemale(isFemaleRadioButton.isChecked());
                   userName.setEnabled(false);
                   isMaleRadioButton.setEnabled(false);
                   isFemaleRadioButton.setEnabled(false);
@@ -506,6 +509,12 @@ public class LaunchActivity extends ActionBarActivity
     @Override
     public void updateScanCount() {
       // Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.updateScanCount(): entered updateScanCount())");
+      // IMPORTANT: Make sure to reload databaseHelper
+      //            as some devices does not have non-null databaseHelper
+      if (pipeline.getDatabaseHelper() == null) {
+        pipeline.reloadDbHelper(funfManager);
+      }
+
       if (pipeline.getDatabaseHelper() != null) {
         // Query the pipeline db for the count of rows in the data table
         SQLiteDatabase db = pipeline.getDb();
