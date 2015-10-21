@@ -83,7 +83,9 @@ public class LaunchActivity extends ActionBarActivity
             LabelKeys.IN_CLASS_LABEL,
             LabelKeys.EATING_LABEL,
             LabelKeys.STUDYING_LABEL,
-            LabelKeys.DRINKING_LABEL
+            LabelKeys.DRINKING_LABEL,
+            LabelKeys.ACCOMPANYING_LABEL,
+            LabelKeys.CONVERSING_LABEL
     };
 
     // FIXME: The list of probes available
@@ -226,9 +228,10 @@ public class LaunchActivity extends ActionBarActivity
                                 }
                             }, 1000L);
 
-                          pipeline.reloadDbHelper(funfManager);
-                          boolean areButtonsOn =
-                                  (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+//                          pipeline.reloadDbHelper(funfManager);
+//                          boolean areButtonsOn =
+//                                  (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+                          boolean areButtonsOn = false;
                           archiveButton.setEnabled(areButtonsOn);
                           truncateDataButton.setEnabled(areButtonsOn);
 
@@ -255,8 +258,9 @@ public class LaunchActivity extends ActionBarActivity
                                       ".onCheckedChanged(): enabling Buttons after 2 seconds");
                                 funfManager.disablePipeline(Config.PIPELINE_NAME);
                                 pipeline.reloadDbHelper(funfManager);
-                                boolean areButtonsOn =
-                                        (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+//                                boolean areButtonsOn =
+//                                        (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+                                boolean areButtonsOn = true;
                                 archiveButton.setEnabled(areButtonsOn);
                                 truncateDataButton.setEnabled(areButtonsOn);
                               }
