@@ -104,4 +104,24 @@
     <string name="truncate_message">Truncating...</string>
     <string name="truncate_complete_message">Dropped and re-created data table.</string>
 
+    <!-- Activity recognition strings -->
+    <string name="in_vehicle">In a vehicle</string>
+    <string name="on_bicycle">On a bicycle</string>
+    <string name="on_foot">On foot</string>
+    <string name="running">Running</string>
+    <string name="still">Still</string>
+    <string name="tilting">Tilting</string>
+    <string name="unknown">Unknown activity</string>
+    <string name="walking">Walking</string>
+    <string name="unidentifiable_activity">Unidentifiable activity: %1$d</string>
+
+    <string name="detected_activities_title">Detected Activities</string>
+
+    <string name="request_activity_updates">Request updates</string>
+    <string name="remove_activity_updates">Remove updates</string>
+    <string name="activity_updates_added">Activity updates added</string>
+    <string name="activity_updates_removed">Activity updates removed</string>
+
+    <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
+
 </resources>

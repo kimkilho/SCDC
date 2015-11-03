@@ -122,4 +122,9 @@ public class SCDCKeys {
     String MOBILE_DATA_ON = "mobileDataOn";
     String WIFI_ON = "wifiOn";
   }
+
+  public interface ActivityRecognitionKeys {
+    public static final String
+      ACTION_AR_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action.AR_LOG";
+  }
 }
