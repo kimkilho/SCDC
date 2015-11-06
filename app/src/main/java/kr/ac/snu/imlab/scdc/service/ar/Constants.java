@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import kr.ac.snu.imlab.scdc.R;
 
 import com.google.android.gms.location.DetectedActivity;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.ActivityRecognitionKeys;
 
 /**
  * Created by kilho on 15. 11. 2.
@@ -53,27 +54,26 @@ public class Constants {
   /**
    * Returns a human readable String corresponding to a detected activity type.
    */
-  public static String getActivityString(Context context, int detectedActivityType) {
-    Resources resources = context.getResources();
+  public static String getActivityString(int detectedActivityType) {
     switch(detectedActivityType) {
       case DetectedActivity.IN_VEHICLE:
-        return resources.getString(R.string.in_vehicle);
+        return ActivityRecognitionKeys.IN_VEHICLE_ACTIVITY;
       case DetectedActivity.ON_BICYCLE:
-        return resources.getString(R.string.on_bicycle);
+        return ActivityRecognitionKeys.ON_BICYCLE_ACTIVITY;
       case DetectedActivity.ON_FOOT:
-        return resources.getString(R.string.on_foot);
+        return ActivityRecognitionKeys.ON_FOOT_ACTIVITY;
       case DetectedActivity.RUNNING:
-        return resources.getString(R.string.running);
+        return ActivityRecognitionKeys.RUNNING_ACTIVITY;
       case DetectedActivity.STILL:
-        return resources.getString(R.string.still);
+        return ActivityRecognitionKeys.STILL_ACTIVITY;
       case DetectedActivity.TILTING:
-        return resources.getString(R.string.tilting);
+        return ActivityRecognitionKeys.TILTING_ACTIVITY;
       case DetectedActivity.UNKNOWN:
-        return resources.getString(R.string.unknown);
+        return ActivityRecognitionKeys.UNKNOWN_ACTIVITY;
       case DetectedActivity.WALKING:
-        return resources.getString(R.string.walking);
+        return ActivityRecognitionKeys.WALKING_ACTIVITY;
       default:
-        return resources.getString(R.string.unidentifiable_activity, detectedActivityType);
+        return ActivityRecognitionKeys.UNIDENTIFIABLE_ACTIVITY;
     }
   }
 

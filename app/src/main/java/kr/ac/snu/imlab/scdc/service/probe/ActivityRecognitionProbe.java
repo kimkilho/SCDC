@@ -71,7 +71,8 @@ public class ActivityRecognitionProbe extends Base
      * {@code onSaveInstanceState()} and restoring it in {@code onCreate()}. This ensures that each
      * activity is displayed with the correct confidence level upon orientation changes.
      */
-    private ArrayList<DetectedActivity> mDetectedActivities;
+    private Map<String, Integer> mDetectedActivities;
+//    private ArrayList<DetectedActivity> mDetectedActivities;
 
 
     /**
@@ -83,37 +84,14 @@ public class ActivityRecognitionProbe extends Base
      */
     @Override
     protected void onEnable() {
-
-
-        mDetectedActivities = new ArrayList<DetectedActivity>();
+        mDetectedActivities = new HashMap<String, Integer>();
+//        mDetectedActivities = new ArrayList<DetectedActivity>();
         // Set the confidence level of each monitored activity to zero.
         for (int i = 0; i < Constants.MONITORED_ACTIVITIES.length; i++) {
-          mDetectedActivities.add(new DetectedActivity(Constants.MONITORED_ACTIVITIES[i], 0));
+          mDetectedActivities.put(
+            Constants.getActivityString(Constants.MONITORED_ACTIVITIES[i]), 0);
+//          mDetectedActivities.add(new DetectedActivity(Constants.MONITORED_ACTIVITIES[i], 0));
         }
-
-//        labelReceiver = new BroadcastReceiver() {
-//          @Override
-//          public void onReceive(Context context, Intent intent) {
-//            Log.w("DEBUG", "LabelProbe/ Received broadcast");
-//            JsonObject data = new JsonObject();
-//
-//            String[] labelNames = LaunchActivity.labelNames;
-//            for (int i = 0; i < labelNames.length; i++) {
-//              labels.put(labelNames[i],
-//                         intent.getBooleanExtra(labelNames[i], false));
-//            }
-//            // Log.w("DEBUG", "SLEEP_LABEL=" + labels.get(LabelKeys.SLEEP_LABEL) + ", IN_CLASS_LABEL=" + labels.get(LabelKeys.IN_CLASS_LABEL));
-//            for (String key : labels.keySet()) {
-//              data.addProperty(key, labels.get(key));
-//            }
-//            data.addProperty(LabelKeys.PIPELINE_KEY,
-//              intent.getBooleanExtra(LabelKeys.PIPELINE_KEY, false));
-//
-//            Log.w("DEBUG", "LabelProbe/ JsonObject data=" + data.toString());
-//            sendData(data);
-//          }
-//        };
-//        getContext().registerReceiver(labelReceiver, filter);
 
         // Kick off the request to build GoogleApiClient
         buildGoogleApiClient();
@@ -355,18 +333,28 @@ public class ActivityRecognitionProbe extends Base
       // of a DetectedActivity, we use a temporary list of DetectedActivity objects. If an
       // activity was freshly detected, we use its confidence level. Otherwise, we set the
       // confidence level to zero.
-      ArrayList<DetectedActivity> tempList = new ArrayList<DetectedActivity>();
+      Map<String, Integer> tempMap = new HashMap<String, Integer>();
+//      ArrayList<DetectedActivity> tempList = new ArrayList<DetectedActivity>();
       for (int i = 0; i < Constants.MONITORED_ACTIVITIES.length; i++) {
         int confidence = detectedActivitiesMap.containsKey(Constants.MONITORED_ACTIVITIES[i]) ?
                 detectedActivitiesMap.get(Constants.MONITORED_ACTIVITIES[i]) : 0;
 
         Log.d(LogKeys.DEBUG, TAG+"/ update activity: " +
-                Constants.MONITORED_ACTIVITIES[i] + ": " + confidence);
-        tempList.add(new DetectedActivity(Constants.MONITORED_ACTIVITIES[i],
-                confidence));
+                Constants.getActivityString(Constants.MONITORED_ACTIVITIES[i]) +
+                "=" + confidence);
+        tempMap.put(Constants.getActivityString(Constants.MONITORED_ACTIVITIES[i]),
+                    confidence);
+//        tempList.add(new DetectedActivity(Constants.MONITORED_ACTIVITIES[i],
+//                confidence));
       }
 
-      mDetectedActivities = tempList;
+      JsonObject data = new JsonObject();
+      for (String key: tempMap.keySet()) {
+        data.addProperty(key, tempMap.get(key));
+      }
+
+      Log.d(LogKeys.DEBUG, TAG+"/ JsonObject data=" + data.toString());
+      sendData(data);
     }
 
     /**

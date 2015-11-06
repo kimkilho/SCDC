@@ -125,6 +125,15 @@ public class SCDCKeys {
 
   public interface ActivityRecognitionKeys {
     public static final String
-      ACTION_AR_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action.AR_LOG";
+      ACTION_AR_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action.AR_LOG",
+      IN_VEHICLE_ACTIVITY = "in_a_vehicle",
+      ON_BICYCLE_ACTIVITY = "on_a_bicycle",
+      ON_FOOT_ACTIVITY = "on_foot",
+      RUNNING_ACTIVITY = "running",
+      STILL_ACTIVITY = "still",
+      TILTING_ACTIVITY = "tilting",
+      UNKNOWN_ACTIVITY = "unknown",
+      WALKING_ACTIVITY = "walking",
+      UNIDENTIFIABLE_ACTIVITY = "unidentifiable";
   }
 }

@@ -19,6 +19,7 @@ import edu.mit.media.funf.probe.Probe.ContinuousProbe;
 import edu.mit.media.funf.probe.Probe.DisplayName;
 import edu.mit.media.funf.probe.Probe.Description;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
 import edu.mit.media.funf.time.TimeUtil;
 
@@ -29,6 +30,8 @@ import edu.mit.media.funf.time.TimeUtil;
 @Description("Records label for all time")
 @Schedule.DefaultSchedule(interval=0, duration=0, opportunistic=true)
 public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
+
+    protected static final String TAG = "LabelProbe";
 
     private BroadcastReceiver labelReceiver;
     Map<String, Boolean> labels;
@@ -64,7 +67,7 @@ public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
             data.addProperty(LabelKeys.PIPELINE_KEY,
               intent.getBooleanExtra(LabelKeys.PIPELINE_KEY, false));
 
-            Log.w("DEBUG", "LabelProbe/ JsonObject data=" + data.toString());
+            Log.w(LogKeys.DEBUG, TAG+"/ JsonObject data=" + data.toString());
             sendData(data);
           }
         };

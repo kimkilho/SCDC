@@ -58,7 +58,6 @@ public class DetectedActivitiesIntentService extends IntentService implements SC
     Log.i(TAG, "activities detected");
     for (DetectedActivity da : detectedActivities) {
       Log.i(TAG, Constants.getActivityString(
-                      getApplicationContext(),
                       da.getType()) + " " + da.getConfidence() + "%"
       );
     }
