@@ -18,7 +18,6 @@ import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExSettings;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
-import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
@@ -54,7 +53,6 @@ public class SettingsActivity extends ActionBarActivity {
     labelEntries = new ArrayList<LabelEntry>();
     for (int i = 0; i < spHandler.getNumLabels(); i++) {
       labelEntries.add(new LabelEntry(i, null,
-                              LabelProbe.class, null, true,
                               this, Config.SCDC_PREFS));
     }
 

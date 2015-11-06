@@ -24,7 +24,7 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
 import edu.mit.media.funf.time.TimeUtil;
 
 /**
- * Created by kilho on 2015. 6. 28..
+ * @deprecated
  */
 @DisplayName("Label Log Probe")
 @Description("Records label for all time")

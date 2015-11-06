@@ -12,14 +12,12 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 /**
  * Created by kilho on 15. 6. 25.
  */
-public class LabelEntry extends ProbeEntry {
+public class LabelEntry {
   private int labelId;
   private SharedPrefsHandler spHandler;
 
-  public LabelEntry(int labelId, String name, Class probeClass,
-                    BasicSchedule schedule, boolean isEnabled,
+  public LabelEntry(int labelId, String name,
                     Context context, String prefsName) {
-    super(probeClass, schedule, isEnabled);
     this.labelId = labelId;
     this.spHandler = SharedPrefsHandler.getInstance(context,
                         prefsName, Context.MODE_PRIVATE);

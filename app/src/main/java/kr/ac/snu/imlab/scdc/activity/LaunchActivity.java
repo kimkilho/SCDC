@@ -30,7 +30,6 @@ import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
 import kr.ac.snu.imlab.scdc.service.alarm.WakefulIntentService;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
- import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
  import edu.mit.media.funf.storage.FileArchive;
 
  import android.os.IBinder;
@@ -88,33 +87,6 @@ public class LaunchActivity extends ActionBarActivity
             LabelKeys.CONVERSING_LABEL
     };
 
-    // FIXME: The list of probes available
-    @Configurable
-    public static final Class[] probeClasses = {
-            // Device Probes
-            BatteryProbe.class,
-            // Environment Probes
-            LightSensorProbe.class,
-            MagneticFieldSensorProbe.class,
-            AudioFeaturesProbe.class,
-            ProximitySensorProbe.class,
-            // Motion Probes
-            AccelerometerSensorProbe.class,
-            GyroscopeSensorProbe.class,
-            OrientationSensorProbe.class,
-            // Positioning Probes
-            SimpleLocationProbe.class,
-            BluetoothProbe.class,
-            // Device Interaction Probes
-            RunningApplicationsProbe.class,
-            ScreenProbe.class,
-            // Hardware Info Probe (for OHP)
-            HardwareInfoProbe.class,
-            // SCDC-defined Probes
-            NetworkSettingsProbe.class,
-            SystemSettingsProbe.class
-    };
-
     private Handler handler;
     private SCDCManager funfManager = null;
     private SCDCPipeline pipeline = null;
@@ -130,8 +102,7 @@ public class LaunchActivity extends ActionBarActivity
     // Probe list View
     private ListView mListView = null;
     private BaseAdapterExLabel mAdapter = null;
-    // Probes list
-    private ArrayList<ProbeEntry> probeEntries;
+    // Labels list
     private ArrayList<LabelEntry> labelEntries;
 
     // Run Data Collection button
@@ -209,16 +180,6 @@ public class LaunchActivity extends ActionBarActivity
                               // NOTE: funfManager automatically reloads the scdc pipeline
                               //       with newly updated schedules
 
-
-                            // Intentionally wait 1 second for label probes to be loaded
-                            // then send broadcast
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    sendBroadcast(getLabelIntent(true));
-                                }
-                            }, 1000L);
-
                             // Dynamically refresh the ListView items
                             handler.postDelayed(new Runnable() {
                                 @Override
@@ -247,7 +208,6 @@ public class LaunchActivity extends ActionBarActivity
                             // Dynamically refresh the ListView items
                             // by calling mAdapter.getView() again.
                             mAdapter.notifyDataSetChanged();
-                            sendBroadcast(getLabelIntent(false));
 
                             // Intentionally wait 2 seconds to send broadcast
                             // then terminate
@@ -368,16 +328,10 @@ public class LaunchActivity extends ActionBarActivity
             }
         });
 
-        // The list of probes available
-        probeEntries = new ArrayList<ProbeEntry>(probeClasses.length);
-        for (int i = 0; i < probeClasses.length; i++) {
-          probeEntries.add(new ProbeEntry(probeClasses[i], null, true));
-        }
         // The list of labels available
         labelEntries = new ArrayList<LabelEntry>(labelNames.length);
         for (int i = 0; i < labelNames.length; i++) {
           labelEntries.add(new LabelEntry(i, labelNames[i],
-                              LabelProbe.class, null, true,
                               LaunchActivity.this, Config.SCDC_PREFS));
         }
 
@@ -574,22 +528,6 @@ public class LaunchActivity extends ActionBarActivity
 
     public SCDCManager getActivityFunfManager() {
         return funfManager;
-    }
-
-    // Get intent for broadcasting current logging status of labels
-    private Intent getLabelIntent(boolean isPipelineEnabled) {
-      Log.d(LogKeys.DEBUG, "LaunchActivity.getLabelIntent(): Entering " +
-              "getLabelIntent()");
-      Intent intent = new Intent();
-      intent.addFlags(Intent.FLAG_RECEIVER_REPLACE_PENDING);
-      intent.setAction(LabelKeys.ACTION_LABEL_LOG);
-      for (int i = 0; i < labelEntries.size(); i++) {
-        intent.putExtra(labelEntries.get(i).getName(),
-                labelEntries.get(i).isLogged());
-      }
-      intent.putExtra(LabelKeys.PIPELINE_KEY, isPipelineEnabled);
-
-      return intent;
     }
 
     private void archiveAndUploadDatabase(final File dbFile) {

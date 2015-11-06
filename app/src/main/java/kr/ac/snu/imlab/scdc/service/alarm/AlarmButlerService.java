@@ -10,7 +10,6 @@ import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlarmKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
-import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
@@ -40,7 +39,6 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
       labelEntries = new ArrayList<LabelEntry>();
       for (int labelId = 0; labelId < numLabels; labelId++) {
         labelEntries.add(new LabelEntry(labelId, null,
-                LabelProbe.class, null, true,
                 this, Config.SCDC_PREFS));
       }
 

@@ -6,6 +6,9 @@ import com.google.gson.JsonParser;
 import edu.mit.media.funf.Schedule.BasicSchedule;
 import edu.mit.media.funf.probe.Probe;
 
+/**
+ * @deprecated
+ */
 public class ProbeEntry {
   private JsonElement probeConfig;
   private Class probeClass;

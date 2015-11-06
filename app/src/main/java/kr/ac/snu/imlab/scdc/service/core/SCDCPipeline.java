@@ -35,10 +35,12 @@ import edu.mit.media.funf.storage.FileArchive;
 import edu.mit.media.funf.storage.RemoteFileArchive;
 import edu.mit.media.funf.storage.UploadService;
 import edu.mit.media.funf.util.StringUtil;
+import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.activity.OnDataReceivedListener;
-import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
+import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
@@ -379,6 +381,20 @@ public class SCDCPipeline implements Pipeline, DataListener {
                           spHandler.getExpId(probeConfig.toString()));
     dataClone.addProperty(SharedPrefs.LABEL_SENSOR_ID,
                           spHandler.getSensorId());
+
+    // Temporarily build tempLabelEntries List<LabelEntry>
+    String[] tempLabelNames = LaunchActivity.labelNames;
+    List<LabelEntry> tempLabelEntries =
+      new ArrayList<LabelEntry>(tempLabelNames.length);
+    for (int i = 0; i < tempLabelNames.length; i++) {
+      tempLabelEntries.add(new LabelEntry(i, tempLabelNames[i],
+                                          manager, Config.SCDC_PREFS));
+    }
+    // Add label keys as new keys for JsonObject data
+    for (int i = 0; i < tempLabelEntries.size(); i++) {
+      dataClone.addProperty(tempLabelEntries.get(i).getName(),
+                            tempLabelEntries.get(i).isLogged());
+    }
     IJsonObject dataWithExpId = new IJsonObject(dataClone);
     Log.d(LogKeys.DEBUG, "SCDCPipeline.onDataReceived(): probeConfig=" + probeConfig.toString() +
             ", data=" + dataWithExpId.toString());
@@ -387,23 +403,11 @@ public class SCDCPipeline implements Pipeline, DataListener {
     // add dataWithExpId instead of the original data
     record.add("value", dataWithExpId);
     Message message = Message.obtain(handler, DATA, record);
-    if (probeConfig.get(RuntimeTypeAdapterFactory.TYPE).getAsString()
-            .equals(LabelProbe.class.getName())) {
-      // Log.w("DEBUG", "SCDCPipeline.onDataReceived()/ LabelProbe data received");
 
-      if (handler != null) {
-        handler.sendMessageAtFrontOfQueue(message);
-      }
-    } else {
-      if (handler != null) {
-        handler.sendMessage(message);
-      }
+    if (handler != null) {
+      handler.sendMessage(message);
     }
-    // Added by Kilho Kim
-//    if (activity != null && activity instanceof LaunchActivity) {
-//      ((LaunchActivity)activity).updateScanCount();
-//    }
-    // Added by Kilho Kim:
+
     if (odrl != null) {
       odrl.updateScanCount();
     }

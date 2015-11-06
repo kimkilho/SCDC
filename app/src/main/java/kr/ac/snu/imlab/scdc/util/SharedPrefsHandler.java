@@ -66,6 +66,7 @@ public class SharedPrefsHandler {
     return instance;
   }
 
+
   // Funf sensor
   public boolean isSensorOn() {
     Log.d(LogKeys.DEBUG, "SharedPrefsHandler.isSensorOn(): called");
@@ -80,70 +81,21 @@ public class SharedPrefsHandler {
 
   // User info
   public String getUsername() {
-//    try {
-      // DEFAULT_USERINFO_URL = "http://imlab-ws2.snu.ac.kr:8888/userinfo/",
-//      String response = HttpUtil.sendGet(userinfoUrl + deviceId + "/");
-//      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): response=" + response);
-//      JsonObject userInfo = new JsonParser().parse(response).getAsJsonObject();
-//      // prefs.edit().putString(SharedPrefs.USERNAME,
-//              // userInfo.get(SharedPrefs.USERNAME).toString()).apply();
-//      return userInfo.get(SharedPrefs.USERNAME).toString();
-//    } catch (Exception e) {
-//      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): error=", e);
-//      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
-////    } finally {
-////      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
-//    }
-    // Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): updated=" + updated);
-      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): firstrun=" + firstrun);
-      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
-//    try {
-//      // Wait until the SharedPrefs is synchronized with the server side
-//      while (firstrun) {
-////        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): sleeping");
-//        Thread.sleep(100);
-//      }
-//      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
-//    } catch (InterruptedException e) {
-//      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): error=", e);
-//      return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
-//    }
+    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getUsername(): firstrun=" + firstrun);
+    return prefs.getString(SharedPrefs.USERNAME, Config.DEFAULT_USERNAME);
   }
 
   public void setUsername(String username) {
-//    try {
-//      List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
-//      nameValuePairs.add(new BasicNameValuePair(SharedPrefs.USERNAME, username));
-//      String response =
-//        HttpUtil.sendPost(userinfoUrl + deviceId + "/", nameValuePairs);
-//      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.setUsername(): response=" + response);
-//    } catch (Exception e) {
-//      prefs.edit().putString(SharedPrefs.USERNAME, username).apply();
-//    }
     prefs.edit().putString(SharedPrefs.USERNAME, username).apply();
-//    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
   public boolean getIsFemale() {
-//    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): updated=" + updated);
-      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): firstrun=" + firstrun);
-      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
-    // Wait until the SharedPrefs is synchronized with the server side
-//    try {
-//      while (firstrun) {
-////        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): sleeping");
-//        Thread.sleep(100);
-//      }
-//      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
-//    } catch (InterruptedException e) {
-//      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): error=", e);
-//      return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
-//    }
+    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getIsFemale(): firstrun=" + firstrun);
+    return prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
   }
 
   public void setIsFemale(boolean isFemale) {
     prefs.edit().putBoolean(SharedPrefs.IS_FEMALE, isFemale).apply();
-//    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
 
@@ -160,25 +112,11 @@ public class SharedPrefsHandler {
 
   // Methods to track sensorId's for each sensor switch off-->on
   public int getSensorId() {
-    // Wait until the SharedPrefs is synchronized with the server side
-//    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): updated=" + updated);
-//      Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): firstrun=" + firstrun);
-      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, SharedPrefs.DEFAULT_SENSOR_ID);
-//    try {
-//      while (!updated) {
-////        Log.d(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): sleeping");
-//        Thread.sleep(100);
-//      }
-//      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
-//    } catch (InterruptedException e) {
-//      Log.e(LogKeys.DEBUG, "SharedPrefsHandler.getSensorId(): error=", e);
-//      return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, 0);
-//    }
+    return prefs.getInt(SharedPrefs.LABEL_SENSOR_ID, SharedPrefs.DEFAULT_SENSOR_ID);
   }
 
   public void setSensorId(int sensorId) {
     prefs.edit().putInt(SharedPrefs.LABEL_SENSOR_ID, sensorId).apply();
-//    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
   }
 
   // Synchronize preferences with server

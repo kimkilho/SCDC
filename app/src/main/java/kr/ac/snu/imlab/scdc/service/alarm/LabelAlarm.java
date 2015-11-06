@@ -4,7 +4,6 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.util.Calendar;
@@ -15,7 +14,6 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlarmKeys;
-import kr.ac.snu.imlab.scdc.service.probe.LabelProbe;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
@@ -96,7 +94,7 @@ public class LabelAlarm {
       alarmRepeatInterval = spHandler.getGeneralRepeatInterval();
     } else {
       LabelEntry labelEntry =
-              new LabelEntry(alarmId, null, LabelProbe.class, null, true,
+              new LabelEntry(alarmId, null,
                       context, Config.SCDC_PREFS);
       alarmRepeatType = labelEntry.getRepeatType();
       dateDue = System.currentTimeMillis();
