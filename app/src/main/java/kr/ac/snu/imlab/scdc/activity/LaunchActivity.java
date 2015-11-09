@@ -67,13 +67,7 @@ public class LaunchActivity extends ActionBarActivity
     public static boolean DEBUGGING = false;
 
     @Configurable
-    protected int version = 1;
-//    @Configurable
-//    protected FileArchive archive = null;
-
-//    private SCDCUploadService uploader;
-//    @Configurable
-//    protected MultipartEntityArchive upload = null;
+    protected int version = 5;
 
     // FIXME: The list of labels available
     @Configurable
@@ -431,6 +425,9 @@ public class LaunchActivity extends ActionBarActivity
     @Override
     public void onResume() {
         super.onResume();
+        if (pipeline != null) {
+          updateScanCount();
+        }
 
         // Dynamically refresh the ListView items
         handler.postDelayed(new Runnable() {
