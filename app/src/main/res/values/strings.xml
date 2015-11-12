@@ -105,6 +105,8 @@
     <string name="archive_message">Archiving...</string>
     <string name="truncate_message">Truncating...</string>
     <string name="truncate_complete_message">Dropped and re-created data table.</string>
+    <string name="update_config_complete_message">Successfully updated pipeline config.</string>
+    <string name="update_config_failed_message">Failed to update pipeline config.</string>
 
     <!-- Activity recognition strings -->
     <!--<string name="in_vehicle">In a vehicle</string>-->

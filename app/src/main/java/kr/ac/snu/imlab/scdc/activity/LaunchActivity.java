@@ -22,8 +22,11 @@ import android.content.Intent;
  import android.widget.CompoundButton;
  import android.widget.CompoundButton.OnCheckedChangeListener;
 
+import edu.mit.media.funf.config.ConfigUpdater.ConfigUpdateException;
 import edu.mit.media.funf.config.Configurable;
  import edu.mit.media.funf.config.HttpConfigUpdater;
+import edu.mit.media.funf.util.EqualsUtil;
+import edu.mit.media.funf.util.LogUtil;
 import kr.ac.snu.imlab.scdc.service.core.SCDCManager;
 import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
@@ -40,7 +43,10 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
  import android.widget.Toast;
  import android.widget.ToggleButton;
 
- import java.io.File;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+
+import java.io.File;
  import java.util.ArrayList;
 
  import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
@@ -133,6 +139,9 @@ public class LaunchActivity extends ActionBarActivity
             pipeline.setDataReceivedListener(LaunchActivity.this);
 
             // Update probe schedules of pipeline
+            Log.d(LogKeys.DEBUG, TAG+".funfManagerConn.onServiceConnected(): "
+                                    + "spHandler.isActiveLabelOn()=" +
+                                      spHandler.isActiveLabelOn());
             updateConfig(spHandler.isActiveLabelOn());
 
             // Set UI ready to use, by enabling buttons
@@ -406,6 +415,13 @@ public class LaunchActivity extends ActionBarActivity
 
 
         // Bind to the service, to create the connection with SCDCManager
+//        Thread thread = new Thread() {
+//          public void run() {
+//            bindService(new Intent(LaunchActivity.this, SCDCManager.class),
+//                                   funfManagerConn, BIND_AUTO_CREATE);
+//          }
+//        };
+//        thread.start();
         bindService(new Intent(this, SCDCManager.class),
                 funfManagerConn, BIND_AUTO_CREATE);
     }
@@ -581,31 +597,95 @@ public class LaunchActivity extends ActionBarActivity
         return cm.getActiveNetworkInfo() != null;
     }
 
-    public void updateConfig(boolean isActiveLabelOn) {
-      if (pipeline != null) {
-        HttpConfigUpdater hcu = new HttpConfigUpdater();
-        String updateUrl;
-        if (DEBUGGING) {
-          updateUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
-        } else {
-          if (isActiveLabelOn)
-            updateUrl = Config.DEFAULT_UPDATE_URL_ACTIVE;
-          else
-            updateUrl = Config.DEFAULT_UPDATE_URL_IDLE;
-        }
-        Log.d(LogKeys.DEBUG, TAG+".updateConfig/ url=" + updateUrl);
-        hcu.setUrl(updateUrl);
-        pipeline.setUpdate(hcu);
-        handler.post(new Runnable() {
+    public void updateConfig(final boolean isActiveLabelOn) {
+        new AsyncTask<Void, Void, Boolean>() {
+          private HttpConfigUpdater hcu;
+          private String updateUrl;
+          private JsonObject oldConfig;
+
           @Override
-          public void run() {
-            if (pipeline.getHandler() != null) {
-              pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
+          protected void onPreExecute() {
+            hcu = new HttpConfigUpdater();
+            if (DEBUGGING) {
+              updateUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
+            } else {
+              if (isActiveLabelOn)
+                updateUrl = Config.DEFAULT_UPDATE_URL_ACTIVE;
+              else
+                updateUrl = Config.DEFAULT_UPDATE_URL_IDLE;
+            }
+            hcu.setUrl(updateUrl);
+            Log.d(LogKeys.DEBUG, TAG+".updateConfig()/ url=" + updateUrl);
+            oldConfig = funfManager.getPipelineConfig(pipeline.getName());
+          }
+
+          @Override
+          protected Boolean doInBackground(Void... voids) {
+            if (pipeline != null) {
+              try {
+                JsonObject newConfig = hcu.getConfig();
+                if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
+                  funfManager.saveAndReload(pipeline.getName(), newConfig);
+                }
+                return true;
+              } catch (ConfigUpdateException e) {
+                Log.w(LogKeys.DEBUG, TAG+".updateConfig()/ Unable to get config", e);
+                return false;
+              }
+            } else {
+              Log.d(LogKeys.DEBUG, TAG+".updateConfig/ failed to update config");
+              return false;
             }
           }
-        });
-      } else {
-        Log.d(LogKeys.DEBUG, TAG+".updateConfig/ failed to update config");
-      }
+
+          @Override
+          protected void onPostExecute(Boolean isSuccess) {
+            if (isSuccess) {
+              Toast.makeText(getBaseContext(),
+                      getString(R.string.update_config_complete_message),
+                      Toast.LENGTH_LONG).show();
+            } else {
+              Toast.makeText(getBaseContext(),
+                      getString(R.string.update_config_complete_message),
+                      Toast.LENGTH_LONG).show();
+            }
+          }
+
+        }.execute();
+//      if (pipeline != null) {
+//        HttpConfigUpdater hcu = new HttpConfigUpdater();
+//        String updateUrl;
+
+//        if (DEBUGGING) {
+//          updateUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
+//        } else {
+//          if (isActiveLabelOn)
+//            updateUrl = Config.DEFAULT_UPDATE_URL_ACTIVE;
+//          else
+//            updateUrl = Config.DEFAULT_UPDATE_URL_IDLE;
+//        }
+//        Log.d(LogKeys.DEBUG, TAG+".updateConfig()/ url=" + updateUrl);
+//        hcu.setUrl(updateUrl);
+//        JsonObject oldConfig = funfManager.getPipelineConfig(pipeline.getName());
+//        try {
+//          JsonObject newConfig = hcu.getConfig();
+//          if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
+//            funfManager.saveAndReload(pipeline.getName(), newConfig);
+//          }
+//        } catch (ConfigUpdateException e) {
+//          Log.w(LogKeys.DEBUG, TAG+".updateConfig()/ Unable to get config", e);
+//        }
+////        pipeline.setUpdate(hcu);
+////        handler.post(new Runnable() {
+////          @Override
+////          public void run() {
+////            if (pipeline.getHandler() != null) {
+////              pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
+////            }
+////          }
+////        });
+//      } else {
+//        Log.d(LogKeys.DEBUG, TAG+".updateConfig/ failed to update config");
+//      }
     }
 }
