@@ -397,7 +397,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     }
     IJsonObject dataWithExpId = new IJsonObject(dataClone);
     Log.d(LogKeys.DEBUG, "SCDCPipeline.onDataReceived(): probeConfig=" + probeConfig.toString() +
-            ", data=" + dataWithExpId.toString());
+            ", data=" + dataWithExpId.toString() + ", schedule=" + manager.getPipelineConfig(name));
     JsonObject record = new JsonObject();
     record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
     // add dataWithExpId instead of the original data

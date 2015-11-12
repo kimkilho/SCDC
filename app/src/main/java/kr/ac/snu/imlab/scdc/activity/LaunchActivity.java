@@ -1,9 +1,10 @@
 package kr.ac.snu.imlab.scdc.activity;
 
 import android.app.ProgressDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
@@ -23,7 +24,6 @@ import android.content.Intent;
 
 import edu.mit.media.funf.config.Configurable;
  import edu.mit.media.funf.config.HttpConfigUpdater;
- import edu.mit.media.funf.probe.builtin.*;
 import kr.ac.snu.imlab.scdc.service.core.SCDCManager;
 import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
@@ -46,21 +46,20 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
  import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
  import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
-import kr.ac.snu.imlab.scdc.service.probe.NetworkSettingsProbe;
-import kr.ac.snu.imlab.scdc.service.probe.SystemSettingsProbe;
 import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
  import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
  import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExLabel;
  import kr.ac.snu.imlab.scdc.entry.LabelEntry;
- import kr.ac.snu.imlab.scdc.entry.ProbeEntry;
  import kr.ac.snu.imlab.scdc.R;
  import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 
 public class LaunchActivity extends ActionBarActivity
                             implements OnDataReceivedListener {
+
+    protected static final String TAG = "LaunchActivity";
 
     @Configurable
     // FIXME: Change below to false when publishing
@@ -73,6 +72,17 @@ public class LaunchActivity extends ActionBarActivity
     @Configurable
     public static final String[] labelNames = {
             LabelKeys.SLEEP_LABEL,
+            LabelKeys.IN_CLASS_LABEL,
+            LabelKeys.EATING_LABEL,
+            LabelKeys.STUDYING_LABEL,
+            LabelKeys.DRINKING_LABEL,
+            LabelKeys.ACCOMPANYING_LABEL,
+            LabelKeys.CONVERSING_LABEL
+    };
+
+    // FIXME: The list of 'active' labels
+    @Configurable
+    public static final String[] activeLabelNames = {
             LabelKeys.IN_CLASS_LABEL,
             LabelKeys.EATING_LABEL,
             LabelKeys.STUDYING_LABEL,
@@ -108,6 +118,8 @@ public class LaunchActivity extends ActionBarActivity
     private Button archiveButton, truncateDataButton;
     private TextView dataCountView;
 
+    private BroadcastReceiver labelStatusReceiver;
+
     private ServiceConnection funfManagerConn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -121,24 +133,7 @@ public class LaunchActivity extends ActionBarActivity
             pipeline.setDataReceivedListener(LaunchActivity.this);
 
             // Update probe schedules of pipeline
-            HttpConfigUpdater hcu = new HttpConfigUpdater();
-            String updateUrl;
-            if (DEBUGGING) {
-              updateUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
-            } else {
-              updateUrl = Config.DEFAULT_UPDATE_URL_PUBLISH;
-            }
-            Log.d(LogKeys.DEBUG, "url=" + updateUrl);
-            hcu.setUrl(updateUrl);
-            pipeline.setUpdate(hcu);
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                if (pipeline.getHandler() != null) {
-                  pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
-                }
-              }
-            });
+            updateConfig(spHandler.isActiveLabelOn());
 
             // Set UI ready to use, by enabling buttons
             // IMPORTANT: setChecked method should appear before
@@ -166,10 +161,6 @@ public class LaunchActivity extends ActionBarActivity
                             pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
                                           (Config.PIPELINE_NAME);
                             funfManager.enablePipeline(pipeline.getName());
-//                            Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.funfManagerConn" +
-//                    ".onServiceConnected(): pipeline.getName()=" +
-//                                    pipeline.getName() + ", pipeline.isEnabled()=" + pipeline.isEnabled() +
-//                                    ", pipeline.getDatabaseHelper()=" + pipeline.getDatabaseHelper());
                             pipeline.setDataReceivedListener(LaunchActivity.this);
                               // NOTE: funfManager automatically reloads the scdc pipeline
                               //       with newly updated schedules
@@ -382,9 +373,6 @@ public class LaunchActivity extends ActionBarActivity
                   handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-//              Toast.makeText(getBaseContext(), "Archived! Will be uploaded " +
-//                              "in a few seconds...",
-//                              Toast.LENGTH_LONG).show();
 //              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
 //              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
                       updateScanCount();
@@ -591,5 +579,33 @@ public class LaunchActivity extends ActionBarActivity
         ConnectivityManager cm =
           (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo() != null;
+    }
+
+    public void updateConfig(boolean isActiveLabelOn) {
+      if (pipeline != null) {
+        HttpConfigUpdater hcu = new HttpConfigUpdater();
+        String updateUrl;
+        if (DEBUGGING) {
+          updateUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
+        } else {
+          if (isActiveLabelOn)
+            updateUrl = Config.DEFAULT_UPDATE_URL_ACTIVE;
+          else
+            updateUrl = Config.DEFAULT_UPDATE_URL_IDLE;
+        }
+        Log.d(LogKeys.DEBUG, TAG+".updateConfig/ url=" + updateUrl);
+        hcu.setUrl(updateUrl);
+        pipeline.setUpdate(hcu);
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if (pipeline.getHandler() != null) {
+              pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
+            }
+          }
+        });
+      } else {
+        Log.d(LogKeys.DEBUG, TAG+".updateConfig/ failed to update config");
+      }
     }
 }

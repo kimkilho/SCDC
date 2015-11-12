@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,15 +20,21 @@ import android.widget.ToggleButton;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
+import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 import kr.ac.snu.imlab.scdc.util.TimeUtil;
 
 import java.util.ArrayList;
 import android.os.Handler;
 
 public class BaseAdapterExLabel extends BaseAdapter {
+
+  protected static final String TAG = "BaseAdapterExLabel";
+
   Context mContext = null;
   ArrayList<LabelEntry> mData = null;
   LayoutInflater mLayoutInflater = null;
+  SharedPrefsHandler spHandler = null;
 
   Handler handler;
 
@@ -35,6 +42,8 @@ public class BaseAdapterExLabel extends BaseAdapter {
     this.mContext = context;
     this.mData = data;
     this.mLayoutInflater = LayoutInflater.from(this.mContext);
+    this.spHandler = SharedPrefsHandler.getInstance(this.mContext,
+                        Config.SCDC_PREFS, Context.MODE_PRIVATE);
   }
 
   @Override
@@ -120,22 +129,36 @@ public class BaseAdapterExLabel extends BaseAdapter {
     viewHolder.startLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            boolean pastIsActiveLabelOn = spHandler.isActiveLabelOn();
+
             // Save current isLogged value of labelEntries from SharedPreferences
-            LabelEntry currLabelEntry = mData.get(position);
-            currLabelEntry.startLog();  // Start label logging
+            mData.get(position).startLog();  // Start label logging
 
             v.setEnabled(false);
             viewHolder.endLogButton.setEnabled(true);
+
+            boolean currIsActiveLabelOn = spHandler.isActiveLabelOn();
+            // Update config again only when isActiveLabelOn status gets changed
+            if (pastIsActiveLabelOn != currIsActiveLabelOn &&
+                mContext instanceof LaunchActivity)
+              ((LaunchActivity)mContext).updateConfig(currIsActiveLabelOn);
         }
     });
 
     viewHolder.endLogButton.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+            boolean pastIsActiveLabelOn = spHandler.isActiveLabelOn();
             mData.get(position).endLog();  // End label logging
 
             v.setEnabled(false);
             viewHolder.startLogButton.setEnabled(true);
+
+            boolean currIsActiveLabelOn = spHandler.isActiveLabelOn();
+            // Update config again only when isActiveLabelOn status gets changed
+            if (pastIsActiveLabelOn != currIsActiveLabelOn &&
+                    mContext instanceof LaunchActivity)
+              ((LaunchActivity)mContext).updateConfig(currIsActiveLabelOn);
         }
     });
 
@@ -185,6 +208,5 @@ public class BaseAdapterExLabel extends BaseAdapter {
     Intent intent = new Intent(mContext, LaunchActivity.class);
     return PendingIntent.getActivity(mContext, id, intent, 0);
   }
-
 
 }

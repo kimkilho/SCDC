@@ -13,7 +13,8 @@ public class SCDCKeys {
       DEFAULT_UPLOAD_URL = "http://imlab-ws2.snu.ac.kr:8888/data/",
       // Update URL for publish
       DEFAULT_USERINFO_URL = "http://imlab-ws2.snu.ac.kr:8888/userinfo/",
-      DEFAULT_UPDATE_URL_PUBLISH = "http://imlab-ws2.snu.ac.kr:8888/conf/",
+      DEFAULT_UPDATE_URL_IDLE = "http://imlab-ws2.snu.ac.kr:8888/conf/idle/",
+      DEFAULT_UPDATE_URL_ACTIVE = "http://imlab-ws2.snu.ac.kr:8888/conf/active/",
       // Update URL for debug
       DEFAULT_UPDATE_URL_DEBUG = "http://imlab-ws2.snu.ac.kr:7000/config";
 
@@ -86,9 +87,12 @@ public class SCDCKeys {
   public static interface LabelKeys {
     public static final String
       DEFAULT_NUM_LABELS = "5",
-      ACTION_LABEL_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action" +
-      ".LABEL_LOG",
-      PIPELINE_KEY = "isPipelineEnabled",
+      ACTION_LABEL_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action.LABEL_LOG",
+        // deprecated
+      ACTION_LABEL_STATUS_LOG = "kr.ac.snu.imlab.scdc.Broadcasting.action" +
+                                  ".LABEL_STATUS_LOG",
+      EXTRA_IS_ACTIVE_LABEL = "kr.ac.snu.imlab.scdc.entry.LabelEntry.IS_ACTIVE_LABEL",
+      PIPELINE_KEY = "isPipelineEnabled",   // deprecated
       SLEEP_LABEL = "sleeping",
       IN_CLASS_LABEL = "in_class",
       EATING_LABEL = "having_a_meal",

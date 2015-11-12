@@ -1,18 +1,19 @@
 package kr.ac.snu.imlab.scdc.entry;
 
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-
-import edu.mit.media.funf.Schedule.BasicSchedule;
-import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
+import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
  * Created by kilho on 15. 6. 25.
  */
 public class LabelEntry {
+
+  protected static final String TAG = "LabelEntry";
+
   private int labelId;
   private SharedPrefsHandler spHandler;
 

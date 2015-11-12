@@ -30,52 +30,52 @@
         },
         "data": [
             {"@type": "edu.mit.media.funf.probe.builtin.BatteryProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.LightSensorProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.MagneticFieldSensorProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.AudioFeaturesProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.GyroscopeSensorProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.OrientationSensorProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.SimpleLocationProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.BluetoothProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.RunningApplicationsProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.ScreenProbe",
              "@schedule": {"interval": 0, "duration": 0, "opportunistic": true}
             },
             {"@type": "kr.ac.snu.imlab.scdc.service.probe.NetworkSettingsProbe",
-             "@schedule": {"interval": 600, "duration": 60, "opportunistic": true}
+             "@schedule": {"interval": 1800, "duration": 60, "opportunistic": true}
             },
             {"@type": "kr.ac.snu.imlab.scdc.service.probe.SystemSettingsProbe",
-             "@schedule": {"interval": 600, "duration": 60, "opportunistic": true}
+             "@schedule": {"interval": 1800, "duration": 60, "opportunistic": true}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.HardwareInfoProbe",
              "@schedule": {"interval": 0, "duration": 0, "opportunistic": true}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.ProximitySensorProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "kr.ac.snu.imlab.scdc.service.probe.ActivityRecognitionProbe",
-             "@schedule": {"interval": 600, "duration": 60}
+             "@schedule": {"interval": 1800, "duration": 60}
             }
           ]
     }

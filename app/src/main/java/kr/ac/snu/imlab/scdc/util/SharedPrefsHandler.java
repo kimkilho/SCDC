@@ -48,8 +48,8 @@ public class SharedPrefsHandler {
     this.deviceId = Secure.getString(this.context.getContentResolver(),
             Secure.ANDROID_ID);
     this.userinfoUrl = Config.DEFAULT_USERINFO_URL;
-    Log.d(LogKeys.DEBUG,
-      "SharedPrefsHandler.SharedPrefsHandler(): deviceId=" + this.deviceId);
+//    Log.d(LogKeys.DEBUG,
+//      "SharedPrefsHandler.SharedPrefsHandler(): deviceId=" + this.deviceId);
     firstrun = prefs.getBoolean("firstrun", true);
     if (firstrun && context instanceof LaunchActivity) {
       try {
@@ -69,7 +69,7 @@ public class SharedPrefsHandler {
 
   // Funf sensor
   public boolean isSensorOn() {
-    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.isSensorOn(): called");
+//    Log.d(LogKeys.DEBUG, "SharedPrefsHandler.isSensorOn(): called");
     return prefs.getBoolean(SharedPrefs.SENSOR_ON, Config.DEFAULT_SENSOR_ON);
   }
 
@@ -161,6 +161,23 @@ public class SharedPrefsHandler {
     } else {
       return true;
     }
+  }
+
+  // return true if at least one of active labels is on
+  public boolean isActiveLabelOn() {
+    String[] labelNames = LaunchActivity.labelNames;
+    String[] activeLabelNames = LaunchActivity.activeLabelNames;
+    for (int i = 0; i < labelNames.length; i++) {
+      // if current label is logged, check if it is included in active labels
+      if (getStartLoggingTime(i) != -1) {
+        for (int j = 0; j < activeLabelNames.length; j++) {
+          if (getLabelName(i).equals(activeLabelNames[j])) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
 
