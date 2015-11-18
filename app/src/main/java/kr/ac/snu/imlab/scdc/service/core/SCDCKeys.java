@@ -48,7 +48,9 @@ public class SCDCKeys {
       GENERAL_REPEAT_INTERVAL = "general_repeat_interval",
       LABEL_EXP_ID = "expId",
       LABEL_EXP_ID_PREFIX = "label_expId_",
-      LABEL_SENSOR_ID = "sensorId";
+      LABEL_SENSOR_ID = "sensorId",
+      ACTIVE_CONFIG = "activeConfig",
+      IDLE_CONFIG = "idleConfig";
 
     public static final int
       DEFAULT_SENSOR_ID = 0;

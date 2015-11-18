@@ -19,6 +19,7 @@ import org.apache.http.message.BasicNameValuePair;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.mit.media.funf.config.HttpConfigUpdater;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
@@ -31,6 +32,8 @@ import kr.ac.snu.imlab.scdc.R;
  * Created by kilho on 15. 8. 5.
  */
 public class SharedPrefsHandler {
+
+  protected static final String TAG = "SharedPrefsHandler";
 
   private Context context;
   private SharedPreferences prefs;
@@ -178,6 +181,23 @@ public class SharedPrefsHandler {
       }
     }
     return false;
+  }
+
+  // Probe Config - active / idle
+  public String getActiveConfig() {
+    return prefs.getString(SharedPrefs.ACTIVE_CONFIG, null);
+  }
+
+  public void setActiveConfig(String config) {
+    prefs.edit().putString(SharedPrefs.ACTIVE_CONFIG, config).apply();
+  }
+
+  public String getIdleConfig() {
+    return prefs.getString(SharedPrefs.IDLE_CONFIG, null);
+  }
+
+  public void setIdleConfig(String config) {
+    prefs.edit().putString(SharedPrefs.IDLE_CONFIG, config).apply();
   }
 
 
@@ -370,6 +390,36 @@ public class SharedPrefsHandler {
                                   (newIsFemale == 1)).apply();
         if (currSensorId != newSensorId)
           prefs.edit().putInt(SharedPrefs.LABEL_SENSOR_ID, newSensorId).apply();
+
+        // Get pipeline config from server for both active and idle state
+        HttpConfigUpdater hcu = new HttpConfigUpdater();
+        String updateActiveUrl, updateIdleUrl;
+        String newConfig;
+        if (LaunchActivity.DEBUGGING) {
+          updateActiveUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
+          updateIdleUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
+        } else {
+          updateActiveUrl = Config.DEFAULT_UPDATE_URL_ACTIVE;
+          updateIdleUrl = Config.DEFAULT_UPDATE_URL_IDLE;
+        }
+        if (getActiveConfig() == null) {
+          hcu.setUrl(updateActiveUrl);
+          Log.d(LogKeys.DEBUG,
+            TAG+".GetPrefsFromServerTask.doInBackground()/ updateActiveUrl=" + updateActiveUrl);
+          newConfig = hcu.getConfig().toString();
+          setActiveConfig(newConfig);
+          Log.d(LogKeys.DEBUG,
+                  TAG+".GetPrefsFromServerTask.doInBackground()/ newConfig=" + newConfig);
+        }
+        if (getIdleConfig() == null) {
+          hcu.setUrl(updateIdleUrl);
+          Log.d(LogKeys.DEBUG,
+                  TAG+".GetPrefsFromServerTask.doInBackground()/ updateIdleUrl=" + updateIdleUrl);
+          newConfig = hcu.getConfig().toString();
+          setIdleConfig(newConfig);
+          Log.d(LogKeys.DEBUG,
+                  TAG+".GetPrefsFromServerTask.doInBackground()/ newConfig=" + newConfig);
+        }
 
         return true;
 

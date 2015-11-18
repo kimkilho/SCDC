@@ -141,7 +141,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             // Update config again only when isActiveLabelOn status gets changed
             if (pastIsActiveLabelOn != currIsActiveLabelOn &&
                 mContext instanceof LaunchActivity)
-              ((LaunchActivity)mContext).updateConfig(currIsActiveLabelOn);
+              ((LaunchActivity)mContext).changeConfig(currIsActiveLabelOn);
         }
     });
 
@@ -158,7 +158,7 @@ public class BaseAdapterExLabel extends BaseAdapter {
             // Update config again only when isActiveLabelOn status gets changed
             if (pastIsActiveLabelOn != currIsActiveLabelOn &&
                     mContext instanceof LaunchActivity)
-              ((LaunchActivity)mContext).updateConfig(currIsActiveLabelOn);
+              ((LaunchActivity)mContext).changeConfig(currIsActiveLabelOn);
         }
     });
 

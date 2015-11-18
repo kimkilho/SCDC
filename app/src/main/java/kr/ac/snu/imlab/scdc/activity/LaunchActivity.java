@@ -44,6 +44,7 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
  import android.widget.ToggleButton;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 
 import java.io.File;
@@ -142,7 +143,7 @@ public class LaunchActivity extends ActionBarActivity
             Log.d(LogKeys.DEBUG, TAG+".funfManagerConn.onServiceConnected(): "
                                     + "spHandler.isActiveLabelOn()=" +
                                       spHandler.isActiveLabelOn());
-            updateConfig(spHandler.isActiveLabelOn());
+            changeConfig(spHandler.isActiveLabelOn());
 
             // Set UI ready to use, by enabling buttons
             // IMPORTANT: setChecked method should appear before
@@ -563,6 +564,9 @@ public class LaunchActivity extends ActionBarActivity
         protected void onPostExecute(Boolean isSuccess) {
           progressDialog.dismiss();
           uploader.run(archive, upload);
+
+          // IMPORTANT: Update config at this time once more
+          updateConfig();
           // uploader.stop();
         }
       }.execute(dbFile);
@@ -597,36 +601,72 @@ public class LaunchActivity extends ActionBarActivity
         return cm.getActiveNetworkInfo() != null;
     }
 
-    public void updateConfig(final boolean isActiveLabelOn) {
+    public boolean changeConfig(boolean isActiveLabelOn) {
+      if (pipeline != null) {
+        JsonObject oldConfig = funfManager.getPipelineConfig(pipeline.getName());
+        String newConfigString;
+        if (pipeline != null) {
+          if (isActiveLabelOn) newConfigString = spHandler.getActiveConfig();
+          else                 newConfigString = spHandler.getIdleConfig();
+
+          Log.d(LogKeys.DEBUG,
+                  TAG+".changeConfig/ newConfig=" + newConfigString);
+          JsonObject newConfig = new JsonParser().parse(newConfigString).getAsJsonObject();
+          if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
+            funfManager.saveAndReload(pipeline.getName(), newConfig);
+          }
+          Toast.makeText(getBaseContext(),
+                         getString(R.string.change_config_complete_message),
+                         Toast.LENGTH_SHORT).show();
+          return true;
+        } else {
+          Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");
+          Toast.makeText(getBaseContext(),
+                         getString(R.string.change_config_failed_message),
+                         Toast.LENGTH_SHORT).show();
+          return false;
+        }
+      } else {
+        Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");
+        return false;
+      }
+    }
+
+    // Update config for both active and idle state
+    public void updateConfig() {
         new AsyncTask<Void, Void, Boolean>() {
           private HttpConfigUpdater hcu;
-          private String updateUrl;
+          private String updateActiveUrl;
+          private String updateIdleUrl;
           private JsonObject oldConfig;
 
           @Override
           protected void onPreExecute() {
             hcu = new HttpConfigUpdater();
             if (DEBUGGING) {
-              updateUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
+              updateActiveUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
+              updateIdleUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
             } else {
-              if (isActiveLabelOn)
-                updateUrl = Config.DEFAULT_UPDATE_URL_ACTIVE;
-              else
-                updateUrl = Config.DEFAULT_UPDATE_URL_IDLE;
+              updateActiveUrl = Config.DEFAULT_UPDATE_URL_ACTIVE;
+              updateIdleUrl = Config.DEFAULT_UPDATE_URL_IDLE;
             }
-            hcu.setUrl(updateUrl);
-            Log.d(LogKeys.DEBUG, TAG+".updateConfig()/ url=" + updateUrl);
             oldConfig = funfManager.getPipelineConfig(pipeline.getName());
           }
 
           @Override
           protected Boolean doInBackground(Void... voids) {
+            String newConfig;
             if (pipeline != null) {
               try {
-                JsonObject newConfig = hcu.getConfig();
-                if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
-                  funfManager.saveAndReload(pipeline.getName(), newConfig);
-                }
+                hcu.setUrl(updateActiveUrl);
+                Log.d(LogKeys.DEBUG, TAG + ".updateConfig()/ url=" + updateActiveUrl);
+                newConfig = hcu.getConfig().toString();
+                spHandler.setActiveConfig(newConfig);
+                hcu.setUrl(updateIdleUrl);
+                Log.d(LogKeys.DEBUG, TAG + ".updateConfig()/ url=" + updateIdleUrl);
+                newConfig = hcu.getConfig().toString();
+                spHandler.setIdleConfig(newConfig);
+
                 return true;
               } catch (ConfigUpdateException e) {
                 Log.w(LogKeys.DEBUG, TAG+".updateConfig()/ Unable to get config", e);
@@ -646,11 +686,10 @@ public class LaunchActivity extends ActionBarActivity
                       Toast.LENGTH_LONG).show();
             } else {
               Toast.makeText(getBaseContext(),
-                      getString(R.string.update_config_complete_message),
+                      getString(R.string.update_config_failed_message),
                       Toast.LENGTH_LONG).show();
             }
           }
-
         }.execute();
 //      if (pipeline != null) {
 //        HttpConfigUpdater hcu = new HttpConfigUpdater();
