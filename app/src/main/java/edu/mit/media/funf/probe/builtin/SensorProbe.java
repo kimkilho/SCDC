@@ -49,7 +49,7 @@ public abstract class SensorProbe extends Base implements ContinuousProbe, Senso
 	public static final double DEFAULT_DURATION = 60;
 	
 	@Configurable
-	private String sensorDelay = SENSOR_DELAY_FASTEST;
+	private String sensorDelay = SENSOR_DELAY_GAME;
 	
 	public static final String 
 		SENSOR_DELAY_FASTEST = "FASTEST",
