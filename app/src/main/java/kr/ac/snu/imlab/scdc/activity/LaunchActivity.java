@@ -483,6 +483,7 @@ public class LaunchActivity extends ActionBarActivity
 
     @Override
     protected void onDestroy() {
+        this.unregisterReceiver(alertReceiver);
         unbindService(funfManagerConn);
         super.onDestroy();
     }
