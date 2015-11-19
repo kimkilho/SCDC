@@ -142,4 +142,11 @@ public class SCDCKeys {
       WALKING_ACTIVITY = "walking",
       UNIDENTIFIABLE_ACTIVITY = "unidentifiable";
   }
+
+  public interface AlertKeys {
+    public static final String
+      ACTION_ALERT = "kr.ac.snu.imlab.scdc.Broadcasting.action.ALERT",
+      EXTRA_ALERT_ERROR_MESSAGE = "kr.ac.snu.imlab.scdc.Broadcasting.extra.ALERT_ERROR_MESSAGE",
+      EXTRA_ALERT_ERROR_CODE = "kr.ac.snu.imlab.scdc.Broadcasting.extra.ALERT_ERROR_CODE";
+  }
 }

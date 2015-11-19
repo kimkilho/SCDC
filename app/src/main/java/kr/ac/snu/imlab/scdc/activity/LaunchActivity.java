@@ -1,5 +1,6 @@
 package kr.ac.snu.imlab.scdc.activity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -53,6 +54,7 @@ import java.io.File;
  import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
  import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlertKeys;
 import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
  import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
@@ -125,7 +127,13 @@ public class LaunchActivity extends ActionBarActivity
     private Button archiveButton, truncateDataButton;
     private TextView dataCountView;
 
-    private BroadcastReceiver labelStatusReceiver;
+    private BroadcastReceiver alertReceiver;
+
+    /**
+     * Alertdialog which shows up when there is a problem with connection
+     * to Google API.
+     */
+    private AlertDialog mAlertDialog = null;
 
     private ServiceConnection funfManagerConn = new ServiceConnection() {
         @Override
@@ -414,6 +422,24 @@ public class LaunchActivity extends ActionBarActivity
             }
         });
 
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(AlertKeys.ACTION_ALERT);
+        alertReceiver = new BroadcastReceiver() {
+          @Override
+          public void onReceive(Context context, Intent intent) {
+            Log.d(LogKeys.DEBUG, TAG+".onCreate.alertReceiver/ Received broadcast");
+
+            AlertDialog.Builder alert = new AlertDialog.Builder(LaunchActivity.this);
+            int code = intent.getIntExtra(AlertKeys.EXTRA_ALERT_ERROR_CODE, -1);
+            String message = intent.getStringExtra(AlertKeys.EXTRA_ALERT_ERROR_MESSAGE);
+            mAlertDialog = alert.setTitle("Error")
+                    .setMessage(message + " (alert code:" + code + ")")
+                    .setPositiveButton("OK", null)
+                    .show();
+          }
+        };
+        this.registerReceiver(alertReceiver, filter);
 
         // Bind to the service, to create the connection with SCDCManager
 //        Thread thread = new Thread() {

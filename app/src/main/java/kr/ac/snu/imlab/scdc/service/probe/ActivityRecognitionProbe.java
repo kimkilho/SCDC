@@ -1,5 +1,6 @@
 package kr.ac.snu.imlab.scdc.service.probe;
 
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,6 +31,7 @@ import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.service.ar.Constants;
 import kr.ac.snu.imlab.scdc.service.ar.DetectedActivitiesIntentService;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.AlertKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.ActivityRecognitionKeys;
 
@@ -192,7 +194,15 @@ public class ActivityRecognitionProbe extends Base
     public void onConnectionFailed(ConnectionResult result) {
       // Refer to the javadoc for ConnectionResult to see what error codes might be returned in
       // onConnectionFailed.
-      Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + result.getErrorCode());
+      String message = "Failed to connect to Google API";
+      Intent intent = new Intent();
+      intent.setAction(AlertKeys.ACTION_ALERT);
+      intent.putExtra(AlertKeys.EXTRA_ALERT_ERROR_CODE, result.getErrorCode());
+      intent.putExtra(AlertKeys.EXTRA_ALERT_ERROR_MESSAGE, message);
+
+      getContext().sendBroadcast(intent);
+      Log.i(TAG, "Connection failed: ConnectionResult.getErrorCode()=" + result.getErrorCode() +
+                  ", ConnectionResult.getErrorMessage()=" + result.getErrorMessage());
     }
 
     @Override
