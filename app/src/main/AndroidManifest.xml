@@ -86,6 +86,12 @@
             android:label="@string/title_activity_settings"
             android:windowSoftInputMode="adjustPan">
         </activity>
+        <activity
+            android:name="kr.ac.snu.imlab.scdc.activity.CalibrateActivity"
+            android:label="@string/title_activity_calibrate"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
+
 
         <!-- Funf Probe Services -->
         <!--

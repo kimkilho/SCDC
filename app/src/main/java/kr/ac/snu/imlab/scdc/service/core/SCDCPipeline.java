@@ -377,9 +377,9 @@ public class SCDCPipeline implements Pipeline, DataListener {
   public void onDataReceived(IJsonObject probeConfig, IJsonObject data) {
     // Add expId and sensorId to the original data
     JsonObject dataClone = data.getAsJsonObject();
-    dataClone.addProperty(SharedPrefs.LABEL_EXP_ID,
+    dataClone.addProperty(SharedPrefs.KEY_EXP_ID,
                           spHandler.getExpId(probeConfig.toString()));
-    dataClone.addProperty(SharedPrefs.LABEL_SENSOR_ID,
+    dataClone.addProperty(SharedPrefs.KEY_SENSOR_ID,
                           spHandler.getSensorId());
 
     // Temporarily build tempLabelEntries List<LabelEntry>

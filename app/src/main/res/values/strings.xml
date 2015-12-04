@@ -84,6 +84,7 @@
     <string name="notification_interval_tv">Push notifications time interval</string>
     <string name="title_activity_probe_reschedule">ProbeRescheduleActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_calibrate">CalibrateActivity</string>
     <string name="general_alarm_message">현재 무엇을 하고 계신가요? 레이블링을 수행해주세요.</string>
     <string name="label_alarm_message">%1$s한지 %2$s 지났습니다.</string>
     <string name="label_alarm_content_info">Reminder</string>
@@ -109,6 +110,10 @@
     <string name="update_config_failed_message">Failed to update pipeline config.</string>
     <string name="change_config_complete_message">Successfully changed pipeline config.</string>
     <string name="change_config_failed_message">Failed to change pipeline config.</string>
+
+    <string name="alert_need_calibration">본격적인 사용에 앞서, 현재 기기에 대한 calibration이 필요합니다.</string>
+    <string name="waiting_to_calibrate">Calibration 수행 준비 중...</string>
+    <string name="calibrating">Calibration 수행 중...</string>
 
     <!-- Activity recognition strings -->
     <!--<string name="in_vehicle">In a vehicle</string>-->

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="16dp">
+  <LinearLayout
+      android:id="@+id/ll_calibrate_time_remained"
+      android:visibility="visible"
+      android:orientation="vertical"
+      android:layout_centerInParent="true"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+      <TextView
+          android:id="@+id/tv_calibrate_message"
+          android:text="@string/calibrating"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:textSize="20dp"
+          android:gravity="center" />
+      <TextView
+          android:text="5"
+          android:id="@+id/tv_calibrate_time_remained"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:gravity="center"
+          android:textSize="200dp" />
+  </LinearLayout>
+
+</RelativeLayout>
