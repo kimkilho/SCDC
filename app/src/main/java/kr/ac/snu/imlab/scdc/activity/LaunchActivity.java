@@ -202,7 +202,7 @@ public class LaunchActivity extends ActionBarActivity
                           // Increment sensorId by 1
                           spHandler.setSensorId(spHandler.getSensorId() + 1);
                           Toast.makeText(LaunchActivity.this,
-                            SCDCKeys.SharedPrefs.LABEL_SENSOR_ID + ": " + spHandler.getSensorId(),
+                            SCDCKeys.SharedPrefs.KEY_SENSOR_ID + ": " + spHandler.getSensorId(),
                             Toast.LENGTH_SHORT).show();
 
                         } else {
