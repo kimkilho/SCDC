@@ -17,9 +17,10 @@ public class CalibrateActivity extends ActionBarActivity {
 
   protected static final String TAG = "CalibrateActivity";
 
-  private final int WAITING_TIME_IN_MILLISECONDS = 5000;
-  private final int PERIOD_IN_MILLISECONDS = 20;
-  private final int CALIBRATE_DURATION_IN_MILLISECONDS = 5000;
+  private static final int WAITING_TIME_IN_MILLIS = 5000;
+  private static final int PERIOD_IN_MILLIS = 20;
+  private static final int CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS = 5000;
+  private static final int CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS = 5000;
   private CountDownTimer countDownTimerCalibrating;
   private LinearLayout calibrateTimeRemainedLayout;
   private TextView calibrateMessageTv;
@@ -44,9 +45,10 @@ public class CalibrateActivity extends ActionBarActivity {
 
   private void setUpCountDownTimer() {
     countDownTimerCalibrating =
-      new CountDownTimer(WAITING_TIME_IN_MILLISECONDS +
-                         CALIBRATE_DURATION_IN_MILLISECONDS,
-                         PERIOD_IN_MILLISECONDS)
+      new CountDownTimer(WAITING_TIME_IN_MILLIS +
+                         CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS +
+                         CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS,
+                         PERIOD_IN_MILLIS)
         // millisInFuture: The number of millis in the future from the call to start()
         //                 until the countdown is done and onFinish() is called.
         // countDownInterval: The interval along the way to receive
@@ -56,23 +58,45 @@ public class CalibrateActivity extends ActionBarActivity {
       public void onTick(long millisUntilFinished) {
 //        Log.d(LogKeys.DEBUG, TAG + ".setUpCountDownTimer().onTick()/ millisUntilFinished=" +
 //                millisUntilFinished);
-        if (millisUntilFinished > CALIBRATE_DURATION_IN_MILLISECONDS) {
-          calibrateTimeRemainedLayout.setBackgroundResource(R.color.waiting);
+        // 1. Waiting period before calibration
+        if (millisUntilFinished > WAITING_TIME_IN_MILLIS +
+                                  CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS) {
+          // TODO: Implement task while calibrating
+          calibrateTimeRemainedLayout.setBackgroundResource(R.color.table_back);
           calibrateMessageTv.setText(R.string.waiting_to_calibrate);
           calibrateTimeRemainedTv.setText(
-                  Long.toString((millisUntilFinished - CALIBRATE_DURATION_IN_MILLISECONDS)
+                  Long.toString((millisUntilFinished -
+                                 WAITING_TIME_IN_MILLIS -
+                                 CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS)
                   / 1000 + 1)
           );
+        // 2. First calibration by putting the device
+        //    on a table facing the rear side
+        } else if (millisUntilFinished > WAITING_TIME_IN_MILLIS) {
+          // TODO: Implement task while calibrating
+          calibrateTimeRemainedLayout.setBackgroundResource(R.color.table_front);
+          calibrateMessageTv.setText(R.string.calibrating_table_front);
+          calibrateTimeRemainedTv.setText(
+                  Long.toString((millisUntilFinished -
+                                WAITING_TIME_IN_MILLIS)
+                  / 1000 + 1)
+          );
+        // 3. Second calibration by putting the device
+        //    on a table facing the front side
         } else {
-
-          // TODO: Implement task after finished calibrating
+          calibrateTimeRemainedLayout.setBackgroundResource(R.color.waiting);
+          calibrateMessageTv.setText(R.string.calibrating_table_back);
+          calibrateTimeRemainedTv.setText(
+                  Long.toString(millisUntilFinished
+                  / 1000 + 1)
+          );
         }
       }
 
       @Override
       public void onFinish() {
         calibrateTimeRemainedTv.setText("0");
-        // TODO:
+        // TODO: Implement task after finished calibrating
       }
     };
   }

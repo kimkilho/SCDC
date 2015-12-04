@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <color name="waiting">#FFFF00</color>
-  <color name="collecting_data">#00FF00</color>
+  <color name="table_front">#00FF00</color>
+  <color name="table_back">#0000FF</color>
+  <color name="collecting_data">#222222</color>
 </resources>
