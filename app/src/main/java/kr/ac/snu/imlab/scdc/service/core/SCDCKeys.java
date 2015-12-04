@@ -10,7 +10,10 @@ public class SCDCKeys {
       PIPELINE_NAME = "scdc",
       SCDC_PREFS = "kr.ac.snu.imlab.scdc.prefs",
       DEFAULT_USERNAME = "imlab_user",
+      // Upload URL for publish
       DEFAULT_UPLOAD_URL = "http://imlab-ws2.snu.ac.kr:8888/data/",
+      // Upload URL for debug
+      DEFAULT_UPLOAD_URL_DEBUG = "http://imlab-ws2.snu.ac.kr:7000/data",
       // Update URL for publish
       DEFAULT_USERINFO_URL = "http://imlab-ws2.snu.ac.kr:8888/userinfo/",
       DEFAULT_UPDATE_URL_IDLE = "http://imlab-ws2.snu.ac.kr:8888/conf/idle/",

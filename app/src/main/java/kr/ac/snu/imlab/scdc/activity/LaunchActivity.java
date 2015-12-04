@@ -72,7 +72,7 @@ public class LaunchActivity extends ActionBarActivity
 
     @Configurable
     // FIXME: Change below to false when publishing
-    public static boolean DEBUGGING = false;
+    public static boolean DEBUGGING = true;
 
     @Configurable
     protected int version = 5;
@@ -575,8 +575,13 @@ public class LaunchActivity extends ActionBarActivity
           progressDialog.show();
 
           archive = new ZipArchive(funfManager, Config.PIPELINE_NAME);
-          upload = new MultipartEntityArchive(funfManager,
-                       Config.DEFAULT_UPLOAD_URL, LaunchActivity.this);
+          if (DEBUGGING) {
+            upload = new MultipartEntityArchive(funfManager,
+                    Config.DEFAULT_UPLOAD_URL_DEBUG, LaunchActivity.this);
+          } else {
+            upload = new MultipartEntityArchive(funfManager,
+                    Config.DEFAULT_UPLOAD_URL, LaunchActivity.this);
+          }
           uploader = new SCDCUploadService(funfManager);
           uploader.setContext(LaunchActivity.this);
           uploader.start();
