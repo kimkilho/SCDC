@@ -23,7 +23,8 @@ public class SCDCKeys {
 
     public static final boolean
       DEFAULT_SENSOR_ON = false,
-      DEFAULT_IS_FEMALE = false;
+      DEFAULT_IS_FEMALE = false,
+      DEFAULT_IS_CALIBRATED = false;
   }
 
   public static interface SharedPrefs {
@@ -31,6 +32,7 @@ public class SCDCKeys {
       SENSOR_ON = "sensor_on",
       USERNAME = "username",
       IS_FEMALE = "isFemale",
+      IS_CALIBRATED = "calibrated",
       DEVICE_ID = "deviceId",
       NUM_LABELS = "total_num_labels",
       LABEL_NAME_PREFIX = "label_name_",
@@ -49,9 +51,10 @@ public class SCDCKeys {
       IS_REMINDER_RUNNING = "is_reminder_running",
       GENERAL_REPEAT_TYPE = "general_repeat_type",
       GENERAL_REPEAT_INTERVAL = "general_repeat_interval",
-      LABEL_EXP_ID = "expId",
       LABEL_EXP_ID_PREFIX = "label_expId_",
-      LABEL_SENSOR_ID = "sensorId",
+      KEY_EXP_ID = "expId",
+      KEY_SENSOR_ID = "sensorId",
+      KEY_IS_CALIBRATED = "calibrated",
       ACTIVE_CONFIG = "activeConfig",
       IDLE_CONFIG = "idleConfig";
 
