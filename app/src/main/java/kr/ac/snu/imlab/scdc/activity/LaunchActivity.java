@@ -162,8 +162,9 @@ public class LaunchActivity extends ActionBarActivity
             //            setOnCheckedChangeListener
             enabledToggleButton.setEnabled(true);
             enabledToggleButton.setChecked(spHandler.isSensorOn());
-            boolean areButtonsOn =
-                    (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+//            boolean areButtonsOn =
+//                    (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+            boolean areButtonsOn = !enabledToggleButton.isChecked();
             archiveButton.setEnabled(areButtonsOn);
             truncateDataButton.setEnabled(areButtonsOn);
 
