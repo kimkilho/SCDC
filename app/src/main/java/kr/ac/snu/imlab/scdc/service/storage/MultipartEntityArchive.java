@@ -1,9 +1,11 @@
 package kr.ac.snu.imlab.scdc.service.storage;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.NetworkInfo.State;
@@ -62,6 +64,10 @@ public class MultipartEntityArchive extends HttpArchive {
 
   @SuppressWarnings("unused")
   private String mimeType;
+
+  private AlertDialog mAlertDialog;
+
+  private boolean uploadSucceed;
 
   public MultipartEntityArchive() {
 
@@ -122,16 +128,40 @@ public class MultipartEntityArchive extends HttpArchive {
    * @param uploadurl
    * @return
    */
-  public boolean uploadFile(Activity activity,
-                                   File file, String uploadurl) {
-    boolean isSuccess = true;
+  public boolean uploadFile(final Activity activity,
+                            final File file, final String uploadurl) {
+
+    OnClickListener retryUploadListener = new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        try {
+          uploadSucceed =
+            new BackgroundUploader(activity, uploadurl, file).execute().get();
+        } catch (Exception e) {
+          uploadSucceed = false;
+        }
+      }
+    };
+
     try {
-      new BackgroundUploader(activity, uploadurl, file).execute();
+      uploadSucceed =
+        new BackgroundUploader(activity, uploadurl, file).execute().get();
     } catch (Exception e) {
-      isSuccess = false;
+      uploadSucceed = false;
     }
 
-    return isSuccess;
+    while (!uploadSucceed) {
+      AlertDialog.Builder alert = new AlertDialog.Builder(activity);
+      String message = "Upload failed. Retry?";
+      mAlertDialog = alert.setTitle("Warning")
+              .setMessage(message)
+              .setPositiveButton("YES", retryUploadListener)
+              .show();
+    }
+
+    file.delete();
+
+    return uploadSucceed;
   }
 
 
@@ -295,7 +325,6 @@ public class MultipartEntityArchive extends HttpArchive {
     @Override
     protected void onPostExecute(Boolean isSuccess) {
       progressDialog.dismiss();
-      file.delete();
     }
 
     @Override

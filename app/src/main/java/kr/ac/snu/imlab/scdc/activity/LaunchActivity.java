@@ -405,7 +405,7 @@ public class LaunchActivity extends ActionBarActivity
 
                   // Asynchronously archive and upload dbFile
                   archiveAndUploadDatabase(dbFile);
-                  dropAndCreateTable(db);
+                  dropAndCreateTable(db, false);
 
 //                if (dbFile.exists()) {
 //                  archive.remove(dbFile);
@@ -443,7 +443,7 @@ public class LaunchActivity extends ActionBarActivity
             public void onClick(View v) {
               if (pipeline.getDatabaseHelper() != null) {
                 SQLiteDatabase db = pipeline.getWritableDb();
-                dropAndCreateTable(db);
+                dropAndCreateTable(db, true);
               }
             }
         });
@@ -549,7 +549,8 @@ public class LaunchActivity extends ActionBarActivity
      * @author Kilho Kim
      * Truncate table of the database of the pipeline.
      */
-    private void dropAndCreateTable(final SQLiteDatabase db) {
+    private void dropAndCreateTable(final SQLiteDatabase db,
+                                    final boolean showProgress) {
       new AsyncTask<SQLiteDatabase, Void, Boolean>() {
 
         private ProgressDialog progressDialog;
@@ -557,10 +558,12 @@ public class LaunchActivity extends ActionBarActivity
 
         @Override
         protected void onPreExecute() {
-          progressDialog = new ProgressDialog(LaunchActivity.this);
-          progressDialog.setMessage(getString(R.string.truncate_message));
-          progressDialog.setCancelable(false);
-          progressDialog.show();
+          if (showProgress) {
+            progressDialog = new ProgressDialog(LaunchActivity.this);
+            progressDialog.setMessage(getString(R.string.truncate_message));
+            progressDialog.setCancelable(false);
+            progressDialog.show();
+          }
 
           databaseHelper = (SCDCDatabaseHelper) pipeline.getDatabaseHelper();
         }
@@ -572,7 +575,9 @@ public class LaunchActivity extends ActionBarActivity
 
         @Override
         protected void onPostExecute(Boolean isSuccess) {
-          progressDialog.dismiss();
+          if (showProgress) {
+            progressDialog.dismiss();
+          }
           dataCountView.setText("Data size: 0.0 MB");
           updateScanCount();
           Toast.makeText(getBaseContext(), getString(R.string.truncate_complete_message),
