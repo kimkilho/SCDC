@@ -395,7 +395,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
 
   @Override
   public void onDataReceived(IJsonObject probeConfig, IJsonObject data) {
-    // Add expId and sensorId to the original data
+    // Add expId and sensorId as new key-values to the original data
     JsonObject dataClone = data.getAsJsonObject();
     dataClone.addProperty(SharedPrefs.KEY_EXP_ID,
                           spHandler.getExpId(probeConfig.toString()));
@@ -410,11 +410,18 @@ public class SCDCPipeline implements Pipeline, DataListener {
       tempLabelEntries.add(new LabelEntry(i, tempLabelNames[i],
                                           manager, Config.SCDC_PREFS));
     }
-    // Add label keys as new keys for JsonObject data
+    // Add label status as new key-values for JsonObject data
     for (int i = 0; i < tempLabelEntries.size(); i++) {
       dataClone.addProperty(tempLabelEntries.get(i).getName(),
                             tempLabelEntries.get(i).isLogged());
     }
+
+    // If calibrating, add calibration status as a new key-value
+    if (!spHandler.getIsCalibrated()) {
+      dataClone.addProperty(SharedPrefs.KEY_CALIBRATION_STATUS,
+                            spHandler.getCalibrationStatus());
+    }
+
     IJsonObject dataWithExpId = new IJsonObject(dataClone);
     Log.d(LogKeys.DEBUG, "SCDCPipeline.onDataReceived(): probeConfig=" + probeConfig.toString() +
             ", data=" + dataWithExpId.toString());// + ", schedule=" + manager.getPipelineConfig(name));

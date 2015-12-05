@@ -112,9 +112,11 @@
     <string name="change_config_failed_message">Failed to change pipeline config.</string>
 
     <string name="alert_need_calibration">본격적인 사용에 앞서, 현재 기기에 대한 calibration이 필요합니다.</string>
-    <string name="waiting_to_calibrate">Calibration 수행 준비 중...</string>
+    <string name="waiting_to_calibrate_table_front">기기 앞면이 위로 향하게 하여 테이블 위에 놓아주세요.</string>
     <string name="calibrating_table_front">Table-Front Calibration 수행 중...</string>
+    <string name="waiting_to_calibrate_table_back">기기 뒷면이 위로 향하게 하여 테이블 위에 놓아주세요.</string>
     <string name="calibrating_table_back">Table-Back Calibration 수행 중...</string>
+    <string name="end_calibration">Calibration이 끝났습니다. 잠시 후 종료됩니다.</string>
 
 
     <!-- Activity recognition strings -->

@@ -33,6 +33,7 @@ public class SCDCKeys {
       USERNAME = "username",
       IS_FEMALE = "isFemale",
       IS_CALIBRATED = "calibrated",
+      CALIBRATION_STATUS = "calibration_status",
       DEVICE_ID = "deviceId",
       NUM_LABELS = "total_num_labels",
       LABEL_NAME_PREFIX = "label_name_",
@@ -55,6 +56,7 @@ public class SCDCKeys {
       KEY_EXP_ID = "expId",
       KEY_SENSOR_ID = "sensorId",
       KEY_IS_CALIBRATED = "calibrated",
+      KEY_CALIBRATION_STATUS = "calibration_status",
       ACTIVE_CONFIG = "activeConfig",
       IDLE_CONFIG = "idleConfig";
 
@@ -154,5 +156,12 @@ public class SCDCKeys {
       ACTION_ALERT = "kr.ac.snu.imlab.scdc.Broadcasting.action.ALERT",
       EXTRA_ALERT_ERROR_MESSAGE = "kr.ac.snu.imlab.scdc.Broadcasting.extra.ALERT_ERROR_MESSAGE",
       EXTRA_ALERT_ERROR_CODE = "kr.ac.snu.imlab.scdc.Broadcasting.extra.ALERT_ERROR_CODE";
+  }
+
+  public interface CalibrationKeys {
+    public static final int
+      CALIBRATION_STATUS_DEFAULT = 0,
+      CALIBRATION_STATUS_TABLE_FRONT = 1,
+      CALIBRATION_STATUS_TABLE_BACK = 2;
   }
 }

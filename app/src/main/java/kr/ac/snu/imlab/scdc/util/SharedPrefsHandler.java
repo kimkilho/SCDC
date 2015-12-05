@@ -21,7 +21,7 @@ import java.util.List;
 
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
-import kr.ac.snu.imlab.scdc.service.core.SCDCKeys;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.CalibrationKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
@@ -128,6 +128,15 @@ public class SharedPrefsHandler {
 
   public void setIsCalibrated(boolean isCalibrated) {
     prefs.edit().putBoolean(SharedPrefs.IS_CALIBRATED, isCalibrated).apply();
+  }
+
+  public int getCalibrationStatus() {
+    return prefs.getInt(SharedPrefs.CALIBRATION_STATUS,
+                        CalibrationKeys.CALIBRATION_STATUS_DEFAULT);
+  }
+
+  public void setCalibrationStatus(int status) {
+    prefs.edit().putInt(SharedPrefs.CALIBRATION_STATUS, status).apply();
   }
 
   // Synchronize preferences with server

@@ -9,10 +9,13 @@ import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import kr.ac.snu.imlab.scdc.R;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.CalibrationKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCManager;
@@ -26,8 +29,9 @@ public class CalibrateActivity extends ActionBarActivity {
 
   protected static final String TAG = "CalibrateActivity";
 
-  private static final int INITIAL_WAITING_TIME_IN_MILLIS = 5000;
+  private static final int INITIAL_WAITING_TIME_IN_MILLIS = 7000;
   private static final int MIDDLE_WAITING_TIME_IN_MILLIS = 5000;
+  private static final int END_WAITING_TIME_IN_MILLIS = 3000;
   private static final int PERIOD_IN_MILLIS = 100;
   private static final int CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS = 5000;
   private static final int CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS = 5000;
@@ -103,7 +107,8 @@ public class CalibrateActivity extends ActionBarActivity {
       new CountDownTimer(INITIAL_WAITING_TIME_IN_MILLIS +
                          CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS +
                          MIDDLE_WAITING_TIME_IN_MILLIS +
-                         CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS,
+                         CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS +
+                         END_WAITING_TIME_IN_MILLIS,
                          PERIOD_IN_MILLIS)
         // millisInFuture: The number of millis in the future from the call to start()
         //                 until the countdown is done and onFinish() is called.
@@ -117,55 +122,90 @@ public class CalibrateActivity extends ActionBarActivity {
         // 1. First Waiting period before Table-Front calibration
         if (millisUntilFinished > CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS +
                                   MIDDLE_WAITING_TIME_IN_MILLIS +
-                                  CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS) {
+                                  CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS +
+                                  END_WAITING_TIME_IN_MILLIS) {
+          // Change current calibration status
+          if (spHandler.getCalibrationStatus() !=
+                  CalibrationKeys.CALIBRATION_STATUS_DEFAULT) {
+            spHandler.setCalibrationStatus(
+                    CalibrationKeys.CALIBRATION_STATUS_DEFAULT);
+          }
           calibrateTimeRemainedLayout.setBackgroundResource(R.color.waiting);
-          calibrateMessageTv.setText(R.string.waiting_to_calibrate);
+          calibrateMessageTv.setText(R.string.waiting_to_calibrate_table_front);
           calibrateTimeRemainedTv.setText(
                   Long.toString((millisUntilFinished -
                                  CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS -
                                  MIDDLE_WAITING_TIME_IN_MILLIS -
-                                 CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS)
+                                 CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS -
+                                 END_WAITING_TIME_IN_MILLIS)
                   / 1000 + 1)
           );
         // 2. First calibration by putting the device
         //    on a table facing the front side
         } else if (millisUntilFinished > MIDDLE_WAITING_TIME_IN_MILLIS +
-                                         CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS) {
-          // TODO: Implement task while calibrating
-//          Log.d(LogKeys.DEBUG, TAG+".setCountDownTimer().onTick(): " +
-//                  "pipeline.getName()=" + pipeline.getName() +
-//                  ", pipeline.isEnabled()=" + pipeline.isEnabled() +
-//                  ", pipeline.getDatabaseHelper()=" + pipeline.getDatabaseHelper());
+                                         CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS +
+                                         END_WAITING_TIME_IN_MILLIS) {
+          // Change current calibration status
+          if (spHandler.getCalibrationStatus() !=
+              CalibrationKeys.CALIBRATION_STATUS_TABLE_FRONT) {
+            spHandler.setCalibrationStatus(
+              CalibrationKeys.CALIBRATION_STATUS_TABLE_FRONT);
+          }
           calibrateTimeRemainedLayout.setBackgroundResource(R.color.table_front);
           calibrateMessageTv.setText(R.string.calibrating_table_front);
           calibrateTimeRemainedTv.setText(
                   Long.toString((millisUntilFinished -
                                  MIDDLE_WAITING_TIME_IN_MILLIS -
-                                 CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS)
+                                 CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS -
+                                 END_WAITING_TIME_IN_MILLIS)
                   / 1000 + 1)
           );
         // 3. Second Waiting period before Table-Back calibration
-        } else if (millisUntilFinished > CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS) {
+        } else if (millisUntilFinished > CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS +
+                                         END_WAITING_TIME_IN_MILLIS) {
+          // Change current calibration status
+          if (spHandler.getCalibrationStatus() !=
+                  CalibrationKeys.CALIBRATION_STATUS_DEFAULT) {
+            spHandler.setCalibrationStatus(
+                    CalibrationKeys.CALIBRATION_STATUS_DEFAULT);
+          }
           calibrateTimeRemainedLayout.setBackgroundResource(R.color.waiting);
-          calibrateMessageTv.setText(R.string.waiting_to_calibrate);
+          calibrateMessageTv.setText(R.string.waiting_to_calibrate_table_back);
           calibrateTimeRemainedTv.setText(
                   Long.toString((millisUntilFinished -
-                                 CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS)
+                                 CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS -
+                                 END_WAITING_TIME_IN_MILLIS)
                   / 1000 + 1)
           );
         // 4. Second calibration by putting the device
         //    on a table facing the back side
-        } else {
-          // TODO: Implement task while calibrating
-//          Log.d(LogKeys.DEBUG, TAG+".setCountDownTimer().onTick(): " +
-//                  "pipeline.getName()=" + pipeline.getName() +
-//                  ", pipeline.isEnabled()=" + pipeline.isEnabled() +
-//                  ", pipeline.getDatabaseHelper()=" + pipeline.getDatabaseHelper());
+        } else if (millisUntilFinished > END_WAITING_TIME_IN_MILLIS) {
+          // Change current calibration status
+          if (spHandler.getCalibrationStatus() !=
+                  CalibrationKeys.CALIBRATION_STATUS_TABLE_BACK) {
+            spHandler.setCalibrationStatus(
+                    CalibrationKeys.CALIBRATION_STATUS_TABLE_BACK);
+          }
           calibrateTimeRemainedLayout.setBackgroundResource(R.color.table_back);
           calibrateMessageTv.setText(R.string.calibrating_table_back);
           calibrateTimeRemainedTv.setText(
-                  Long.toString(millisUntilFinished
+                  Long.toString((millisUntilFinished -
+                                 END_WAITING_TIME_IN_MILLIS)
                   / 1000 + 1)
+          );
+        // 5. Final Waiting period at the end of calibration
+        } else {
+          // Change current calibration status
+          if (spHandler.getCalibrationStatus() !=
+                  CalibrationKeys.CALIBRATION_STATUS_DEFAULT) {
+            spHandler.setCalibrationStatus(
+                    CalibrationKeys.CALIBRATION_STATUS_DEFAULT);
+          }
+          calibrateTimeRemainedLayout.setBackgroundResource(R.color.waiting);
+          calibrateMessageTv.setText(R.string.end_calibration);
+          calibrateTimeRemainedTv.setText(
+                  Long.toString(millisUntilFinished
+                                / 1000 + 1)
           );
         }
       }
@@ -174,12 +214,16 @@ public class CalibrateActivity extends ActionBarActivity {
       public void onFinish() {
         calibrateTimeRemainedTv.setText("0");
         // TODO: Implement task after finished calibrating
+//        calibrateTimeRemainedLayout.setVisibility(View.INVISIBLE);
+        finish();
       }
     };
   }
 
   @Override
   protected void onDestroy() {
+    spHandler.setSensorOn(false);
+    spHandler.setIsCalibrated(true);
     countDownTimerCalibrating.cancel();
     unbindService(funfManagerConn);
     super.onDestroy();
