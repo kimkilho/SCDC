@@ -402,10 +402,10 @@ public class LaunchActivity extends ActionBarActivity
                   SQLiteDatabase db = pipeline.getWritableDb();
                   Log.d(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
                   File dbFile = new File(db.getPath());
-                  db.close();
 
                   // Asynchronously archive and upload dbFile
                   archiveAndUploadDatabase(dbFile);
+                  dropAndCreateTable(db);
 
 //                if (dbFile.exists()) {
 //                  archive.remove(dbFile);
