@@ -90,6 +90,21 @@ public class SCDCDatabaseHelper extends SQLiteOpenHelper {
       return true;
     }
 
+    /**
+     * @param db
+     * @author Kilho Kim
+     * Drop and re-Create 'calibration_data' table.
+     */
+    public boolean dropCalibrationDataTable(SQLiteDatabase db) {
+      try {
+        db.execSQL("DROP TABLE IF EXISTS " + CALIBRATION_DATA_TABLE.name + ";");
+      } catch (Exception e) {
+        return false;
+      }
+
+      return true;
+    }
+
     // TODO: Consider moving these to an external utils class
 
     /**

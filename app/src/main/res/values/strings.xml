@@ -116,7 +116,7 @@
     <string name="calibrating_table_front">Table-Front Calibration 수행 중...</string>
     <string name="waiting_to_calibrate_table_back">기기 뒷면이 위로 향하게 하여 테이블 위에 놓아주세요.</string>
     <string name="calibrating_table_back">Table-Back Calibration 수행 중...</string>
-    <string name="end_calibration">Calibration이 끝났습니다. 잠시 후 종료됩니다.</string>
+    <string name="end_calibration">Calibration이 끝났습니다. 업로드가 끝나면 \'뒤로가기\' 버튼을 눌러 종료해 주세요.</string>
 
 
     <!-- Activity recognition strings -->

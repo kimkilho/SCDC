@@ -1,25 +1,34 @@
 package kr.ac.snu.imlab.scdc.activity;
 
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.sqlite.SQLiteDatabase;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.IBinder;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.File;
+
+import edu.mit.media.funf.storage.FileArchive;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.CalibrationKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCManager;
 import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
+import kr.ac.snu.imlab.scdc.service.storage.MultipartEntityArchive;
+import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
+import kr.ac.snu.imlab.scdc.service.storage.SCDCUploadService;
+import kr.ac.snu.imlab.scdc.service.storage.ZipArchive;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
@@ -86,6 +95,9 @@ public class CalibrateActivity extends ActionBarActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_calibrate);
+
+    Intent intent = getIntent();
+
     calibrateTimeRemainedLayout = (LinearLayout)findViewById(R.id.ll_calibrate_time_remained);
     calibrateMessageTv = (TextView)findViewById(R.id.tv_calibrate_message);
     calibrateTimeRemainedTv = (TextView)findViewById(R.id.tv_calibrate_time_remained);
@@ -215,7 +227,17 @@ public class CalibrateActivity extends ActionBarActivity {
         calibrateTimeRemainedTv.setText("0");
         // TODO: Implement task after finished calibrating
 //        calibrateTimeRemainedLayout.setVisibility(View.INVISIBLE);
-        finish();
+        SQLiteDatabase db = pipeline.getWritableDb();
+        Log.d(LogKeys.DEBUG, TAG+".setUpCountDownTimer().onFinish(): " +
+                                 "db.getPath()=" + db.getPath());
+        File dbFile = new File(db.getPath());
+
+        // Asynchronously archive and upload dbFile
+        archiveAndUploadDatabase(dbFile);
+        // Asynchronously drop and create db table
+        dropAndCreateTable(db);
+
+//        finish();
       }
     };
   }
@@ -223,10 +245,83 @@ public class CalibrateActivity extends ActionBarActivity {
   @Override
   protected void onDestroy() {
     spHandler.setSensorOn(false);
-    spHandler.setIsCalibrated(true);
     countDownTimerCalibrating.cancel();
     unbindService(funfManagerConn);
     super.onDestroy();
   }
-  
+
+  private void archiveAndUploadDatabase(final File dbFile) {
+    new AsyncTask<File, Void, Boolean>() {
+
+      private ProgressDialog progressDialog;
+      private FileArchive archive;
+      private MultipartEntityArchive upload;
+      private SCDCUploadService uploader;
+
+      @Override
+      protected void onPreExecute() {
+        progressDialog = new ProgressDialog(CalibrateActivity.this);
+        progressDialog.setMessage(getString(R.string.archive_message));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        archive = new ZipArchive(funfManager, Config.PIPELINE_NAME);
+        if (LaunchActivity.DEBUGGING) {
+          upload = new MultipartEntityArchive(funfManager,
+                  Config.DEFAULT_UPLOAD_URL_DEBUG, CalibrateActivity.this);
+        } else {
+          upload = new MultipartEntityArchive(funfManager,
+                  Config.DEFAULT_UPLOAD_URL, CalibrateActivity.this);
+        }
+        uploader = new SCDCUploadService(funfManager);
+        uploader.setContext(CalibrateActivity.this);
+        uploader.start();
+      }
+
+      @Override
+      protected Boolean doInBackground(File... files) {
+        return archive.add(files[0]);
+      }
+
+      @Override
+      protected void onPostExecute(Boolean isSuccess) {
+        progressDialog.dismiss();
+        uploader.run(archive, upload);
+
+        // uploader.stop();
+      }
+    }.execute(dbFile);
+  }
+
+  private void dropAndCreateTable(final SQLiteDatabase db) {
+    new AsyncTask<SQLiteDatabase, Void, Boolean>() {
+
+      private ProgressDialog progressDialog;
+      private SCDCDatabaseHelper databaseHelper;
+
+      @Override
+      protected void onPreExecute() {
+        progressDialog = new ProgressDialog(CalibrateActivity.this);
+        progressDialog.setMessage(getString(R.string.truncate_message));
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+
+        databaseHelper = (SCDCDatabaseHelper) pipeline.getDatabaseHelper();
+      }
+
+      @Override
+      protected Boolean doInBackground(SQLiteDatabase... dbs) {
+        spHandler.setIsCalibrated(true);
+        return databaseHelper.dropCalibrationDataTable(dbs[0]);
+      }
+
+      @Override
+      protected void onPostExecute(Boolean isSuccess) {
+        progressDialog.dismiss();
+        Toast.makeText(getBaseContext(), getString(R.string.truncate_complete_message),
+                Toast.LENGTH_LONG).show();
+      }
+    }.execute(db);
+  }
+
 }

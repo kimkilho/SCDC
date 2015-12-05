@@ -59,10 +59,10 @@ public class SCDCPipeline implements Pipeline, DataListener {
                       CALIBRATION_DATA = 4;
 
   @Configurable
-  protected String name = "scdc";
+  protected String name = Config.PIPELINE_NAME;
 
   @Configurable
-  protected int version = 1;
+  protected int version = Config.PIPELINE_VERSION;
 
   @Configurable
   protected FileArchive archive = null;
