@@ -31,6 +31,10 @@ public class SCDCDatabaseHelper extends SQLiteOpenHelper {
             Arrays.asList(new Column(COLUMN_NAME, "TEXT"), // ACTION from data broadcast
                     new Column(COLUMN_TIMESTAMP, "FLOAT"), // TIMESTAMP in data broadcast
                     new Column(COLUMN_VALUE, "TEXT"))); // JSON representing
+    public static final Table CALIBRATION_DATA_TABLE = new Table("calibration_data",
+            Arrays.asList(new Column(COLUMN_NAME, "TEXT"), // ACTION from data broadcast
+                    new Column(COLUMN_TIMESTAMP, "FLOAT"), // TIMESTAMP in data broadcast
+                    new Column(COLUMN_VALUE, "TEXT"))); // JSON representing
     public static final String COLUMN_DATABASE_NAME = "dbname";
     public static final String COLUMN_INSTALLATION = "device";
     public static final String COLUMN_UUID = "uuid";
@@ -53,6 +57,7 @@ public class SCDCDatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(DATA_TABLE.getCreateTableSQL());
+        db.execSQL(CALIBRATION_DATA_TABLE.getCreateTableSQL());
         db.execSQL(FILE_INFO_TABLE.getCreateTableSQL());
         // Insert file identifier information
         String installationUuid = UuidUtil.getInstallationId(context);

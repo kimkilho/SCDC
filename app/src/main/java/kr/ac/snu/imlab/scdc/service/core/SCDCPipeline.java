@@ -55,7 +55,8 @@ public class SCDCPipeline implements Pipeline, DataListener {
     ACTION_UPLOAD = "upload",
     ACTION_UPDATE = "update";
 
-  protected final int ARCHIVE = 0, UPLOAD = 1, UPDATE = 2, DATA = 3;
+  protected final int ARCHIVE = 0, UPLOAD = 1, UPDATE = 2, DATA = 3,
+                      CALIBRATION_DATA = 4;
 
   @Configurable
   protected String name = "scdc";
@@ -122,6 +123,10 @@ public class SCDCPipeline implements Pipeline, DataListener {
           IJsonObject data = (IJsonObject)((JsonObject)msg.obj).get("value");
           writeData(name, data);
           break;
+        case CALIBRATION_DATA:
+          String name_for_calibration = ((JsonObject)msg.obj).get("name").getAsString();
+          IJsonObject data_for_calibration = (IJsonObject)((JsonObject)msg.obj).get("value");
+          writeCalibrationData(name_for_calibration, data_for_calibration);
         default:
           break;
       }
@@ -174,6 +179,22 @@ public class SCDCPipeline implements Pipeline, DataListener {
     }
   }
 
+  protected void writeCalibrationData(String name, IJsonObject data) {
+    SQLiteDatabase db = databaseHelper.getWritableDatabase();
+    final double timestamp = data.get(ProbeKeys.BaseProbeKeys.TIMESTAMP).getAsDouble();
+    final String value = data.toString();
+    ContentValues cv = new ContentValues();
+    cv.put(SCDCDatabaseHelper.COLUMN_NAME, name);
+    cv.put(SCDCDatabaseHelper.COLUMN_VALUE, value);
+    cv.put(SCDCDatabaseHelper.COLUMN_TIMESTAMP, timestamp);
+    // Added by Kilho Kim: When the data table is suddenly truncated:
+    try {
+      db.insertOrThrow(SCDCDatabaseHelper.CALIBRATION_DATA_TABLE.name, "", cv);
+    } catch (SQLiteException e) {
+      // Do nothing
+    }
+
+  }
 
   @Override
   public void onCreate(FunfManager manager) {
@@ -195,7 +216,6 @@ public class SCDCPipeline implements Pipeline, DataListener {
     this.spHandler = SharedPrefsHandler.getInstance(this.manager,
                      Config.SCDC_PREFS, Context.MODE_PRIVATE);
     for (JsonElement dataRequest : data) {
-      // Log.d(LogKeys.DEBUG, "SCDCPipeline.onCreate(): dataRequest=" + dataRequest.toString());
       manager.requestData(this, dataRequest);
     }
     for (Map.Entry<String, Schedule> schedule : schedules.entrySet()) {
@@ -402,7 +422,13 @@ public class SCDCPipeline implements Pipeline, DataListener {
     record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
     // add dataWithExpId instead of the original data
     record.add("value", dataWithExpId);
-    Message message = Message.obtain(handler, DATA, record);
+
+    Message message;
+    if (!spHandler.getIsCalibrated()) {
+      message = Message.obtain(handler, CALIBRATION_DATA, record);
+    } else {
+      message = Message.obtain(handler, DATA, record);
+    }
 
     if (handler != null) {
       handler.sendMessage(message);

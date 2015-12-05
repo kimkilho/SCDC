@@ -76,6 +76,8 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
  */
 public class SCDCManager extends FunfManager {
 
+  protected static final String TAG = "SCDCManager";
+
   public static final String
           ACTION_KEEP_ALIVE = "funf.keepalive",
           ACTION_INTERNAL = "funf.internal";
@@ -184,10 +186,10 @@ public class SCDCManager extends FunfManager {
     Bundle metadata = getMetadata();
     if (prefs.contains(name)) {
       pipelineConfig = prefs.getString(name, null);
-      Log.d(LogKeys.DEBUG, "SCDCManager.reload(): pipelineConfig=" + pipelineConfig);
     } else if (metadata.containsKey(name)) {
       pipelineConfig = metadata.getString(name);
     }
+    Log.d(LogKeys.DEBUG, "SCDCManager.reload(): pipelineConfig=" + pipelineConfig);
     if (disabledPipelineNames.contains(name)) {
       // Disabled, so don't load any config
       Pipeline disabledPipeline = gson.fromJson(pipelineConfig, Pipeline.class);
@@ -257,7 +259,8 @@ public class SCDCManager extends FunfManager {
     if (action == null || ACTION_KEEP_ALIVE.equals(action)) {
       // Does nothing, but wakes up SCDCManager
     } else if (!spHandler.isSensorOn()) {
-      // Does nothing if sensor button is not on
+      // IMPORTANT: Does nothing if sensor button is not on
+      Log.d(LogKeys.DEBUG, TAG+".onStartCommand(): spHandler.isSensorOn()=" + spHandler.isSensorOn());
     } else if (ACTION_INTERNAL.equals(action)) {
       String type = intent.getType();
       Uri componentUri = intent.getData();

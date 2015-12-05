@@ -145,7 +145,7 @@ public class LaunchActivity extends ActionBarActivity
             funfManager = ((SCDCManager.LocalBinder) service).getManager();
             pipeline = (SCDCPipeline)funfManager.getRegisteredPipeline
                                           (Config.PIPELINE_NAME);
-            Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.funfManagerConn" +
+            Log.d(SCDCKeys.LogKeys.DEBUG, TAG+".funfManagerConn" +
                     ".onServiceConnected(): pipeline.getName()=" +
               pipeline.getName() + ", pipeline.isEnabled()=" + pipeline.isEnabled() +
               ", pipeline.getDatabaseHelper()=" + pipeline.getDatabaseHelper());
@@ -296,7 +296,6 @@ public class LaunchActivity extends ActionBarActivity
               mAlertDialog = alert.setTitle("Notification")
                       .setMessage(message)
                       .setPositiveButton("PROCEED", calibrateNoticeListener)
-                      .setNegativeButton("LATER", null)
                       .show();
             }
 
