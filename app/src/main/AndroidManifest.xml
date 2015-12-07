@@ -89,6 +89,7 @@
         <activity
             android:name="kr.ac.snu.imlab.scdc.activity.CalibrateActivity"
             android:label="@string/title_activity_calibrate"
+            android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="adjustPan">
         </activity>
 

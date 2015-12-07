@@ -16,8 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.JsonObject;
+
 import java.io.File;
 
+import edu.mit.media.funf.config.ConfigUpdater;
+import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.storage.FileArchive;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.CalibrationKeys;
@@ -38,10 +42,10 @@ public class CalibrateActivity extends ActionBarActivity {
 
   protected static final String TAG = "CalibrateActivity";
 
-  private static final int INITIAL_WAITING_TIME_IN_MILLIS = 7000;
+  private static final int INITIAL_WAITING_TIME_IN_MILLIS = 20000;
   private static final int MIDDLE_WAITING_TIME_IN_MILLIS = 5000;
-  private static final int END_WAITING_TIME_IN_MILLIS = 3000;
-  private static final int PERIOD_IN_MILLIS = 100;
+  private static final int END_WAITING_TIME_IN_MILLIS = 10000;
+  private static final int PERIOD_IN_MILLIS = 20;
   private static final int CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS = 5000;
   private static final int CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS = 5000;
   private CountDownTimer countDownTimerCalibrating;
@@ -288,6 +292,8 @@ public class CalibrateActivity extends ActionBarActivity {
         progressDialog.dismiss();
         uploader.run(archive, upload);
 
+        // IMPORTANT: Update config at this time once more
+        updateConfig();
         // uploader.stop();
       }
     }.execute(dbFile);
@@ -322,6 +328,67 @@ public class CalibrateActivity extends ActionBarActivity {
                 Toast.LENGTH_LONG).show();
       }
     }.execute(db);
+  }
+
+  // Update config for both active and idle state
+  private void updateConfig() {
+    new AsyncTask<Void, Void, Boolean>() {
+      private HttpConfigUpdater hcu;
+      private String updateActiveUrl;
+      private String updateIdleUrl;
+      private JsonObject oldConfig;
+
+      @Override
+      protected void onPreExecute() {
+        hcu = new HttpConfigUpdater();
+        if (LaunchActivity.DEBUGGING) {
+          updateActiveUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
+          updateIdleUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
+        } else {
+          updateActiveUrl = Config.DEFAULT_UPDATE_URL_ACTIVE;
+          updateIdleUrl = Config.DEFAULT_UPDATE_URL_IDLE;
+        }
+        oldConfig = funfManager.getPipelineConfig(pipeline.getName());
+      }
+
+      @Override
+      protected Boolean doInBackground(Void... voids) {
+        String newConfig;
+        if (pipeline != null) {
+          try {
+            hcu.setUrl(updateActiveUrl);
+            Log.d(LogKeys.DEBUG, TAG + ".updateConfig()/ url=" + updateActiveUrl);
+            newConfig = hcu.getConfig().toString();
+            spHandler.setActiveConfig(newConfig);
+            hcu.setUrl(updateIdleUrl);
+            Log.d(LogKeys.DEBUG, TAG + ".updateConfig()/ url=" + updateIdleUrl);
+            newConfig = hcu.getConfig().toString();
+            spHandler.setIdleConfig(newConfig);
+
+            return true;
+          } catch (ConfigUpdater.ConfigUpdateException e) {
+            Log.w(LogKeys.DEBUG, TAG + ".updateConfig()/ Unable to get config", e);
+            return false;
+          }
+        } else {
+          Log.d(LogKeys.DEBUG, TAG + ".updateConfig/ failed to update config");
+          return false;
+        }
+      }
+
+      @Override
+      protected void onPostExecute(Boolean isSuccess) {
+        if (isSuccess) {
+          Toast.makeText(getBaseContext(),
+                  getString(R.string.update_config_complete_message),
+                  Toast.LENGTH_LONG).show();
+        } else {
+          Toast.makeText(getBaseContext(),
+                  getString(R.string.update_config_failed_message),
+                  Toast.LENGTH_LONG).show();
+        }
+      }
+    }.execute();
   }
 
 }

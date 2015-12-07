@@ -696,7 +696,7 @@ public class LaunchActivity extends ActionBarActivity
     }
 
     // Update config for both active and idle state
-    public void updateConfig() {
+    private void updateConfig() {
         new AsyncTask<Void, Void, Boolean>() {
           private HttpConfigUpdater hcu;
           private String updateActiveUrl;
