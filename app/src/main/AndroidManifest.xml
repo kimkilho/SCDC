@@ -84,6 +84,7 @@
         <activity
             android:name="kr.ac.snu.imlab.scdc.activity.SettingsActivity"
             android:label="@string/title_activity_settings"
+            android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="adjustPan">
         </activity>
         <activity

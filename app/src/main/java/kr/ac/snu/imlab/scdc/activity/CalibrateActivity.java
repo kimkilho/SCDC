@@ -44,7 +44,7 @@ public class CalibrateActivity extends ActionBarActivity {
 
   private static final int INITIAL_WAITING_TIME_IN_MILLIS = 20000;
   private static final int MIDDLE_WAITING_TIME_IN_MILLIS = 5000;
-  private static final int END_WAITING_TIME_IN_MILLIS = 10000;
+  private static final int END_WAITING_TIME_IN_MILLIS = 20000;
   private static final int PERIOD_IN_MILLIS = 20;
   private static final int CALIBRATE_TABLE_FRONT_DURATION_IN_MILLIS = 5000;
   private static final int CALIBRATE_TABLE_BACK_DURATION_IN_MILLIS = 5000;
