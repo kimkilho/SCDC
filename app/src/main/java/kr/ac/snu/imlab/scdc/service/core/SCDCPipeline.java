@@ -409,7 +409,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     }
 
     if (odrl != null) {
-      odrl.updateScanCount();
+      odrl.updateLaunchActivityUi();
     }
   }
 

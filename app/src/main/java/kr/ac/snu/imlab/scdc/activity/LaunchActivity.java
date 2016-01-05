@@ -10,6 +10,7 @@ import android.content.DialogInterface.OnClickListener;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.support.v7.app.ActionBarActivity;
 import android.content.Intent;
  import android.content.ServiceConnection;
@@ -40,7 +41,8 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCPipeline;
 
  import android.os.IBinder;
  import android.widget.EditText;
- import android.widget.ListView;
+import android.widget.ImageView;
+import android.widget.ListView;
  import android.widget.RadioButton;
  import android.widget.TextView;
  import android.widget.Toast;
@@ -128,6 +130,7 @@ public class LaunchActivity extends ActionBarActivity
 
     private Button archiveButton, truncateDataButton;
     private TextView dataCountView;
+    private ImageView receivingDataImageView;
 
     private BroadcastReceiver alertReceiver;
 
@@ -276,7 +279,7 @@ public class LaunchActivity extends ActionBarActivity
             }
 
             mAdapter.notifyDataSetChanged();
-            updateScanCount();
+            updateLaunchActivityUi();
         }
 
         @Override
@@ -359,7 +362,8 @@ public class LaunchActivity extends ActionBarActivity
           (ToggleButton) findViewById(R.id.enabledToggleButton);
         reminderToggleButton =
           (ToggleButton)findViewById(R.id.reminderToggleButton);
-
+        receivingDataImageView =
+          (ImageView)findViewById(R.id.receiving_data_iv);
 
 
         // Runs an archive if pipeline is enabled
@@ -390,7 +394,7 @@ public class LaunchActivity extends ActionBarActivity
                         public void run() {
                           // pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
                           // pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-                          updateScanCount();
+                          updateLaunchActivityUi();
                           if (!enabledToggleButton.isEnabled()) {
                             v.setEnabled(true);
                           }
@@ -457,7 +461,7 @@ public class LaunchActivity extends ActionBarActivity
     public void onResume() {
         super.onResume();
         if (pipeline != null) {
-          updateScanCount();
+          updateLaunchActivityUi();
         }
 
         // Dynamically refresh the ListView items
@@ -486,37 +490,6 @@ public class LaunchActivity extends ActionBarActivity
         this.unregisterReceiver(alertReceiver);
         unbindService(funfManagerConn);
         super.onDestroy();
-    }
-
-//  private static final String TOTAL_COUNT_SQL = "SELECT COUNT(*) FROM " +
-//          NameValueDatabaseHelper.DATA_TABLE.name;
-    /**
-     * Queries the database of the pipeline to determine how many rows of data we have recorded so far.
-     */
-    @Override
-    public void updateScanCount() {
-      // Log.d(SCDCKeys.LogKeys.DEBUG, "LaunchActivity.updateScanCount(): entered updateScanCount())");
-      // IMPORTANT: Make sure to reload databaseHelper
-      //            as some devices does not have non-null databaseHelper
-      if (pipeline.getDatabaseHelper() == null) {
-        pipeline.reloadDbHelper(funfManager);
-      }
-
-      if (pipeline.getDatabaseHelper() != null) {
-        // Query the pipeline db for the count of rows in the data table
-        SQLiteDatabase db = pipeline.getDb();
-        final long dbSize = new File(db.getPath()).length();  // in bytes
-
-        // Update interface on main thread
-        runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            dataCountView.setText("Data size: " +
-                    Math.round((dbSize / (1048576.0)) * 10.0) / 10.0 + " MB");
-          }
-        });
-      } else {
-      }
     }
 
     /**
@@ -553,7 +526,7 @@ public class LaunchActivity extends ActionBarActivity
             progressDialog.dismiss();
           }
           dataCountView.setText("Data size: 0.0 MB");
-          updateScanCount();
+          updateLaunchActivityUi();
           Toast.makeText(getBaseContext(), getString(R.string.truncate_complete_message),
                   Toast.LENGTH_LONG).show();
         }
@@ -729,5 +702,50 @@ public class LaunchActivity extends ActionBarActivity
           }
         }.execute();
     }
+
+    public void updateLaunchActivityUi() {
+      new AsyncTask<Void, Void, Boolean>() {
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+          publishProgress(voids);
+
+          return true;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... voids) {
+          /**
+           * Queries the database of the pipeline to determine
+           * how many rows of data we have recorded so far.
+           */
+          if (pipeline.getDatabaseHelper() == null) {
+            pipeline.reloadDbHelper(funfManager);
+          }
+
+          if (pipeline.getDatabaseHelper() != null) {
+            // Query the pipeline db for the count of rows in the data table
+            SQLiteDatabase db = pipeline.getDb();
+            final long dbSize = new File(db.getPath()).length();  // in bytes
+            dataCountView.setText("Data size: " +
+                    Math.round((dbSize / (1048576.0)) * 10.0) / 10.0 + " MB");
+          }
+
+          /**
+           * Temporarily turns on the receiving_data_iv for 3 seconds.
+           */
+          receivingDataImageView.setVisibility(View.VISIBLE);
+
+          // Turn off iv after 3 seconds
+          handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+              receivingDataImageView.setVisibility(View.INVISIBLE);
+            }
+          }, 3000);
+        }
+      }.execute();
+    }
+
 
 }

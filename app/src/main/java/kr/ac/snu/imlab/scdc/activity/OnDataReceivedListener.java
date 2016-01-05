@@ -5,5 +5,5 @@ package kr.ac.snu.imlab.scdc.activity;
  */
 public interface OnDataReceivedListener {
 
-  public void updateScanCount();
+  public void updateLaunchActivityUi();
 }
