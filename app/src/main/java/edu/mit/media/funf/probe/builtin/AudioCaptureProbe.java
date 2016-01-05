@@ -42,17 +42,21 @@ import edu.mit.media.funf.time.TimeUtil;
 import edu.mit.media.funf.util.LogUtil;
 import edu.mit.media.funf.util.NameGenerator;
 import edu.mit.media.funf.util.NameGenerator.SystemUniqueTimestampNameGenerator;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
+
 @DisplayName("Audio Capture Probe")
 @RequiredPermissions({android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.RECORD_AUDIO})
 @RequiredFeatures("android.hardware.microphone")
 @Schedule.DefaultSchedule(interval=1800)
 public class AudioCaptureProbe extends ImpulseProbe implements PassiveProbe, HighBandwidthKeys {
+    protected static final String TAG = "AudioCaptureProbe";
+
     @Configurable
     private String fileNameBase = "audiorectest";
     @Configurable
     private String folderName = "myaudios";
     @Configurable
-    private int recordingLength = 5; // Duration of recording in seconds
+    private int recordingLength = 60; // Duration of recording in seconds
     private String mFileName;
     private String mFolderPath;
     private MediaRecorder mRecorder;
@@ -67,7 +71,9 @@ public class AudioCaptureProbe extends ImpulseProbe implements PassiveProbe, Hig
         }
         @Override
         public void onTick(long millisUntilFinished) {
-//Log.d(LogUtil.TAG, "Audio capture: seconds remaining = " + millisUntilFinished / 1000);
+            Log.d(LogKeys.DEBUG, TAG + ".RecordingCountDown.onTick()/ " +
+                                 "Audio capture: seconds remaining = " +
+                                 millisUntilFinished / 1000);
         }
     }
     private RecordingCountDown mCountDown;
@@ -88,8 +94,9 @@ public class AudioCaptureProbe extends ImpulseProbe implements PassiveProbe, Hig
     @Override
     protected void onStart() {
         super.onStart();
-        Log.d(LogUtil.TAG, "AudioCaptureProbe: Probe initialization");
+        Log.d(LogKeys.DEBUG, TAG + ".onStart()/ AudioCaptureProbe: Probe initialization");
         mFileName = mFolderPath + "/" + mNameGenerator.generateName(fileNameBase) + ".mp4";
+        Log.d(LogKeys.DEBUG, TAG + ".onStart()/ mFileName=" + mFileName);
         mCountDown = new RecordingCountDown(TimeUtil.secondsToMillis(recordingLength), 1000);
         if (startRecording())
             mCountDown.start();
