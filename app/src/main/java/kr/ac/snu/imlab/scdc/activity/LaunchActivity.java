@@ -380,7 +380,7 @@ public class LaunchActivity extends ActionBarActivity
 
                       // Asynchronously archive and upload dbFile
                       archiveAndUploadDatabase(dbFile);
-                      dropAndCreateTable(db, false);
+                      dropAndCreateTable(db, true);
 
                       // Wait 1 second for archive to finish, then refresh the UI
                       // (Note: this is kind of a hack since archiving is seamless
@@ -728,40 +728,6 @@ public class LaunchActivity extends ActionBarActivity
             }
           }
         }.execute();
-//      if (pipeline != null) {
-//        HttpConfigUpdater hcu = new HttpConfigUpdater();
-//        String updateUrl;
-
-//        if (DEBUGGING) {
-//          updateUrl = Config.DEFAULT_UPDATE_URL_DEBUG;
-//        } else {
-//          if (isActiveLabelOn)
-//            updateUrl = Config.DEFAULT_UPDATE_URL_ACTIVE;
-//          else
-//            updateUrl = Config.DEFAULT_UPDATE_URL_IDLE;
-//        }
-//        Log.d(LogKeys.DEBUG, TAG+".updateConfig()/ url=" + updateUrl);
-//        hcu.setUrl(updateUrl);
-//        JsonObject oldConfig = funfManager.getPipelineConfig(pipeline.getName());
-//        try {
-//          JsonObject newConfig = hcu.getConfig();
-//          if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
-//            funfManager.saveAndReload(pipeline.getName(), newConfig);
-//          }
-//        } catch (ConfigUpdateException e) {
-//          Log.w(LogKeys.DEBUG, TAG+".updateConfig()/ Unable to get config", e);
-//        }
-////        pipeline.setUpdate(hcu);
-////        handler.post(new Runnable() {
-////          @Override
-////          public void run() {
-////            if (pipeline.getHandler() != null) {
-////              pipeline.onRun(SCDCPipeline.ACTION_UPDATE, null);
-////            }
-////          }
-////        });
-//      } else {
-//        Log.d(LogKeys.DEBUG, TAG+".updateConfig/ failed to update config");
-//      }
     }
+
 }
