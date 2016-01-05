@@ -217,24 +217,17 @@ public class LaunchActivity extends ActionBarActivity
                             // Dynamically refresh the ListView items
                             // by calling mAdapter.getView() again.
                             mAdapter.notifyDataSetChanged();
+                            Log.d(LogKeys.DEBUG, "LaunchActivity.enabledToggleButton" +
+                                    ".onCheckedChanged(): enabling Buttons");
+                            funfManager.disablePipeline(Config.PIPELINE_NAME);
+                            pipeline.reloadDbHelper(funfManager);
+  //                                boolean areButtonsOn =
+  //                                        (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
+                            boolean areButtonsOn = true;
+                            archiveButton.setEnabled(areButtonsOn);
+                            truncateDataButton.setEnabled(areButtonsOn);
 
-                            // Intentionally wait 2 seconds to send broadcast
-                            // then terminate
-                            handler.postDelayed(new Runnable() {
-                              @Override
-                              public void run() {
-                                Log.d(LogKeys.DEBUG, "LaunchActivity.enabledToggleButton" +
-                                      ".onCheckedChanged(): enabling Buttons after 2 seconds");
-                                funfManager.disablePipeline(Config.PIPELINE_NAME);
-                                pipeline.reloadDbHelper(funfManager);
-//                                boolean areButtonsOn =
-//                                        (pipeline.getDatabaseHelper() != null) && (!pipeline.isEnabled());
-                                boolean areButtonsOn = true;
-                                archiveButton.setEnabled(areButtonsOn);
-                                truncateDataButton.setEnabled(areButtonsOn);
-                              }
-                            }, 2000L);
-                          spHandler.setReminderRunning(isChecked);
+                            spHandler.setReminderRunning(isChecked);
                         }
                     }
 
@@ -386,7 +379,7 @@ public class LaunchActivity extends ActionBarActivity
                       archiveAndUploadDatabase(dbFile);
                       dropAndCreateTable(db, true);
 
-                      // Wait 1 second for archive to finish, then refresh the UI
+                      // Wait 5 seconds for archive to finish, then refresh the UI
                       // (Note: this is kind of a hack since archiving is seamless
                       //         and there are no messages when it occurs)
                       handler.postDelayed(new Runnable() {

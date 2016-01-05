@@ -752,6 +752,8 @@ public class SCDCManager extends FunfManager {
       Intent intent = getFunfIntent(context, type, componentAndAction);
       PendingIntent operation = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_NO_CREATE);
       if (operation != null) {
+        // FIXME: Cancel existing alarms
+        alarmManager.cancel(operation);
         operation.cancel();
       }
     }
