@@ -25,7 +25,7 @@
         "name": "scdc",
         "version": 1,
         "upload": {
-            "url": \"http://imlab-ws2.snu.ac.kr:7777/data/\",
+            "url": \"http://imlab-ws2.snu.ac.kr:8888/data/\",
             "@schedule": { "interval": 10800 }
         },
         "data": [
@@ -44,10 +44,16 @@
             {"@type": "edu.mit.media.funf.probe.builtin.AccelerometerSensorProbe",
              "@schedule": {"interval": 1800, "duration": 60}
             },
+            {"@type": "edu.mit.media.funf.probe.builtin.LinearAccelerationSensorProbe",
+             "@schedule": {"interval": 1800, "duration": 60}
+            },
             {"@type": "edu.mit.media.funf.probe.builtin.GyroscopeSensorProbe",
              "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.OrientationSensorProbe",
+             "@schedule": {"interval": 1800, "duration": 60}
+            },
+            {"@type": "edu.mit.media.funf.probe.builtin.RotationVectorSensorProbe",
              "@schedule": {"interval": 1800, "duration": 60}
             },
             {"@type": "edu.mit.media.funf.probe.builtin.SimpleLocationProbe",
