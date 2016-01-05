@@ -11,13 +11,13 @@ public class SCDCKeys {
       SCDC_PREFS = "kr.ac.snu.imlab.scdc.prefs",
       DEFAULT_USERNAME = "imlab_user",
       // Upload URL for publish
-      DEFAULT_UPLOAD_URL = "http://imlab-ws2.snu.ac.kr:8888/data/",
+      DEFAULT_UPLOAD_URL = "http://imlab-ws2.snu.ac.kr:7777/data/",
       // Upload URL for debug
       DEFAULT_UPLOAD_URL_DEBUG = "http://imlab-ws2.snu.ac.kr:7000/data",
       // Update URL for publish
-      DEFAULT_USERINFO_URL = "http://imlab-ws2.snu.ac.kr:8888/userinfo/",
-      DEFAULT_UPDATE_URL_IDLE = "http://imlab-ws2.snu.ac.kr:8888/conf/idle/",
-      DEFAULT_UPDATE_URL_ACTIVE = "http://imlab-ws2.snu.ac.kr:8888/conf/active/",
+      DEFAULT_USERINFO_URL = "http://imlab-ws2.snu.ac.kr:7777/userinfo/",
+      DEFAULT_UPDATE_URL_IDLE = "http://imlab-ws2.snu.ac.kr:7777/conf/idle/",
+      DEFAULT_UPDATE_URL_ACTIVE = "http://imlab-ws2.snu.ac.kr:7777/conf/active/",
       // Update URL for debug
       DEFAULT_UPDATE_URL_DEBUG = "http://imlab-ws2.snu.ac.kr:7000/config";
 
@@ -26,8 +26,7 @@ public class SCDCKeys {
 
     public static final boolean
       DEFAULT_SENSOR_ON = false,
-      DEFAULT_IS_FEMALE = false,
-      DEFAULT_IS_CALIBRATED = false;
+      DEFAULT_IS_FEMALE = false;
   }
 
   public static interface SharedPrefs {
@@ -35,8 +34,6 @@ public class SCDCKeys {
       SENSOR_ON = "sensor_on",
       USERNAME = "username",
       IS_FEMALE = "isFemale",
-      IS_CALIBRATED = "calibrated",
-      CALIBRATION_STATUS = "calibration_status",
       DEVICE_ID = "deviceId",
       NUM_LABELS = "total_num_labels",
       LABEL_NAME_PREFIX = "label_name_",
@@ -58,8 +55,6 @@ public class SCDCKeys {
       LABEL_EXP_ID_PREFIX = "label_expId_",
       KEY_EXP_ID = "expId",
       KEY_SENSOR_ID = "sensorId",
-      KEY_IS_CALIBRATED = "calibrated",
-      KEY_CALIBRATION_STATUS = "calibration_status",
       ACTIVE_CONFIG = "activeConfig",
       IDLE_CONFIG = "idleConfig";
 

@@ -21,7 +21,6 @@ import java.util.List;
 
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
-import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.CalibrationKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
@@ -120,23 +119,6 @@ public class SharedPrefsHandler {
 
   public void setSensorId(int sensorId) {
     prefs.edit().putInt(SharedPrefs.KEY_SENSOR_ID, sensorId).apply();
-  }
-
-  public boolean getIsCalibrated() {
-    return prefs.getBoolean(SharedPrefs.IS_CALIBRATED, Config.DEFAULT_IS_CALIBRATED);
-  }
-
-  public void setIsCalibrated(boolean isCalibrated) {
-    prefs.edit().putBoolean(SharedPrefs.IS_CALIBRATED, isCalibrated).apply();
-  }
-
-  public int getCalibrationStatus() {
-    return prefs.getInt(SharedPrefs.CALIBRATION_STATUS,
-                        CalibrationKeys.CALIBRATION_STATUS_DEFAULT);
-  }
-
-  public void setCalibrationStatus(int status) {
-    prefs.edit().putInt(SharedPrefs.CALIBRATION_STATUS, status).apply();
   }
 
   // Synchronize preferences with server
@@ -393,15 +375,12 @@ public class SharedPrefsHandler {
         String newUsername = userInfo.get(SharedPrefs.USERNAME).getAsString();
         int newIsFemale = userInfo.get(SharedPrefs.IS_FEMALE).getAsInt();
         int newSensorId = userInfo.get(SharedPrefs.KEY_SENSOR_ID).getAsInt();
-        int newIsCalibrated = userInfo.get(SharedPrefs.KEY_IS_CALIBRATED).getAsInt();
 
         String currUsername = prefs.getString(SharedPrefs.USERNAME,
                                               Config.DEFAULT_USERNAME);
         boolean currIsFemale =
           prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
         int currSensorId = prefs.getInt(SharedPrefs.KEY_SENSOR_ID, 0);
-        boolean currIsCalibrated = prefs.getBoolean(SharedPrefs.IS_CALIBRATED,
-                                                  Config.DEFAULT_IS_CALIBRATED);
 
         if (!currUsername.equals(newUsername))
           prefs.edit().putString(SharedPrefs.USERNAME, newUsername).apply();
@@ -410,9 +389,6 @@ public class SharedPrefsHandler {
                                   (newIsFemale == 1)).apply();
         if (currSensorId != newSensorId)
           prefs.edit().putInt(SharedPrefs.KEY_SENSOR_ID, newSensorId).apply();
-        if ((currIsCalibrated ? 1 : 0) != newIsCalibrated)
-          prefs.edit().putBoolean(SharedPrefs.IS_CALIBRATED,
-                                  (newIsCalibrated == 1)).apply();
 
         // Get pipeline config from server for both active and idle state
         HttpConfigUpdater hcu = new HttpConfigUpdater();
@@ -486,8 +462,6 @@ public class SharedPrefsHandler {
         boolean currIsFemale =
                 prefs.getBoolean(SharedPrefs.IS_FEMALE, Config.DEFAULT_IS_FEMALE);
         int currSensorId = prefs.getInt(SharedPrefs.KEY_SENSOR_ID, 0);
-        boolean currCalibrated =
-                prefs.getBoolean(SharedPrefs.IS_CALIBRATED, Config.DEFAULT_IS_CALIBRATED);
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
         nameValuePairs.add(new BasicNameValuePair(SharedPrefs.DEVICE_ID,
@@ -498,8 +472,6 @@ public class SharedPrefsHandler {
                               String.valueOf((currIsFemale) ? 1 : 0)));
         nameValuePairs.add(new BasicNameValuePair(SharedPrefs.KEY_SENSOR_ID,
                                               String.valueOf(currSensorId)));
-        nameValuePairs.add(new BasicNameValuePair(SharedPrefs.KEY_IS_CALIBRATED,
-                              String.valueOf((currCalibrated) ? 1 : 0)));
         String response = HttpUtil.sendPost(urls[0], nameValuePairs);
         Log.d(LogKeys.DEBUG, "SharedPrefsHandler.SetPrefsToServerTask" +
                               ".doInBackground(): response=" + response);

@@ -131,8 +131,6 @@ public class LaunchActivity extends ActionBarActivity
 
     private BroadcastReceiver alertReceiver;
 
-    private OnClickListener calibrateNoticeListener;
-
     /**
      * Alertdialog which shows up when there is a problem with connection
      * to Google API.
@@ -279,27 +277,6 @@ public class LaunchActivity extends ActionBarActivity
 
             mAdapter.notifyDataSetChanged();
             updateScanCount();
-
-            // Add OnClickListener for notification of calibration
-            calibrateNoticeListener = new OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                startActivity(new Intent(LaunchActivity.this, CalibrateActivity.class));
-              }
-            };
-
-            Log.d(LogKeys.DEBUG, TAG+".onServiceConnected()/ spHandler.getIsCalibrated()=" +
-                                 spHandler.getIsCalibrated());
-            // Pop up alert dialog when it needs to calibrate device
-            if (!spHandler.getIsCalibrated()) {
-              AlertDialog.Builder alert = new AlertDialog.Builder(LaunchActivity.this);
-              String message = getString(R.string.alert_need_calibration);
-              mAlertDialog = alert.setTitle("Notification")
-                      .setMessage(message)
-                      .setPositiveButton("PROCEED", calibrateNoticeListener)
-                      .show();
-            }
-
         }
 
         @Override
