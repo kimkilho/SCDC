@@ -18,6 +18,7 @@ import org.apache.http.message.BasicNameValuePair;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
@@ -123,8 +124,9 @@ public class SharedPrefsHandler {
 
   // Synchronize preferences with server
   // IMPORTANT: This method is only executed while uploading
-  public void setPrefsToServer() {
-    new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/");
+  public boolean setPrefsToServer()
+          throws ExecutionException, InterruptedException {
+    return new SetPrefsToServerTask().execute(userinfoUrl + deviceId + "/").get();
   }
 
 

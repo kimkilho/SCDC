@@ -371,38 +371,35 @@ public class LaunchActivity extends ActionBarActivity
                 if (pipeline.getDatabaseHelper() != null) {
                   v.setEnabled(false);
 
-                  // Asynchronously synchronize preferences with server
-                  spHandler.setPrefsToServer();
+                  try {
+                    // Asynchronously synchronize preferences with server
+                    if (spHandler.setPrefsToServer()) {
+                      SQLiteDatabase db = pipeline.getWritableDb();
+                      Log.d(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
+                      File dbFile = new File(db.getPath());
 
-//                Toast.makeText(getBaseContext(), "Compressing DB file. Please wait...",
-//                        Toast.LENGTH_LONG).show();
-                  SQLiteDatabase db = pipeline.getWritableDb();
-                  Log.d(LogKeys.DEBUG, "LaunchActivity/ db.getPath()=" + db.getPath());
-                  File dbFile = new File(db.getPath());
+                      // Asynchronously archive and upload dbFile
+                      archiveAndUploadDatabase(dbFile);
+                      dropAndCreateTable(db, false);
 
-                  // Asynchronously archive and upload dbFile
-                  archiveAndUploadDatabase(dbFile);
-                  dropAndCreateTable(db, false);
-
-//                if (dbFile.exists()) {
-//                  archive.remove(dbFile);
-//                }
-
-                  // Wait 1 second for archive to finish, then refresh the UI
-                  // (Note: this is kind of a hack since archiving is seamless
-                  //         and there are no messages when it occurs)
-                  handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-//              pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
-//              pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
-                      updateScanCount();
-                      if (!enabledToggleButton.isEnabled()) {
-                        v.setEnabled(true);
-                      }
+                      // Wait 1 second for archive to finish, then refresh the UI
+                      // (Note: this is kind of a hack since archiving is seamless
+                      //         and there are no messages when it occurs)
+                      handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                          // pipeline.onRun(BasicPipeline.ACTION_ARCHIVE, null);
+                          // pipeline.onRun(BasicPipeline.ACTION_UPLOAD, null);
+                          updateScanCount();
+                          if (!enabledToggleButton.isEnabled()) {
+                            v.setEnabled(true);
+                          }
+                        }
+                      }, 5000L);
                     }
-                  }, 5000L);
-
+                  } catch (Exception e) {
+                    e.printStackTrace();
+                  }
                 }
               } else {
                 Toast.makeText(getBaseContext(),

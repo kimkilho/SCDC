@@ -25,7 +25,7 @@
         "name": "scdc",
         "version": 1,
         "upload": {
-            "url": \"http://imlab-ws2.snu.ac.kr:8888/data/\",
+            "url": \"http://imlab-ws2.snu.ac.kr:7777/data/\",
             "@schedule": { "interval": 10800 }
         },
         "data": [
