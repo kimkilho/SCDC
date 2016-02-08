@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.Process;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -188,6 +189,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     reloadDbHelper(manager);
     HandlerThread thread = new HandlerThread(getClass().getName());
     Log.w("DEBUG", "new thread=" + thread.getName());
+    thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND); // FIXME: test if it works
     thread.start();
     this.looper = thread.getLooper();
     this.handler = new Handler(looper, callback);

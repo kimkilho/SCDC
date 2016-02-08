@@ -41,6 +41,7 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
+import android.os.Process;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -571,6 +572,7 @@ public interface Probe {
 				synchronized (this) {
 					if (looper == null) {
 						HandlerThread thread = new HandlerThread("Probe[" + getClass().getName() + "]");
+						thread.setPriority(Process.THREAD_PRIORITY_BACKGROUND); // FIXME: test if it works
 						thread.start();
 						looper = thread.getLooper();
 						handler = new Handler(looper, new ProbeHandlerCallback());

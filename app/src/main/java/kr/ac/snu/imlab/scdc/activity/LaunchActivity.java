@@ -76,7 +76,7 @@ public class LaunchActivity extends ActionBarActivity
 
     @Configurable
     // FIXME: Change below to false when publishing
-    public static boolean DEBUGGING = false;
+    public static boolean DEBUGGING = true;
 
     @Configurable
     protected int version = 5;
