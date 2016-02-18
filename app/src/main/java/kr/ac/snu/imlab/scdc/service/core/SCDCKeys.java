@@ -53,8 +53,8 @@ public class SCDCKeys {
       GENERAL_REPEAT_TYPE = "general_repeat_type",
       GENERAL_REPEAT_INTERVAL = "general_repeat_interval",
       LABEL_EXP_ID_PREFIX = "label_expId_",
-      KEY_EXP_ID = "expId",
-      KEY_SENSOR_ID = "sensorId",
+      KEY_EXP_ID = "exp_id",
+      KEY_SENSOR_ID = "sensor_id",
       ACTIVE_CONFIG = "activeConfig",
       IDLE_CONFIG = "idleConfig";
 
