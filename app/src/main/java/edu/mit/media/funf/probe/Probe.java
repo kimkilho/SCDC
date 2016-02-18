@@ -460,9 +460,11 @@ public interface Probe {
 		public void unregisterListener(DataListener... listeners) {
 			if (listeners != null) {
 				JsonElement checkpoint = getCheckpointIfContinuable();
-				for (DataListener listener : listeners) {
-					dataListeners.remove(listener);
-					listener.onDataCompleted(getConfig(), checkpoint);
+				synchronized (dataListeners) {
+					for (DataListener listener : listeners) {
+						dataListeners.remove(listener);
+						listener.onDataCompleted(getConfig(), checkpoint);
+					}
 				}
 				// If no one is listening, stop using device resources
 				if (dataListeners.isEmpty()) {
