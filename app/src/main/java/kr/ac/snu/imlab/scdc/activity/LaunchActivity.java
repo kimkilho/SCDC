@@ -76,7 +76,7 @@ public class LaunchActivity extends ActionBarActivity
 
     @Configurable
     // FIXME: Change below to false when publishing
-    public static boolean DEBUGGING = true;
+    public static boolean DEBUGGING = false;
 
     @Configurable
     protected int version = 5;
@@ -189,14 +189,14 @@ public class LaunchActivity extends ActionBarActivity
                               // NOTE: funfManager automatically reloads the scdc pipeline
                               //       with newly updated schedules
 
-                            // Dynamically refresh the ListView items
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mAdapter.notifyDataSetChanged();
-                                    handler.postDelayed(this, 1000L);
-                                }
-                            }, 1000L);
+//                            // Dynamically refresh the ListView items
+//                            handler.postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    mAdapter.notifyDataSetChanged();
+//                                    handler.postDelayed(this, 1000L);
+//                                }
+//                            }, 1000L);
 
 //                          pipeline.reloadDbHelper(funfManager);
 //                          boolean areButtonsOn =
@@ -462,6 +462,7 @@ public class LaunchActivity extends ActionBarActivity
             @Override
             public void run() {
                 mAdapter.notifyDataSetChanged();
+                updateLaunchActivityUi();   // FIXME
                 handler.postDelayed(this, 1000L);
             }
         }, 1000L);

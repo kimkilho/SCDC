@@ -385,19 +385,26 @@ public class SCDCPipeline implements Pipeline, DataListener {
 
     // Temporarily build tempLabelEntries List<LabelEntry>
     String[] tempLabelNames = LaunchActivity.labelNames;
-    List<LabelEntry> tempLabelEntries =
-      new ArrayList<LabelEntry>(tempLabelNames.length);
-    for (int i = 0; i < tempLabelNames.length; i++) {
-      tempLabelEntries.add(new LabelEntry(i, tempLabelNames[i],
-                                          manager, Config.SCDC_PREFS));
-    }
+//    List<LabelEntry> tempLabelEntries =
+//      new ArrayList<LabelEntry>(tempLabelNames.length);
+//    for (int i = 0; i < tempLabelNames.length; i++) {
+//      tempLabelEntries.add(new LabelEntry(i, tempLabelNames[i],
+//                                          manager, Config.SCDC_PREFS));
+//    }
     // Add label status as new key-values for JsonObject data
-    for (int i = 0; i < tempLabelEntries.size(); i++) {
-      dataClone.addProperty(tempLabelEntries.get(i).getName(),
-                            tempLabelEntries.get(i).isLogged());
+//    for (int i = 0; i < tempLabelEntries.size(); i++) {
+//      dataClone.addProperty(tempLabelEntries.get(i).getName(),
+//                            tempLabelEntries.get(i).isLogged());
+//    }
+
+    // FIXME: Fix above to enhance CPU performance
+    for (int i = 0; i < tempLabelNames.length; i++) {
+      dataClone.addProperty(tempLabelNames[i],
+                            !(spHandler.getStartLoggingTime(i) == -1));
     }
 
     IJsonObject dataWithExpId = new IJsonObject(dataClone);
+    // FIXME: Uncomment below to enhance CPU performance
     Log.d(LogKeys.DEBUG, "SCDCPipeline.onDataReceived(): probeConfig=" + probeConfig.toString() +
             ", data=" + dataWithExpId.toString());// + ", schedule=" + manager.getPipelineConfig(name));
     JsonObject record = new JsonObject();
@@ -410,9 +417,10 @@ public class SCDCPipeline implements Pipeline, DataListener {
       handler.sendMessage(message);
     }
 
-    if (odrl != null) {
-      odrl.updateLaunchActivityUi();
-    }
+    // FIXME:
+//    if (odrl != null) {
+//      odrl.updateLaunchActivityUi();
+//    }
   }
 
   @Override
