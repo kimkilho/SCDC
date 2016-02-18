@@ -397,7 +397,6 @@ public class SCDCPipeline implements Pipeline, DataListener {
 //                            tempLabelEntries.get(i).isLogged());
 //    }
 
-    // FIXME: Fix above to enhance CPU performance
     for (int i = 0; i < tempLabelNames.length; i++) {
       dataClone.addProperty(tempLabelNames[i],
                             !(spHandler.getStartLoggingTime(i) == -1));
@@ -405,8 +404,8 @@ public class SCDCPipeline implements Pipeline, DataListener {
 
     IJsonObject dataWithExpId = new IJsonObject(dataClone);
     // FIXME: Uncomment below to enhance CPU performance
-    Log.d(LogKeys.DEBUG, "SCDCPipeline.onDataReceived(): probeConfig=" + probeConfig.toString() +
-            ", data=" + dataWithExpId.toString());// + ", schedule=" + manager.getPipelineConfig(name));
+//    Log.d(LogKeys.DEBUG, "SCDCPipeline.onDataReceived(): probeConfig=" + probeConfig.toString() +
+//            ", data=" + dataWithExpId.toString());// + ", schedule=" + manager.getPipelineConfig(name));
     JsonObject record = new JsonObject();
     record.add("name", probeConfig.get(RuntimeTypeAdapterFactory.TYPE));
     // add dataWithExpId instead of the original data
