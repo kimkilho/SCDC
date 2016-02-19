@@ -102,7 +102,7 @@
     <string name="user_name_tv">Name</string>
     <string name="radio_female">Female</string>
     <string name="radio_male">Male</string>
-    <string name="data_count_none_tv">None</string>
+    <string name="data_count_none_tv">Data size: </string>
     <string name="minutes">minutes</string>
     <string name="save">Save</string>
     <string name="edit">Edit</string>
