@@ -665,46 +665,15 @@ public class SCDCManager extends FunfManager {
     }
   }
 
-//  public class LocalBinder extends Binder {
-//    public SCDCManager getManager() {
-//      return SCDCManager.this;
-//    }
-//  }
-  final Messenger messenger = new Messenger(new IncomingHandler());
+  public class LocalBinder extends Binder {
+    public SCDCManager getManager() {
+      return SCDCManager.this;
+    }
+  }
 
   @Override
   public IBinder onBind(Intent intent) {
-//    return new LocalBinder();
-    return messenger.getBinder();
-  }
-
-  private Notification makeNotification() {
-    return new NotificationCompat.Builder(this)
-            .setContentTitle("SCDC Service")
-            .setContentText("Running SCDC Service")
-            .build();
-  }
-
-  class IncomingHandler extends Handler {
-    public static final int START = 1;
-    public static final int STOP = 2;
-
-    @Override
-    public void handleMessage(Message msg) {
-      switch (msg.what) {
-        case START:
-          startService(new Intent(SCDCManager.this, SCDCManager.class));
-          startForeground(Config.SCDC_NOTIFICATION_ID, makeNotification());
-          break;
-        case STOP:
-          stopForeground(true);
-          stopSelf();
-          break;
-        default:
-          super.handleMessage(msg);
-          break;
-      }
-    }
+    return new LocalBinder();
   }
 
   /////////////////////////////////////////////

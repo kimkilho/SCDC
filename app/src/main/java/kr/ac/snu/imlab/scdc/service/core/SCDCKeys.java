@@ -22,12 +22,16 @@ public class SCDCKeys {
       DEFAULT_UPDATE_URL_DEBUG = "http://imlab-ws2.snu.ac.kr:7000/config";
 
     public static final int
-      PIPELINE_VERSION = 1,
-      SCDC_NOTIFICATION_ID = 7777;
+      PIPELINE_VERSION = 1;
 
     public static final boolean
       DEFAULT_SENSOR_ON = false,
       DEFAULT_IS_FEMALE = false;
+  }
+
+  public static interface SCDCServiceKeys {
+    public static final int
+      SCDC_NOTIFICATION_ID = 7777;
   }
 
   public static interface SharedPrefs {

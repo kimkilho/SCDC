@@ -96,6 +96,8 @@
                 android:value="@string/scdc_pipeline" />
         </service>
 
+        <service android:name="kr.ac.snu.imlab.scdc.service.core.SCDCService" />
+
         <!-- Funf receiver -->
         <receiver
             android:name="edu.mit.media.funf.Launcher"
