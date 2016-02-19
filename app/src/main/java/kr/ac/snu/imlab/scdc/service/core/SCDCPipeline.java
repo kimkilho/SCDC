@@ -156,22 +156,24 @@ public class SCDCPipeline implements Pipeline, DataListener {
   }
 
   protected void writeData(String name, IJsonObject data) {
-    SQLiteDatabase db = databaseHelper.getWritableDatabase();
-    final double timestamp = data.get(ProbeKeys.BaseProbeKeys.TIMESTAMP).getAsDouble();
-    final String value = data.toString();
-    // if (name == null || value == null) {
-    /*
-    if (timestamp == 0L || name == null || value == null) {
-        Log.e(LogUtil.TAG, "Unable to save data.  Not all required values specified. " + timestamp + " " + name + " - " + value);
-        throw new SQLException("Not all required fields specified.");
-    }
-    */
-    ContentValues cv = new ContentValues();
-    cv.put(SCDCDatabaseHelper.COLUMN_NAME, name);
-    cv.put(SCDCDatabaseHelper.COLUMN_VALUE, value);
-    cv.put(SCDCDatabaseHelper.COLUMN_TIMESTAMP, timestamp);
-    // Added by Kilho Kim: When the data table is suddenly truncated:
+    // In case: 1) When the data table is suddenly truncated
+    //          2) When it tries to re-open an already-closed SQLiteDatabase
     try {
+      SQLiteDatabase db = databaseHelper.getWritableDatabase();
+      final double timestamp = data.get(ProbeKeys.BaseProbeKeys.TIMESTAMP).getAsDouble();
+      final String value = data.toString();
+      // if (name == null || value == null) {
+      /*
+      if (timestamp == 0L || name == null || value == null) {
+          Log.e(LogUtil.TAG, "Unable to save data.  Not all required values specified. " + timestamp + " " + name + " - " + value);
+          throw new SQLException("Not all required fields specified.");
+      }
+      */
+      ContentValues cv = new ContentValues();
+      cv.put(SCDCDatabaseHelper.COLUMN_NAME, name);
+      cv.put(SCDCDatabaseHelper.COLUMN_VALUE, value);
+      cv.put(SCDCDatabaseHelper.COLUMN_TIMESTAMP, timestamp);
+      // Added by Kilho Kim: When the data table is suddenly truncated:
       db.insertOrThrow(SCDCDatabaseHelper.DATA_TABLE.name, "", cv);
     } catch (SQLiteException e) {
       // Do nothing

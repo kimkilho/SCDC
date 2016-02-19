@@ -118,10 +118,18 @@ public class SCDCService extends Service {
   }
 
   public long getDBSize() {
-    // Query the pipeline db for the count of rows in the data table
-    SQLiteDatabase db = pipeline.getDb();
-    final long dbSize = new File(db.getPath()).length();  // in bytes
-    return dbSize;
+    if (pipeline != null) {
+      if (pipeline.getDatabaseHelper() == null) {
+        pipeline.reloadDbHelper(scdcManager);
+      }
+
+      // Query the pipeline db for the count of rows in the data table
+      SQLiteDatabase db = pipeline.getDb();
+      final long dbSize = new File(db.getPath()).length();  // in bytes
+      return dbSize;
+    } else {
+      return 0L;    // FIXME
+    }
   }
 
   public boolean changeConfig(boolean isActiveLabelOn) {
