@@ -1,6 +1,7 @@
 package kr.ac.snu.imlab.scdc.service.core;
 
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
@@ -37,6 +38,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.Message;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import edu.mit.media.funf.FunfManager;
@@ -284,6 +287,10 @@ public class SCDCManager extends FunfManager {
               spHandler.setExpId(currProbeConfig, currExpId+1);
               Log.d(LogKeys.DEBUG, "SCDCManager.onStartCommand(): probeConfig=" + probeConfig.toString() +
                       ", probeAction=" + probeAction + ", currExpId=" + spHandler.getExpId(currProbeConfig));
+
+//              // FIXME: Request GC once
+//              Log.d(LogKeys.DEBUG, "SCDCManager.onStartCommand(): request GC");
+//              System.gc();
 
               List<DataListener> listenersThatNeedData = new ArrayList<Probe.DataListener>();
               List<DataRequestInfo> infoForListenersThatNeedData = new ArrayList<SCDCManager.DataRequestInfo>();

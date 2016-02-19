@@ -1,10 +1,12 @@
 package kr.ac.snu.imlab.scdc.service.core;
 
+import android.app.ActivityManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Debug;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
@@ -13,6 +15,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.File;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -227,6 +230,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
     looper.quit();
     enabled = false;
     odrl = null;
+    databaseHelper.close();
   }
 
   @Override
@@ -412,8 +416,36 @@ public class SCDCPipeline implements Pipeline, DataListener {
     record.add("value", dataWithExpId);
     Message message = Message.obtain(handler, DATA, record);
 
+//    double allocated = Debug.getNativeHeapAllocatedSize() / 1048576.0;
+//    double available = Debug.getNativeHeapSize() / 1048576.0;
+//    double free = Debug.getNativeHeapFreeSize() / 1048576.0;
+//    DecimalFormat df = new DecimalFormat();
+//    df.setMaximumFractionDigits(2);
+//    df.setMinimumFractionDigits(2);
+//
+//    Log.d(LogKeys.DEBUG, "SCDCPipeline: heap native: allocated " + df.format(allocated) +
+//                         "MB of " + df.format(available) + "MB (" + df.format(free) +
+//                         "MB free)");
+//    Log.d(LogKeys.DEBUG, "SCDCPipeline: memory: allocated " +
+//                         df.format(Runtime.getRuntime().totalMemory() / 1048576.0) +
+//                         "MB of " + df.format(Runtime.getRuntime().maxMemory() / 1048576.0) +
+//                         "MB (" + df.format(Runtime.getRuntime().freeMemory() / 1048576.0) +
+//                         "MB free)");
+
+//    ActivityManager.MemoryInfo mi = new ActivityManager.MemoryInfo();
+//    ActivityManager activityManager =
+//      (ActivityManager) manager.getSystemService(Context.ACTIVITY_SERVICE);
+//    activityManager.getMemoryInfo(mi);
+//    long availableMegs = mi.availMem / 1048576L;
+//    long percentAvail = mi.availMem / mi.totalMem;
+//    Log.d(LogKeys.DEBUG, "SCDCPipeline: maxMemory=" + maxMemory);
+//    Log.d(LogKeys.DEBUG, "SCDCPipeline: availableMegs=" + availableMegs +
+//                         " (percentAvail: " + percentAvail + ")");
     if (handler != null) {
       handler.sendMessage(message);
+//      if (free < 0.1) {
+//        handler.removeMessages(5);
+//      }
     }
 
     // FIXME:
