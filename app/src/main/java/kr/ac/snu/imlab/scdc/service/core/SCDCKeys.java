@@ -111,8 +111,10 @@ public class SCDCKeys {
       EATING_LABEL = "having_a_meal",
       STUDYING_LABEL = "studying",
       DRINKING_LABEL = "drinking",
-      ACCOMPANYING_LABEL = "accompanying",
-      CONVERSING_LABEL = "conversing";
+      CONVERSING_LABEL = "conversing",
+      WITH_2_TO_3_LABEL = "with_2_to_3",
+      WITH_4_TO_6_LABEL = "with_4_to_6",
+      WITH_OVER_7_LABEL = "with_over_7";
     // LABEL_TYPE = "label_type",
     // IS_LABELLED = "is_labelled";
   }

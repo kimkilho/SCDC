@@ -80,23 +80,27 @@ public class LaunchActivity extends ActionBarActivity
   // FIXME: The list of labels available
   @Configurable
   public static final String[] labelNames = {
+          LabelKeys.WITH_2_TO_3_LABEL,
+          LabelKeys.WITH_4_TO_6_LABEL,
+          LabelKeys.WITH_OVER_7_LABEL,
           LabelKeys.SLEEP_LABEL,
           LabelKeys.IN_CLASS_LABEL,
           LabelKeys.EATING_LABEL,
           LabelKeys.STUDYING_LABEL,
           LabelKeys.DRINKING_LABEL,
-          LabelKeys.ACCOMPANYING_LABEL,
           LabelKeys.CONVERSING_LABEL
   };
 
   // FIXME: The list of 'active' labels
   @Configurable
   public static final String[] activeLabelNames = {
+          LabelKeys.WITH_2_TO_3_LABEL,
+          LabelKeys.WITH_4_TO_6_LABEL,
+          LabelKeys.WITH_OVER_7_LABEL,
           LabelKeys.IN_CLASS_LABEL,
           LabelKeys.EATING_LABEL,
           LabelKeys.STUDYING_LABEL,
           LabelKeys.DRINKING_LABEL,
-          LabelKeys.ACCOMPANYING_LABEL,
           LabelKeys.CONVERSING_LABEL
   };
 
