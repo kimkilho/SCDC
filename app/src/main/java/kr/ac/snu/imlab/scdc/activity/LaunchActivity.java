@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
@@ -27,6 +28,7 @@ import edu.mit.media.funf.config.ConfigUpdater.ConfigUpdateException;
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.util.EqualsUtil;
+import kr.ac.snu.imlab.scdc.entry.AccompanyingNumbersLabelEntry;
 import kr.ac.snu.imlab.scdc.service.core.SCDCManager;
 import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
@@ -63,6 +65,7 @@ import kr.ac.snu.imlab.scdc.adapter.BaseAdapterExLabel;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.R;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
+import kr.ac.snu.imlab.scdc.util.TimeUtil;
 
 
 public class LaunchActivity extends ActionBarActivity
@@ -80,28 +83,22 @@ public class LaunchActivity extends ActionBarActivity
   // FIXME: The list of labels available
   @Configurable
   public static final String[] labelNames = {
-          LabelKeys.WITH_2_TO_3_LABEL,
-          LabelKeys.WITH_4_TO_6_LABEL,
-          LabelKeys.WITH_OVER_7_LABEL,
-          LabelKeys.SLEEP_LABEL,
-          LabelKeys.IN_CLASS_LABEL,
           LabelKeys.EATING_LABEL,
+          LabelKeys.IN_CLASS_LABEL,
+          LabelKeys.CONVERSING_LABEL,
+          LabelKeys.SLEEP_LABEL,
           LabelKeys.STUDYING_LABEL,
-          LabelKeys.DRINKING_LABEL,
-          LabelKeys.CONVERSING_LABEL
+          LabelKeys.DRINKING_LABEL
   };
 
   // FIXME: The list of 'active' labels
   @Configurable
   public static final String[] activeLabelNames = {
-          LabelKeys.WITH_2_TO_3_LABEL,
-          LabelKeys.WITH_4_TO_6_LABEL,
-          LabelKeys.WITH_OVER_7_LABEL,
-          LabelKeys.IN_CLASS_LABEL,
           LabelKeys.EATING_LABEL,
+          LabelKeys.IN_CLASS_LABEL,
+          LabelKeys.CONVERSING_LABEL,
           LabelKeys.STUDYING_LABEL,
-          LabelKeys.DRINKING_LABEL,
-          LabelKeys.CONVERSING_LABEL
+          LabelKeys.DRINKING_LABEL
   };
 
   private Handler handler;
@@ -115,6 +112,7 @@ public class LaunchActivity extends ActionBarActivity
   boolean isEdited = false;
 
   // Probe list View
+  private ViewGroup mAnLabelView;
   private ListView mListView;
   private BaseAdapterExLabel mAdapter;
   // Labels list
@@ -129,6 +127,15 @@ public class LaunchActivity extends ActionBarActivity
   private Button archiveButton, truncateDataButton;
   private TextView dataCountView;
   private ImageView receivingDataImageView;
+
+  class AccompanyingNumbersViewHolder {
+    TextView anLogLabelTv;
+    TextView anScheduleTv;
+    Button endLogBt;
+    ArrayList<Button> startLogBts;
+  }
+  private AccompanyingNumbersViewHolder anViewHolder;
+  private AccompanyingNumbersLabelEntry anLabelEntry;
 
   private BroadcastReceiver alertReceiver;
 
@@ -239,6 +246,10 @@ public class LaunchActivity extends ActionBarActivity
       }
     });
 
+    // Add a single AccompanyingNumbersLabelEntry
+    anLabelEntry = new AccompanyingNumbersLabelEntry(LaunchActivity.this,
+                                                     Config.SCDC_PREFS);
+
     // The list of labels available
     labelEntries = new ArrayList<LabelEntry>(labelNames.length);
     for (int i = 0; i < labelNames.length; i++) {
@@ -249,25 +260,30 @@ public class LaunchActivity extends ActionBarActivity
     // Put the total number of labels into SharedPreferences
     spHandler.setNumLabels(labelEntries.size());
 
+    enabledToggleButton =
+            (ToggleButton) findViewById(R.id.enabledToggleButton);
+    reminderToggleButton =
+            (ToggleButton)findViewById(R.id.reminderToggleButton);
+    receivingDataImageView =
+            (ImageView)findViewById(R.id.receiving_data_iv);
+    archiveButton = (Button) findViewById(R.id.archiveButton);
+    truncateDataButton = (Button) findViewById(R.id.truncateDataButton);
+
     mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
     mListView = (ListView) findViewById(R.id.label_list_view);
+    // Set AccompanyingNumbersLabel as a header of ListView
+    mAnLabelView = (ViewGroup) getLayoutInflater().inflate(
+            R.layout.accompanying_numbers_label_view_item_layout, null, false);
+    mListView.addHeaderView(mAnLabelView);
     mListView.setAdapter(mAdapter);
+    setAccompanyingNumbersLabelListener();
 
     // Displays the count of rows in the data
     dataCountView = (TextView) findViewById(R.id.dataCountText);
 
     // Used to make interface changes on main thread
     handler = new Handler();
-
-    enabledToggleButton =
-      (ToggleButton) findViewById(R.id.enabledToggleButton);
-    reminderToggleButton =
-      (ToggleButton)findViewById(R.id.reminderToggleButton);
-    receivingDataImageView =
-      (ImageView)findViewById(R.id.receiving_data_iv);
-    archiveButton = (Button) findViewById(R.id.archiveButton);
-    truncateDataButton = (Button) findViewById(R.id.truncateDataButton);
 
     enabledToggleButton.setEnabled(true);
     enabledToggleButton.setChecked(spHandler.isSensorOn());
@@ -315,6 +331,21 @@ public class LaunchActivity extends ActionBarActivity
         spHandler.setSensorOn(isChecked);
         archiveButton.setEnabled(!isChecked);
         truncateDataButton.setEnabled(!isChecked);
+
+        anViewHolder.endLogBt.setEnabled(anLabelEntry.isLogged() && isChecked);
+        if (isChecked) {
+          for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+            int accompanyingStatusId = i + 1;
+            Button currBt = (Button) anViewHolder.startLogBts.get(i);
+            if (anLabelEntry.getLoggedStatus() != accompanyingStatusId)
+              currBt.setEnabled(true);
+          }
+        } else {
+          for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+            Button currBt = (Button) anViewHolder.startLogBts.get(i);
+            currBt.setEnabled(false);
+          }
+        }
       }
     });
 
@@ -474,6 +505,86 @@ public class LaunchActivity extends ActionBarActivity
       unbindService(scdcServiceConn);
     }
     this.unregisterReceiver(alertReceiver);
+  }
+
+  /**
+   * @author Kilho Kim
+   * Set click listeners for AccompanyingNumbersLabel buttons.
+   */
+  private void setAccompanyingNumbersLabelListener() {
+    anViewHolder = new AccompanyingNumbersViewHolder();
+    anViewHolder.anLogLabelTv =
+      (TextView) mAnLabelView.findViewById(R.id.an_log_label_tv);
+    anViewHolder.anScheduleTv =
+      (TextView) mAnLabelView.findViewById(R.id.an_schedule_tv);
+    anViewHolder.endLogBt =
+      (Button) mAnLabelView.findViewById(R.id.end_an_label_log_button);
+    anViewHolder.startLogBts = new ArrayList<Button>();
+    anViewHolder.startLogBts.add(
+      (Button) mAnLabelView.findViewById(R.id.alone_bt));
+    anViewHolder.startLogBts.add(
+      (Button) mAnLabelView.findViewById(R.id.with_2_to_3_bt));
+    anViewHolder.startLogBts.add(
+      (Button) mAnLabelView.findViewById(R.id.with_4_to_6_bt));
+    anViewHolder.startLogBts.add(
+      (Button) mAnLabelView.findViewById(R.id.with_over_7_bt));
+
+    anViewHolder.anLogLabelTv.setText("Company?");
+    anViewHolder.endLogBt.setEnabled(anLabelEntry.isLogged() &&
+                                     enabledToggleButton.isChecked());
+    for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+      Button currBt = (Button) anViewHolder.startLogBts.get(i);
+      currBt.setEnabled(!anLabelEntry.isLogged() && enabledToggleButton.isChecked());
+    }
+
+    // Refresh the elapsed time if the label is logged
+    if (anLabelEntry.isLogged()) {
+      String elapsedTime =
+        TimeUtil.getElapsedTimeUntilNow(anLabelEntry.getStartLoggingTime());
+      anViewHolder.anScheduleTv.setText(" for " + elapsedTime);
+    } else {
+      anViewHolder.anScheduleTv.setText(R.string.probe_disabled);
+    }
+
+    // OnClickListener for end log button
+    anViewHolder.endLogBt.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        anLabelEntry.endLog();  // end label logging
+
+        v.setEnabled(false);
+        for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+          anViewHolder.startLogBts.get(i).setEnabled(true);
+        }
+
+        anViewHolder.anScheduleTv.setText(R.string.probe_disabled);
+      }
+    });
+
+    // OnClickListener for start log buttons
+    for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+      final int currIdx = i;
+      anViewHolder.startLogBts.get(i).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          final int accompanyingStatusId = currIdx+1;  // 1, 2, 3, 4
+          Log.d(LogKeys.DEBUG, TAG+"setAccompanyingNumbersLabelListener(): " +
+                  "anViewHolder.startLogBts.get(" + currIdx + ")" +
+                  ".setOnClickListener(): " + accompanyingStatusId);
+          anLabelEntry.startLog(accompanyingStatusId);  // start label logging
+
+          v.setEnabled(false);
+          anViewHolder.endLogBt.setEnabled(true);
+          for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+            int otherAccompanyingStatusId = i+1;
+            if (otherAccompanyingStatusId != accompanyingStatusId)
+              anViewHolder.startLogBts.get(i).setEnabled(true);
+          }
+
+          // anViewHolder.anScheduleTv.setText(" for " + )
+        }
+      });
+    }
   }
 
   /**

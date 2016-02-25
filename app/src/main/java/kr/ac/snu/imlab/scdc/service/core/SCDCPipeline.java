@@ -41,6 +41,7 @@ import edu.mit.media.funf.storage.UploadService;
 import edu.mit.media.funf.util.StringUtil;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.activity.OnDataReceivedListener;
+import kr.ac.snu.imlab.scdc.entry.AccompanyingNumbersLabelEntry;
 import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
@@ -407,6 +408,12 @@ public class SCDCPipeline implements Pipeline, DataListener {
       dataClone.addProperty(tempLabelNames[i],
                             !(spHandler.getStartLoggingTime(i) == -1));
     }
+
+    // Add AccompanyingNumbersLabelEntry info to data
+    dataClone.addProperty(LabelKeys.ACCOMPANYING_LABEL,
+                          spHandler.getAccompanyingStatus(
+                            LabelKeys.ACCOMPANYING_NUMBERS_LABEL_ID
+                          ));
 
     IJsonObject dataWithExpId = new IJsonObject(dataClone);
     // FIXME: Uncomment below to enhance CPU performance

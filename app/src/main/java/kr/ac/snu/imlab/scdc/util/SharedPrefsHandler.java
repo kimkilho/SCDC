@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutionException;
 
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
+import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.Config;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.SharedPrefs;
@@ -157,6 +158,17 @@ public class SharedPrefsHandler {
   public void setStartLoggingTime(int labelId, long startLoggingTime) {
     prefs.edit().putLong(SharedPrefs.LABEL_START_LOGGING_TIME_PREFIX +
             String.valueOf(labelId), startLoggingTime).apply();
+  }
+
+  // Only for AccompanyingNumbersLabel
+  public int getAccompanyingStatus(int labelId) {
+    return prefs.getInt(SharedPrefs.LABEL_ACCOMPANYING_STATUS_PREFIX +
+            String.valueOf(labelId), LabelKeys.ACCOMPANYING_STATUS_NONE);
+  }
+
+  public void setAccompanyingStatus(int labelId, int accompanyingStatusId) {
+    prefs.edit().putInt(SharedPrefs.LABEL_ACCOMPANYING_STATUS_PREFIX +
+            String.valueOf(labelId), accompanyingStatusId).apply();
   }
 
   public boolean getIsLogged(int labelId) {
