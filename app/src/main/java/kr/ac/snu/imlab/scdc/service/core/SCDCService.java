@@ -140,6 +140,8 @@ public class SCDCService extends Service {
         if (isActiveLabelOn) newConfigString = spHandler.getActiveConfig();
         else                 newConfigString = spHandler.getIdleConfig();
 
+        if (newConfigString == null) newConfigString = oldConfig.toString();
+
         Log.d(LogKeys.DEBUG,
                 TAG+".changeConfig/ newConfig=" + newConfigString);
         JsonObject newConfig = new JsonParser().parse(newConfigString).getAsJsonObject();
