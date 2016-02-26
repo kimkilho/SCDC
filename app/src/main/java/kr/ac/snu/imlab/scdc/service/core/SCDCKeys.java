@@ -51,6 +51,7 @@ public class SCDCKeys {
       LABEL_REPEAT_INTERVAL_PREFIX = "repeat_interval_",
       LABEL_HAS_FINAL_DATE_DUE = "has_final_date_due_",
       LABEL_ACCOMPANYING_STATUS_PREFIX = "accompanying_status_",
+      LABEL_CONVERSING_STATUS_PREFIX = "conversing_status_",
       ALARM_TIME = "alarm_time",
       REMINDER_TIME = "reminder_time",
       VIBRATE_ON_ALARM = "vibrate_on_alarm",
@@ -118,12 +119,17 @@ public class SCDCKeys {
     // IS_LABELLED = "is_labelled";
 
     public static final int
-      ACCOMPANYING_NUMBERS_LABEL_ID = 1000,   // NOTE: Assign a large id
+      ACCOMPANYING_STATUS_LABEL_ID = 1000,   // NOTE: Assign a large id
       ACCOMPANYING_STATUS_NONE = 0,
       ACCOMPANYING_STATUS_ALONE = 1,
       ACCOMPANYING_STATUS_WITH_2_TO_3 = 2,
       ACCOMPANYING_STATUS_WITH_4_TO_6 = 3,
-      ACCOMPANYING_STATUS_WITH_OVER_7 = 4;
+      ACCOMPANYING_STATUS_WITH_OVER_7 = 4,
+      CONVERSING_STATUS_LABEL_ID = 1001,   // NOTE: Assign a large id
+      CONVERSING_STATUS_NONE = 0,
+      CONVERSING_STATUS_QUIET = 1,
+      CONVERSING_STATUS_TALKING = 2;
+
   }
 
   public static interface LogKeys {

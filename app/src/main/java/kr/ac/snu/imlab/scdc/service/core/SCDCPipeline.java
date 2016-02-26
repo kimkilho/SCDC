@@ -1,12 +1,10 @@
 package kr.ac.snu.imlab.scdc.service.core;
 
-import android.app.ActivityManager;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Debug;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Process;
@@ -15,7 +13,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,8 +38,6 @@ import edu.mit.media.funf.storage.UploadService;
 import edu.mit.media.funf.util.StringUtil;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.activity.OnDataReceivedListener;
-import kr.ac.snu.imlab.scdc.entry.AccompanyingNumbersLabelEntry;
-import kr.ac.snu.imlab.scdc.entry.LabelEntry;
 import kr.ac.snu.imlab.scdc.service.storage.SCDCDatabaseHelper;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
@@ -409,11 +404,14 @@ public class SCDCPipeline implements Pipeline, DataListener {
                             !(spHandler.getStartLoggingTime(i) == -1));
     }
 
-    // Add AccompanyingNumbersLabelEntry info to data
+    // Add AccompanyingStatusLabelEntry info to data
     dataClone.addProperty(LabelKeys.ACCOMPANYING_LABEL,
                           spHandler.getAccompanyingStatus(
-                            LabelKeys.ACCOMPANYING_NUMBERS_LABEL_ID
-                          ));
+                            LabelKeys.ACCOMPANYING_STATUS_LABEL_ID));
+    // Add ConversingStatusLabelEntry info to data
+    dataClone.addProperty(LabelKeys.CONVERSING_LABEL,
+                          spHandler.getConversingStatus(
+                            LabelKeys.CONVERSING_STATUS_LABEL_ID));
 
     IJsonObject dataWithExpId = new IJsonObject(dataClone);
     // FIXME: Uncomment below to enhance CPU performance

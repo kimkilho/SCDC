@@ -29,6 +29,7 @@ import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.util.EqualsUtil;
 import kr.ac.snu.imlab.scdc.entry.AccompanyingStatusLabelEntry;
+import kr.ac.snu.imlab.scdc.entry.ConversingStatusLabelEntry;
 import kr.ac.snu.imlab.scdc.service.core.SCDCManager;
 import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
@@ -85,7 +86,6 @@ public class LaunchActivity extends ActionBarActivity
   public static final String[] labelNames = {
           LabelKeys.EATING_LABEL,
           LabelKeys.IN_CLASS_LABEL,
-          LabelKeys.CONVERSING_LABEL,
           LabelKeys.SLEEP_LABEL,
           LabelKeys.STUDYING_LABEL,
           LabelKeys.DRINKING_LABEL
@@ -96,7 +96,6 @@ public class LaunchActivity extends ActionBarActivity
   public static final String[] activeLabelNames = {
           LabelKeys.EATING_LABEL,
           LabelKeys.IN_CLASS_LABEL,
-          LabelKeys.CONVERSING_LABEL,
           LabelKeys.STUDYING_LABEL,
           LabelKeys.DRINKING_LABEL
   };
@@ -112,7 +111,8 @@ public class LaunchActivity extends ActionBarActivity
   boolean isEdited = false;
 
   // Probe list View
-  private ViewGroup mAnLabelView;
+  private ViewGroup mAsLabelView;
+  private ViewGroup mCsLabelView;
   private ListView mListView;
   private BaseAdapterExLabel mAdapter;
   // Labels list
@@ -138,7 +138,13 @@ public class LaunchActivity extends ActionBarActivity
   private AccompanyingStatusLabelEntry asLabelEntry;
 
   class ConversingStatusViewHolder {
+    TextView csLogLabelTv;
+    TextView csScheduleTv;
+    Button endLogBt;
+    ArrayList<Button> startLogBts;
   }
+  private ConversingStatusViewHolder csViewHolder;
+  private ConversingStatusLabelEntry csLabelEntry;
 
   private BroadcastReceiver alertReceiver;
 
@@ -253,6 +259,10 @@ public class LaunchActivity extends ActionBarActivity
     asLabelEntry = new AccompanyingStatusLabelEntry(LaunchActivity.this,
                                                      Config.SCDC_PREFS);
 
+    // Add a single ConversingStatusLabelEntry
+    csLabelEntry = new ConversingStatusLabelEntry(LaunchActivity.this,
+                                                    Config.SCDC_PREFS);
+
     // The list of labels available
     labelEntries = new ArrayList<LabelEntry>(labelNames.length);
     for (int i = 0; i < labelNames.length; i++) {
@@ -276,11 +286,17 @@ public class LaunchActivity extends ActionBarActivity
 
     mListView = (ListView) findViewById(R.id.label_list_view);
     // Set AccompanyingStatusView as a header of ListView
-    mAnLabelView = (ViewGroup) getLayoutInflater().inflate(
+    mAsLabelView = (ViewGroup) getLayoutInflater().inflate(
             R.layout.accompanying_status_label_view_item_layout, null, false);
-    mListView.addHeaderView(mAnLabelView);
+    mListView.addHeaderView(mAsLabelView);
+
+    mCsLabelView = (ViewGroup) getLayoutInflater().inflate(
+            R.layout.conversing_status_label_view_item_layout, null, false);
+    mListView.addHeaderView(mCsLabelView);
+
     mListView.setAdapter(mAdapter);
     setAccompanyingStatusListener();
+    setConversingStatusListener();
 
     // Displays the count of rows in the data
     dataCountView = (TextView) findViewById(R.id.dataCountText);
@@ -339,13 +355,28 @@ public class LaunchActivity extends ActionBarActivity
         if (isChecked) {
           for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
             int accompanyingStatusId = i + 1;
-            Button currBt = (Button) asViewHolder.startLogBts.get(i);
+            Button currBt = asViewHolder.startLogBts.get(i);
             if (asLabelEntry.getLoggedStatus() != accompanyingStatusId)
               currBt.setEnabled(true);
           }
         } else {
           for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
-            Button currBt = (Button) asViewHolder.startLogBts.get(i);
+            Button currBt = asViewHolder.startLogBts.get(i);
+            currBt.setEnabled(false);
+          }
+        }
+
+        csViewHolder.endLogBt.setEnabled(csLabelEntry.isLogged() && isChecked);
+        if (isChecked) {
+          for (int i = 0; i < csViewHolder.startLogBts.size(); i++) {
+            int conversingStatusId = i + 1;
+            Button currBt = csViewHolder.startLogBts.get(i);
+            if (csLabelEntry.getLoggedStatus() != conversingStatusId)
+              currBt.setEnabled(true);
+          }
+        } else {
+          for (int i = 0; i < csViewHolder.startLogBts.size(); i++) {
+            Button currBt = csViewHolder.startLogBts.get(i);
             currBt.setEnabled(false);
           }
         }
@@ -477,14 +508,27 @@ public class LaunchActivity extends ActionBarActivity
     }
 
     asViewHolder.endLogBt.setEnabled(asLabelEntry.isLogged() &&
-            enabledToggleButton.isChecked());
-
+                                     enabledToggleButton.isChecked());
     for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
       int accompanyingStatusId = i + 1;
       Button currBt = asViewHolder.startLogBts.get(i);
       if (enabledToggleButton.isChecked()) {
         if (asLabelEntry.isLogged())
           currBt.setEnabled(asLabelEntry.getLoggedStatus() != accompanyingStatusId);
+        else currBt.setEnabled(true);
+      } else {
+        currBt.setEnabled(false);
+      }
+    }
+
+    csViewHolder.endLogBt.setEnabled(csLabelEntry.isLogged() &&
+                                     enabledToggleButton.isChecked());
+    for (int i = 0; i < csViewHolder.startLogBts.size(); i++) {
+      int conversingStatusId = i + 1;
+      Button currBt = csViewHolder.startLogBts.get(i);
+      if (enabledToggleButton.isChecked()) {
+        if (csLabelEntry.isLogged())
+          currBt.setEnabled(csLabelEntry.getLoggedStatus() != conversingStatusId);
         else currBt.setEnabled(true);
       } else {
         currBt.setEnabled(false);
@@ -504,6 +548,14 @@ public class LaunchActivity extends ActionBarActivity
           asViewHolder.asScheduleTv.setText(" for " + elapsedTime);
         } else {
           asViewHolder.asScheduleTv.setText(R.string.probe_disabled);
+        }
+
+        if (csLabelEntry.isLogged()) {
+          String elapsedTime =
+                  TimeUtil.getElapsedTimeUntilNow(csLabelEntry.getStartLoggingTime());
+          csViewHolder.csScheduleTv.setText(" for " + elapsedTime);
+        } else {
+          csViewHolder.csScheduleTv.setText(R.string.probe_disabled);
         }
         handler.postDelayed(this, 1000L);
       }
@@ -536,30 +588,112 @@ public class LaunchActivity extends ActionBarActivity
 
   /**
    * @author Kilho Kim
+   * Set click listeners for ConversingStatusView buttons.
+   */
+  private void setConversingStatusListener() {
+    csViewHolder = new ConversingStatusViewHolder();
+    csViewHolder.csLogLabelTv =
+            (TextView) mCsLabelView.findViewById(R.id.cs_log_label_tv);
+    csViewHolder.csScheduleTv =
+            (TextView) mCsLabelView.findViewById(R.id.cs_schedule_tv);
+    csViewHolder.endLogBt =
+            (Button) mCsLabelView.findViewById(R.id.end_cs_label_log_bt);
+    csViewHolder.startLogBts = new ArrayList<Button>();
+    csViewHolder.startLogBts.add(
+            (Button) mCsLabelView.findViewById(R.id.quiet));
+    csViewHolder.startLogBts.add(
+            (Button) mCsLabelView.findViewById(R.id.talking));
+
+    csViewHolder.csLogLabelTv.setText(LabelKeys.CONVERSING_LABEL);
+    csViewHolder.endLogBt.setEnabled(csLabelEntry.isLogged() &&
+                                     enabledToggleButton.isChecked());
+    for (int i = 0; i < csViewHolder.startLogBts.size(); i++) {
+      int conversingStatusId = i + 1;
+      Button currBt = csViewHolder.startLogBts.get(i);
+      if (enabledToggleButton.isChecked()) {
+        if (csLabelEntry.isLogged())
+          currBt.setEnabled(csLabelEntry.getLoggedStatus() != conversingStatusId);
+        else currBt.setEnabled(true);
+      } else {
+        currBt.setEnabled(false);
+      }
+    }
+
+    // Refresh the elapsed time if the label is logged
+    if (csLabelEntry.isLogged()) {
+      String elapsedTime =
+              TimeUtil.getElapsedTimeUntilNow(csLabelEntry.getStartLoggingTime());
+      csViewHolder.csScheduleTv.setText(" for " + elapsedTime);
+    } else {
+      csViewHolder.csScheduleTv.setText(R.string.probe_disabled);
+    }
+
+    // OnClickListener for end log button
+    csViewHolder.endLogBt.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        csLabelEntry.endLog();  // end label logging
+
+        v.setEnabled(false);
+        for (int i = 0; i < csViewHolder.startLogBts.size(); i++) {
+          csViewHolder.startLogBts.get(i).setEnabled(true);
+        }
+
+        csViewHolder.csScheduleTv.setText(R.string.probe_disabled);
+      }
+    });
+
+    // OnClickListener for start log buttons
+    for (int i = 0; i < csViewHolder.startLogBts.size(); i++) {
+      final int currIdx = i;
+      csViewHolder.startLogBts.get(i).setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          final int conversingStatusId = currIdx+1;  // 1, 2, 3, 4
+          Log.d(LogKeys.DEBUG, TAG+"setConversingStatusListener(): " +
+                  "csViewHolder.startLogBts.get(" + currIdx + ")" +
+                  ".setOnClickListener(): " + conversingStatusId);
+          csLabelEntry.startLog(conversingStatusId);  // start label logging
+
+          v.setEnabled(false);
+          csViewHolder.endLogBt.setEnabled(true);
+          for (int i = 0; i < csViewHolder.startLogBts.size(); i++) {
+            int otherConversingStatusId = i+1;
+            if (otherConversingStatusId != conversingStatusId)
+              csViewHolder.startLogBts.get(i).setEnabled(true);
+          }
+
+          // csViewHolder.csScheduleTv.setText(" for " + )
+        }
+      });
+    }
+  }
+
+  /**
+   * @author Kilho Kim
    * Set click listeners for AccompanyingStatusView buttons.
    */
   private void setAccompanyingStatusListener() {
     asViewHolder = new AccompanyingStatusViewHolder();
     asViewHolder.asLogLabelTv =
-      (TextView) mAnLabelView.findViewById(R.id.as_log_label_tv);
+      (TextView) mAsLabelView.findViewById(R.id.as_log_label_tv);
     asViewHolder.asScheduleTv =
-      (TextView) mAnLabelView.findViewById(R.id.as_schedule_tv);
+      (TextView) mAsLabelView.findViewById(R.id.as_schedule_tv);
     asViewHolder.endLogBt =
-      (Button) mAnLabelView.findViewById(R.id.end_as_label_log_button);
+      (Button) mAsLabelView.findViewById(R.id.end_as_label_log_bt);
     asViewHolder.startLogBts = new ArrayList<Button>();
     asViewHolder.startLogBts.add(
-      (Button) mAnLabelView.findViewById(R.id.alone_bt));
+      (Button) mAsLabelView.findViewById(R.id.alone_bt));
     asViewHolder.startLogBts.add(
-      (Button) mAnLabelView.findViewById(R.id.with_2_to_3_bt));
+      (Button) mAsLabelView.findViewById(R.id.with_2_to_3_bt));
     asViewHolder.startLogBts.add(
-      (Button) mAnLabelView.findViewById(R.id.with_4_to_6_bt));
+      (Button) mAsLabelView.findViewById(R.id.with_4_to_6_bt));
     asViewHolder.startLogBts.add(
-      (Button) mAnLabelView.findViewById(R.id.with_over_7_bt));
+      (Button) mAsLabelView.findViewById(R.id.with_over_7_bt));
 
     asViewHolder.asLogLabelTv.setText("Company?");
     asViewHolder.endLogBt.setEnabled(asLabelEntry.isLogged() &&
                                      enabledToggleButton.isChecked());
-
     for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
       int accompanyingStatusId = i + 1;
       Button currBt = asViewHolder.startLogBts.get(i);
@@ -571,7 +705,6 @@ public class LaunchActivity extends ActionBarActivity
         currBt.setEnabled(false);
       }
     }
-
 
     // Refresh the elapsed time if the label is logged
     if (asLabelEntry.isLogged()) {

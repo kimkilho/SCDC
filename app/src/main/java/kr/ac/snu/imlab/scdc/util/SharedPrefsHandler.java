@@ -160,15 +160,28 @@ public class SharedPrefsHandler {
             String.valueOf(labelId), startLoggingTime).apply();
   }
 
-  // Only for AccompanyingNumbersLabel
+  // AccompanyingStatusLabel
   public int getAccompanyingStatus(int labelId) {
     return prefs.getInt(SharedPrefs.LABEL_ACCOMPANYING_STATUS_PREFIX +
             String.valueOf(labelId), LabelKeys.ACCOMPANYING_STATUS_NONE);
   }
 
+  // AccompanyingStatusLabel
   public void setAccompanyingStatus(int labelId, int accompanyingStatusId) {
     prefs.edit().putInt(SharedPrefs.LABEL_ACCOMPANYING_STATUS_PREFIX +
             String.valueOf(labelId), accompanyingStatusId).apply();
+  }
+
+  // ConversingStatusLabel
+  public int getConversingStatus(int labelId) {
+    return prefs.getInt(SharedPrefs.LABEL_CONVERSING_STATUS_PREFIX +
+            String.valueOf(labelId), LabelKeys.CONVERSING_STATUS_NONE);
+  }
+
+  // ConversingStatusLabel
+  public void setConversingStatus(int labelId, int conversingStatusId) {
+    prefs.edit().putInt(SharedPrefs.LABEL_CONVERSING_STATUS_PREFIX +
+            String.valueOf(labelId), conversingStatusId).apply();
   }
 
   public boolean getIsLogged(int labelId) {

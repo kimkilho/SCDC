@@ -6,17 +6,17 @@ import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LabelKeys;
 import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 
 /**
- * Created by kilho on 16. 2. 25.
+ * Created by kilho on 16. 2. 26.
  */
-public class AccompanyingStatusLabelEntry {
+public class ConversingStatusLabelEntry {
 
-  protected static final String TAG = "AccompanyingNumbersEntry";
+  protected static final String TAG = "ConversingStatusLabelEntry";
 
   private static int labelId;
   private SharedPrefsHandler spHandler;
 
-  public AccompanyingStatusLabelEntry(Context context, String prefsName) {
-    this.labelId = LabelKeys.ACCOMPANYING_STATUS_LABEL_ID;
+  public ConversingStatusLabelEntry(Context context, String prefsName) {
+    this.labelId = LabelKeys.CONVERSING_STATUS_LABEL_ID;
     this.spHandler = SharedPrefsHandler.getInstance(context,
                         prefsName, Context.MODE_PRIVATE);
   }
@@ -26,32 +26,29 @@ public class AccompanyingStatusLabelEntry {
   }
 
   public int getLoggedStatus() {
-    return spHandler.getAccompanyingStatus(getId());
+    return spHandler.getConversingStatus(getId());
   }
 
   public boolean isLogged() {
-    if (getLoggedStatus() == LabelKeys.ACCOMPANYING_STATUS_NONE)
+    if (getLoggedStatus() == LabelKeys.CONVERSING_STATUS_NONE)
       return false;
     else
       return true;
   }
 
-  public void startLog(int accompanyingStatusId) {
-//    if (isLogged()) return;
+  public void startLog(int conversingStatusId) {
     spHandler.setStartLoggingTime(getId(), System.currentTimeMillis());
-    spHandler.setAccompanyingStatus(getId(), accompanyingStatusId);
+    spHandler.setConversingStatus(getId(), conversingStatusId);
   }
 
-  public void startLog(int accompanyingStatusId, long startLoggingTime) {
-//    if (isLogged()) return;
+  public void startLog(int conversingStatusId, long startLoggingTime) {
     spHandler.setStartLoggingTime(getId(), startLoggingTime);
-    spHandler.setAccompanyingStatus(getId(), accompanyingStatusId);
+    spHandler.setConversingStatus(getId(), conversingStatusId);
   }
 
   public void endLog() {
-//    if (!isLogged()) return;
     spHandler.setStartLoggingTime(getId(), -1L);
-    spHandler.setAccompanyingStatus(getId(), LabelKeys.ACCOMPANYING_STATUS_NONE);
+    spHandler.setConversingStatus(getId(), LabelKeys.CONVERSING_STATUS_NONE);
   }
 
   public long getStartLoggingTime() {
@@ -89,5 +86,4 @@ public class AccompanyingStatusLabelEntry {
   public void setDateDue(long dateDue) {
     spHandler.setDateDue(getId(), dateDue);
   }
-
 }
