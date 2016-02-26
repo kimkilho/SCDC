@@ -473,6 +473,21 @@ public class LaunchActivity extends ActionBarActivity
       updateLaunchActivityUi();
     }
 
+    anViewHolder.endLogBt.setEnabled(anLabelEntry.isLogged() &&
+            enabledToggleButton.isChecked());
+
+    for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+      int accompanyingStatusId = i + 1;
+      Button currBt = anViewHolder.startLogBts.get(i);
+      if (enabledToggleButton.isChecked()) {
+        if (anLabelEntry.isLogged())
+          currBt.setEnabled(anLabelEntry.getLoggedStatus() != accompanyingStatusId);
+        else currBt.setEnabled(true);
+      } else {
+        currBt.setEnabled(false);
+      }
+    }
+
     // Dynamically refresh the ListView items
     //  and AccompanyingNumbersLabelEntry view
     handler.postDelayed(new Runnable() {
@@ -541,10 +556,19 @@ public class LaunchActivity extends ActionBarActivity
     anViewHolder.anLogLabelTv.setText("Company?");
     anViewHolder.endLogBt.setEnabled(anLabelEntry.isLogged() &&
                                      enabledToggleButton.isChecked());
+
     for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
-      Button currBt = (Button) anViewHolder.startLogBts.get(i);
-      currBt.setEnabled(!anLabelEntry.isLogged() && enabledToggleButton.isChecked());
+      int accompanyingStatusId = i + 1;
+      Button currBt = anViewHolder.startLogBts.get(i);
+      if (enabledToggleButton.isChecked()) {
+        if (anLabelEntry.isLogged())
+          currBt.setEnabled(anLabelEntry.getLoggedStatus() != accompanyingStatusId);
+        else currBt.setEnabled(true);
+      } else {
+        currBt.setEnabled(false);
+      }
     }
+
 
     // Refresh the elapsed time if the label is logged
     if (anLabelEntry.isLogged()) {
