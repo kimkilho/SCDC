@@ -28,7 +28,7 @@ import edu.mit.media.funf.config.ConfigUpdater.ConfigUpdateException;
 import edu.mit.media.funf.config.Configurable;
 import edu.mit.media.funf.config.HttpConfigUpdater;
 import edu.mit.media.funf.util.EqualsUtil;
-import kr.ac.snu.imlab.scdc.entry.AccompanyingNumbersLabelEntry;
+import kr.ac.snu.imlab.scdc.entry.AccompanyingStatusLabelEntry;
 import kr.ac.snu.imlab.scdc.service.core.SCDCManager;
 import kr.ac.snu.imlab.scdc.service.alarm.AlarmButlerService;
 import kr.ac.snu.imlab.scdc.service.alarm.LabelAlarm;
@@ -135,7 +135,7 @@ public class LaunchActivity extends ActionBarActivity
     ArrayList<Button> startLogBts;
   }
   private AccompanyingNumbersViewHolder anViewHolder;
-  private AccompanyingNumbersLabelEntry anLabelEntry;
+  private AccompanyingStatusLabelEntry anLabelEntry;
 
   private BroadcastReceiver alertReceiver;
 
@@ -247,7 +247,7 @@ public class LaunchActivity extends ActionBarActivity
     });
 
     // Add a single AccompanyingNumbersLabelEntry
-    anLabelEntry = new AccompanyingNumbersLabelEntry(LaunchActivity.this,
+    anLabelEntry = new AccompanyingStatusLabelEntry(LaunchActivity.this,
                                                      Config.SCDC_PREFS);
 
     // The list of labels available

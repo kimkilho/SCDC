@@ -8,14 +8,14 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
 /**
  * Created by kilho on 16. 2. 25.
  */
-public class AccompanyingNumbersLabelEntry {
+public class AccompanyingStatusLabelEntry {
 
   protected static final String TAG = "AccompanyingNumbersEntry";
 
   private static int labelId;
   private SharedPrefsHandler spHandler;
 
-  public AccompanyingNumbersLabelEntry(Context context, String prefsName) {
+  public AccompanyingStatusLabelEntry(Context context, String prefsName) {
     this.labelId = LabelKeys.ACCOMPANYING_NUMBERS_LABEL_ID;
     this.spHandler = SharedPrefsHandler.getInstance(context,
                         prefsName, Context.MODE_PRIVATE);
