@@ -128,13 +128,13 @@ public class LaunchActivity extends ActionBarActivity
   private TextView dataCountView;
   private ImageView receivingDataImageView;
 
-  class AccompanyingNumbersViewHolder {
+  class AccompanyingStatusViewHolder {
     TextView anLogLabelTv;
     TextView anScheduleTv;
     Button endLogBt;
     ArrayList<Button> startLogBts;
   }
-  private AccompanyingNumbersViewHolder anViewHolder;
+  private AccompanyingStatusViewHolder anViewHolder;
   private AccompanyingStatusLabelEntry anLabelEntry;
 
   private BroadcastReceiver alertReceiver;
@@ -246,7 +246,7 @@ public class LaunchActivity extends ActionBarActivity
       }
     });
 
-    // Add a single AccompanyingNumbersLabelEntry
+    // Add a single AccompanyingStatusLabelEntry
     anLabelEntry = new AccompanyingStatusLabelEntry(LaunchActivity.this,
                                                      Config.SCDC_PREFS);
 
@@ -272,12 +272,12 @@ public class LaunchActivity extends ActionBarActivity
     mAdapter = new BaseAdapterExLabel(this, labelEntries);
 
     mListView = (ListView) findViewById(R.id.label_list_view);
-    // Set AccompanyingNumbersLabel as a header of ListView
+    // Set AccompanyingStatusView as a header of ListView
     mAnLabelView = (ViewGroup) getLayoutInflater().inflate(
             R.layout.accompanying_numbers_label_view_item_layout, null, false);
     mListView.addHeaderView(mAnLabelView);
     mListView.setAdapter(mAdapter);
-    setAccompanyingNumbersLabelListener();
+    setAccompanyingStatusListener();
 
     // Displays the count of rows in the data
     dataCountView = (TextView) findViewById(R.id.dataCountText);
@@ -489,7 +489,7 @@ public class LaunchActivity extends ActionBarActivity
     }
 
     // Dynamically refresh the ListView items
-    //  and AccompanyingNumbersLabelEntry view
+    //  and AccompanyingStatus view
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
@@ -533,10 +533,10 @@ public class LaunchActivity extends ActionBarActivity
 
   /**
    * @author Kilho Kim
-   * Set click listeners for AccompanyingNumbersLabel buttons.
+   * Set click listeners for AccompanyingStatusView buttons.
    */
-  private void setAccompanyingNumbersLabelListener() {
-    anViewHolder = new AccompanyingNumbersViewHolder();
+  private void setAccompanyingStatusListener() {
+    anViewHolder = new AccompanyingStatusViewHolder();
     anViewHolder.anLogLabelTv =
       (TextView) mAnLabelView.findViewById(R.id.an_log_label_tv);
     anViewHolder.anScheduleTv =
@@ -601,7 +601,7 @@ public class LaunchActivity extends ActionBarActivity
         @Override
         public void onClick(View v) {
           final int accompanyingStatusId = currIdx+1;  // 1, 2, 3, 4
-          Log.d(LogKeys.DEBUG, TAG+"setAccompanyingNumbersLabelListener(): " +
+          Log.d(LogKeys.DEBUG, TAG+"setAccompanyingStatusListener(): " +
                   "anViewHolder.startLogBts.get(" + currIdx + ")" +
                   ".setOnClickListener(): " + accompanyingStatusId);
           anLabelEntry.startLog(accompanyingStatusId);  // start label logging
