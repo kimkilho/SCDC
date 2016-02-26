@@ -129,13 +129,16 @@ public class LaunchActivity extends ActionBarActivity
   private ImageView receivingDataImageView;
 
   class AccompanyingStatusViewHolder {
-    TextView anLogLabelTv;
-    TextView anScheduleTv;
+    TextView asLogLabelTv;
+    TextView asScheduleTv;
     Button endLogBt;
     ArrayList<Button> startLogBts;
   }
-  private AccompanyingStatusViewHolder anViewHolder;
-  private AccompanyingStatusLabelEntry anLabelEntry;
+  private AccompanyingStatusViewHolder asViewHolder;
+  private AccompanyingStatusLabelEntry asLabelEntry;
+
+  class ConversingStatusViewHolder {
+  }
 
   private BroadcastReceiver alertReceiver;
 
@@ -247,7 +250,7 @@ public class LaunchActivity extends ActionBarActivity
     });
 
     // Add a single AccompanyingStatusLabelEntry
-    anLabelEntry = new AccompanyingStatusLabelEntry(LaunchActivity.this,
+    asLabelEntry = new AccompanyingStatusLabelEntry(LaunchActivity.this,
                                                      Config.SCDC_PREFS);
 
     // The list of labels available
@@ -274,7 +277,7 @@ public class LaunchActivity extends ActionBarActivity
     mListView = (ListView) findViewById(R.id.label_list_view);
     // Set AccompanyingStatusView as a header of ListView
     mAnLabelView = (ViewGroup) getLayoutInflater().inflate(
-            R.layout.accompanying_numbers_label_view_item_layout, null, false);
+            R.layout.accompanying_status_label_view_item_layout, null, false);
     mListView.addHeaderView(mAnLabelView);
     mListView.setAdapter(mAdapter);
     setAccompanyingStatusListener();
@@ -332,17 +335,17 @@ public class LaunchActivity extends ActionBarActivity
         archiveButton.setEnabled(!isChecked);
         truncateDataButton.setEnabled(!isChecked);
 
-        anViewHolder.endLogBt.setEnabled(anLabelEntry.isLogged() && isChecked);
+        asViewHolder.endLogBt.setEnabled(asLabelEntry.isLogged() && isChecked);
         if (isChecked) {
-          for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+          for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
             int accompanyingStatusId = i + 1;
-            Button currBt = (Button) anViewHolder.startLogBts.get(i);
-            if (anLabelEntry.getLoggedStatus() != accompanyingStatusId)
+            Button currBt = (Button) asViewHolder.startLogBts.get(i);
+            if (asLabelEntry.getLoggedStatus() != accompanyingStatusId)
               currBt.setEnabled(true);
           }
         } else {
-          for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
-            Button currBt = (Button) anViewHolder.startLogBts.get(i);
+          for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
+            Button currBt = (Button) asViewHolder.startLogBts.get(i);
             currBt.setEnabled(false);
           }
         }
@@ -473,15 +476,15 @@ public class LaunchActivity extends ActionBarActivity
       updateLaunchActivityUi();
     }
 
-    anViewHolder.endLogBt.setEnabled(anLabelEntry.isLogged() &&
+    asViewHolder.endLogBt.setEnabled(asLabelEntry.isLogged() &&
             enabledToggleButton.isChecked());
 
-    for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+    for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
       int accompanyingStatusId = i + 1;
-      Button currBt = anViewHolder.startLogBts.get(i);
+      Button currBt = asViewHolder.startLogBts.get(i);
       if (enabledToggleButton.isChecked()) {
-        if (anLabelEntry.isLogged())
-          currBt.setEnabled(anLabelEntry.getLoggedStatus() != accompanyingStatusId);
+        if (asLabelEntry.isLogged())
+          currBt.setEnabled(asLabelEntry.getLoggedStatus() != accompanyingStatusId);
         else currBt.setEnabled(true);
       } else {
         currBt.setEnabled(false);
@@ -495,12 +498,12 @@ public class LaunchActivity extends ActionBarActivity
       public void run() {
         mAdapter.notifyDataSetChanged();
         updateLaunchActivityUi();   // FIXME
-        if (anLabelEntry.isLogged()) {
+        if (asLabelEntry.isLogged()) {
           String elapsedTime =
-                  TimeUtil.getElapsedTimeUntilNow(anLabelEntry.getStartLoggingTime());
-          anViewHolder.anScheduleTv.setText(" for " + elapsedTime);
+                  TimeUtil.getElapsedTimeUntilNow(asLabelEntry.getStartLoggingTime());
+          asViewHolder.asScheduleTv.setText(" for " + elapsedTime);
         } else {
-          anViewHolder.anScheduleTv.setText(R.string.probe_disabled);
+          asViewHolder.asScheduleTv.setText(R.string.probe_disabled);
         }
         handler.postDelayed(this, 1000L);
       }
@@ -536,33 +539,33 @@ public class LaunchActivity extends ActionBarActivity
    * Set click listeners for AccompanyingStatusView buttons.
    */
   private void setAccompanyingStatusListener() {
-    anViewHolder = new AccompanyingStatusViewHolder();
-    anViewHolder.anLogLabelTv =
-      (TextView) mAnLabelView.findViewById(R.id.an_log_label_tv);
-    anViewHolder.anScheduleTv =
-      (TextView) mAnLabelView.findViewById(R.id.an_schedule_tv);
-    anViewHolder.endLogBt =
-      (Button) mAnLabelView.findViewById(R.id.end_an_label_log_button);
-    anViewHolder.startLogBts = new ArrayList<Button>();
-    anViewHolder.startLogBts.add(
+    asViewHolder = new AccompanyingStatusViewHolder();
+    asViewHolder.asLogLabelTv =
+      (TextView) mAnLabelView.findViewById(R.id.as_log_label_tv);
+    asViewHolder.asScheduleTv =
+      (TextView) mAnLabelView.findViewById(R.id.as_schedule_tv);
+    asViewHolder.endLogBt =
+      (Button) mAnLabelView.findViewById(R.id.end_as_label_log_button);
+    asViewHolder.startLogBts = new ArrayList<Button>();
+    asViewHolder.startLogBts.add(
       (Button) mAnLabelView.findViewById(R.id.alone_bt));
-    anViewHolder.startLogBts.add(
+    asViewHolder.startLogBts.add(
       (Button) mAnLabelView.findViewById(R.id.with_2_to_3_bt));
-    anViewHolder.startLogBts.add(
+    asViewHolder.startLogBts.add(
       (Button) mAnLabelView.findViewById(R.id.with_4_to_6_bt));
-    anViewHolder.startLogBts.add(
+    asViewHolder.startLogBts.add(
       (Button) mAnLabelView.findViewById(R.id.with_over_7_bt));
 
-    anViewHolder.anLogLabelTv.setText("Company?");
-    anViewHolder.endLogBt.setEnabled(anLabelEntry.isLogged() &&
+    asViewHolder.asLogLabelTv.setText("Company?");
+    asViewHolder.endLogBt.setEnabled(asLabelEntry.isLogged() &&
                                      enabledToggleButton.isChecked());
 
-    for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+    for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
       int accompanyingStatusId = i + 1;
-      Button currBt = anViewHolder.startLogBts.get(i);
+      Button currBt = asViewHolder.startLogBts.get(i);
       if (enabledToggleButton.isChecked()) {
-        if (anLabelEntry.isLogged())
-          currBt.setEnabled(anLabelEntry.getLoggedStatus() != accompanyingStatusId);
+        if (asLabelEntry.isLogged())
+          currBt.setEnabled(asLabelEntry.getLoggedStatus() != accompanyingStatusId);
         else currBt.setEnabled(true);
       } else {
         currBt.setEnabled(false);
@@ -571,47 +574,47 @@ public class LaunchActivity extends ActionBarActivity
 
 
     // Refresh the elapsed time if the label is logged
-    if (anLabelEntry.isLogged()) {
+    if (asLabelEntry.isLogged()) {
       String elapsedTime =
-        TimeUtil.getElapsedTimeUntilNow(anLabelEntry.getStartLoggingTime());
-      anViewHolder.anScheduleTv.setText(" for " + elapsedTime);
+        TimeUtil.getElapsedTimeUntilNow(asLabelEntry.getStartLoggingTime());
+      asViewHolder.asScheduleTv.setText(" for " + elapsedTime);
     } else {
-      anViewHolder.anScheduleTv.setText(R.string.probe_disabled);
+      asViewHolder.asScheduleTv.setText(R.string.probe_disabled);
     }
 
     // OnClickListener for end log button
-    anViewHolder.endLogBt.setOnClickListener(new View.OnClickListener() {
+    asViewHolder.endLogBt.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        anLabelEntry.endLog();  // end label logging
+        asLabelEntry.endLog();  // end label logging
 
         v.setEnabled(false);
-        for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
-          anViewHolder.startLogBts.get(i).setEnabled(true);
+        for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
+          asViewHolder.startLogBts.get(i).setEnabled(true);
         }
 
-        anViewHolder.anScheduleTv.setText(R.string.probe_disabled);
+        asViewHolder.asScheduleTv.setText(R.string.probe_disabled);
       }
     });
 
     // OnClickListener for start log buttons
-    for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+    for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
       final int currIdx = i;
-      anViewHolder.startLogBts.get(i).setOnClickListener(new View.OnClickListener() {
+      asViewHolder.startLogBts.get(i).setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
           final int accompanyingStatusId = currIdx+1;  // 1, 2, 3, 4
           Log.d(LogKeys.DEBUG, TAG+"setAccompanyingStatusListener(): " +
                   "anViewHolder.startLogBts.get(" + currIdx + ")" +
                   ".setOnClickListener(): " + accompanyingStatusId);
-          anLabelEntry.startLog(accompanyingStatusId);  // start label logging
+          asLabelEntry.startLog(accompanyingStatusId);  // start label logging
 
           v.setEnabled(false);
-          anViewHolder.endLogBt.setEnabled(true);
-          for (int i = 0; i < anViewHolder.startLogBts.size(); i++) {
+          asViewHolder.endLogBt.setEnabled(true);
+          for (int i = 0; i < asViewHolder.startLogBts.size(); i++) {
             int otherAccompanyingStatusId = i+1;
             if (otherAccompanyingStatusId != accompanyingStatusId)
-              anViewHolder.startLogBts.get(i).setEnabled(true);
+              asViewHolder.startLogBts.get(i).setEnabled(true);
           }
 
           // anViewHolder.anScheduleTv.setText(" for " + )
