@@ -474,14 +474,23 @@ public class LaunchActivity extends ActionBarActivity
     }
 
     // Dynamically refresh the ListView items
+    //  and AccompanyingNumbersLabelEntry view
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
         mAdapter.notifyDataSetChanged();
         updateLaunchActivityUi();   // FIXME
+        if (anLabelEntry.isLogged()) {
+          String elapsedTime =
+                  TimeUtil.getElapsedTimeUntilNow(anLabelEntry.getStartLoggingTime());
+          anViewHolder.anScheduleTv.setText(" for " + elapsedTime);
+        } else {
+          anViewHolder.anScheduleTv.setText(R.string.probe_disabled);
+        }
         handler.postDelayed(this, 1000L);
       }
     }, 1000L);
+
 
     // stopService(new Intent(this, AlarmButlerService.class));
   }
