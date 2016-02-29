@@ -386,7 +386,7 @@ public class SCDCPipeline implements Pipeline, DataListener {
                           spHandler.getSensorId());
 
     // Temporarily build tempLabelEntries List<LabelEntry>
-    String[] tempLabelNames = LaunchActivity.labelNames;
+    String[] tempLabelNames = LaunchActivity.normalLabelNames;
 //    List<LabelEntry> tempLabelEntries =
 //      new ArrayList<LabelEntry>(tempLabelNames.length);
 //    for (int i = 0; i < tempLabelNames.length; i++) {

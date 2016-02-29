@@ -81,9 +81,9 @@ public class LaunchActivity extends ActionBarActivity
   @Configurable
   protected int version = 5;
 
-  // FIXME: The list of labels available
+  // FIXME: The list of normal labels (toggled by Start/End) available
   @Configurable
-  public static final String[] labelNames = {
+  public static final String[] normalLabelNames = {
           LabelKeys.EATING_LABEL,
           LabelKeys.IN_CLASS_LABEL,
           LabelKeys.SLEEP_LABEL,
@@ -91,9 +91,18 @@ public class LaunchActivity extends ActionBarActivity
           LabelKeys.DRINKING_LABEL
   };
 
+  // FIXME: The list of special labels (toggled by more than Start/End) available
+  @Configurable
+  public static final String[] specialLabelNames = {
+          LabelKeys.ACCOMPANYING_LABEL,
+          LabelKeys.CONVERSING_LABEL
+  };
+
   // FIXME: The list of 'active' labels
   @Configurable
   public static final String[] activeLabelNames = {
+          LabelKeys.ACCOMPANYING_LABEL,
+          LabelKeys.CONVERSING_LABEL,
           LabelKeys.EATING_LABEL,
           LabelKeys.IN_CLASS_LABEL,
           LabelKeys.STUDYING_LABEL,
@@ -116,7 +125,7 @@ public class LaunchActivity extends ActionBarActivity
   private ListView mListView;
   private BaseAdapterExLabel mAdapter;
   // Labels list
-  private ArrayList<LabelEntry> labelEntries;
+  private ArrayList<LabelEntry> normalLabelEntries;
 
   // Run Data Collection button
   private ToggleButton enabledToggleButton;
@@ -255,23 +264,26 @@ public class LaunchActivity extends ActionBarActivity
       }
     });
 
+
     // Add a single AccompanyingStatusLabelEntry
-    asLabelEntry = new AccompanyingStatusLabelEntry(LaunchActivity.this,
-                                                     Config.SCDC_PREFS);
+    asLabelEntry =
+      new AccompanyingStatusLabelEntry(LabelKeys.ACCOMPANYING_STATUS_LABEL_ID,
+              specialLabelNames[0], LaunchActivity.this, Config.SCDC_PREFS);
 
     // Add a single ConversingStatusLabelEntry
-    csLabelEntry = new ConversingStatusLabelEntry(LaunchActivity.this,
-                                                    Config.SCDC_PREFS);
+    csLabelEntry =
+      new ConversingStatusLabelEntry(LabelKeys.CONVERSING_STATUS_LABEL_ID,
+              specialLabelNames[1], LaunchActivity.this, Config.SCDC_PREFS);
 
     // The list of labels available
-    labelEntries = new ArrayList<LabelEntry>(labelNames.length);
-    for (int i = 0; i < labelNames.length; i++) {
-      labelEntries.add(new LabelEntry(i, labelNames[i],
+    normalLabelEntries = new ArrayList<LabelEntry>(normalLabelNames.length);
+    for (int i = 0; i < normalLabelNames.length; i++) {
+      normalLabelEntries.add(new LabelEntry(i, normalLabelNames[i],
                           LaunchActivity.this, Config.SCDC_PREFS));
     }
 
     // Put the total number of labels into SharedPreferences
-    spHandler.setNumLabels(labelEntries.size());
+    spHandler.setNumLabels(normalLabelEntries.size());
 
     enabledToggleButton =
             (ToggleButton) findViewById(R.id.enabledToggleButton);
@@ -282,7 +294,7 @@ public class LaunchActivity extends ActionBarActivity
     archiveButton = (Button) findViewById(R.id.archiveButton);
     truncateDataButton = (Button) findViewById(R.id.truncateDataButton);
 
-    mAdapter = new BaseAdapterExLabel(this, labelEntries);
+    mAdapter = new BaseAdapterExLabel(this, normalLabelEntries);
 
     mListView = (ListView) findViewById(R.id.label_list_view);
     // Set AccompanyingStatusView as a header of ListView
@@ -396,7 +408,7 @@ public class LaunchActivity extends ActionBarActivity
           startService(new Intent(LaunchActivity.this,
                   AlarmButlerService.class));
         } else {
-          for (LabelEntry labelEntry : labelEntries) {
+          for (LabelEntry labelEntry : normalLabelEntries) {
             LabelAlarm alarm = new LabelAlarm();
             alarm.cancelAlarm(LaunchActivity.this, labelEntry.getId());
             alarm.cancelNotification(LaunchActivity.this,
@@ -632,6 +644,7 @@ public class LaunchActivity extends ActionBarActivity
     csViewHolder.endLogBt.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+        boolean pastIsActiveLabelOn = spHandler.isActiveLabelOn();
         csLabelEntry.endLog();  // end label logging
 
         v.setEnabled(false);
@@ -639,7 +652,10 @@ public class LaunchActivity extends ActionBarActivity
           csViewHolder.startLogBts.get(i).setEnabled(true);
         }
 
-        csViewHolder.csScheduleTv.setText(R.string.probe_disabled);
+        boolean currIsActiveLabelOn = spHandler.isActiveLabelOn();
+        // Update config again only when isActiveLabelOn status gets changed
+        if (pastIsActiveLabelOn != currIsActiveLabelOn)
+          changeConfig(currIsActiveLabelOn);
       }
     });
 
@@ -650,6 +666,7 @@ public class LaunchActivity extends ActionBarActivity
         @Override
         public void onClick(View v) {
           final int conversingStatusId = currIdx+1;  // 1, 2, 3, 4
+          boolean pastIsActiveLabelOn = spHandler.isActiveLabelOn();
           Log.d(LogKeys.DEBUG, TAG+"setConversingStatusListener(): " +
                   "csViewHolder.startLogBts.get(" + currIdx + ")" +
                   ".setOnClickListener(): " + conversingStatusId);
@@ -663,7 +680,10 @@ public class LaunchActivity extends ActionBarActivity
               csViewHolder.startLogBts.get(i).setEnabled(true);
           }
 
-          // csViewHolder.csScheduleTv.setText(" for " + )
+          boolean currIsActiveLabelOn = spHandler.isActiveLabelOn();
+          // Update config again only when isActiveLabelOn status gets changed
+          if (pastIsActiveLabelOn != currIsActiveLabelOn)
+            changeConfig(currIsActiveLabelOn);
         }
       });
     }
@@ -719,6 +739,7 @@ public class LaunchActivity extends ActionBarActivity
     asViewHolder.endLogBt.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+        boolean pastIsActiveLabelOn = spHandler.isActiveLabelOn();
         asLabelEntry.endLog();  // end label logging
 
         v.setEnabled(false);
@@ -726,7 +747,10 @@ public class LaunchActivity extends ActionBarActivity
           asViewHolder.startLogBts.get(i).setEnabled(true);
         }
 
-        asViewHolder.asScheduleTv.setText(R.string.probe_disabled);
+        boolean currIsActiveLabelOn = spHandler.isActiveLabelOn();
+        // Update config again only when isActiveLabelOn status gets changed
+        if (pastIsActiveLabelOn != currIsActiveLabelOn)
+          changeConfig(currIsActiveLabelOn);
       }
     });
 
@@ -737,6 +761,7 @@ public class LaunchActivity extends ActionBarActivity
         @Override
         public void onClick(View v) {
           final int accompanyingStatusId = currIdx+1;  // 1, 2, 3, 4
+          boolean pastIsActiveLabelOn = spHandler.isActiveLabelOn();
           Log.d(LogKeys.DEBUG, TAG+"setAccompanyingStatusListener(): " +
                   "anViewHolder.startLogBts.get(" + currIdx + ")" +
                   ".setOnClickListener(): " + accompanyingStatusId);
@@ -750,7 +775,10 @@ public class LaunchActivity extends ActionBarActivity
               asViewHolder.startLogBts.get(i).setEnabled(true);
           }
 
-          // anViewHolder.anScheduleTv.setText(" for " + )
+          boolean currIsActiveLabelOn = spHandler.isActiveLabelOn();
+          // Update config again only when isActiveLabelOn status gets changed
+          if (pastIsActiveLabelOn != currIsActiveLabelOn)
+            changeConfig(currIsActiveLabelOn);
         }
       });
     }
@@ -879,31 +907,28 @@ public class LaunchActivity extends ActionBarActivity
     if (pipeline != null) {
       JsonObject oldConfig = scdcManager.getPipelineConfig(pipeline.getName());
       String newConfigString;
-      if (pipeline != null) {
-        if (isActiveLabelOn) newConfigString = spHandler.getActiveConfig();
-        else                 newConfigString = spHandler.getIdleConfig();
 
-        if (newConfigString == null) newConfigString = oldConfig.toString();
+      if (isActiveLabelOn) newConfigString = spHandler.getActiveConfig();
+      else                 newConfigString = spHandler.getIdleConfig();
 
-        Log.d(LogKeys.DEBUG,
-                TAG+".changeConfig/ newConfig=" + newConfigString);
-        JsonObject newConfig = new JsonParser().parse(newConfigString).getAsJsonObject();
-        if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
-          scdcManager.saveAndReload(pipeline.getName(), newConfig);
-        }
-        Toast.makeText(getBaseContext(),
-                getString(R.string.change_config_complete_message),
-                Toast.LENGTH_SHORT).show();
-        return true;
-      } else {
-        Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");
-        Toast.makeText(getBaseContext(),
-                getString(R.string.change_config_failed_message),
-                Toast.LENGTH_SHORT).show();
-        return false;
+//        if (newConfigString == null) newConfigString = oldConfig.toString();
+
+      Log.d(LogKeys.DEBUG,
+              TAG+".changeConfig/ newConfig=" + newConfigString);
+      JsonObject newConfig = new JsonParser().parse(newConfigString).getAsJsonObject();
+      if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
+        scdcManager.saveAndReload(pipeline.getName(), newConfig);
       }
+      Toast.makeText(getBaseContext(),
+              getString(R.string.change_config_complete_message),
+              Toast.LENGTH_SHORT).show();
+      return true;
+
     } else {
       Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");
+      Toast.makeText(getBaseContext(),
+              getString(R.string.change_config_failed_message),
+              Toast.LENGTH_SHORT).show();
       return false;
     }
   }

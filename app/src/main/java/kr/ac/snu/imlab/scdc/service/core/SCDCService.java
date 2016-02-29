@@ -136,7 +136,6 @@ public class SCDCService extends Service {
     if (pipeline != null) {
       JsonObject oldConfig = scdcManager.getPipelineConfig(pipeline.getName());
       String newConfigString;
-      if (pipeline != null) {
         if (isActiveLabelOn) newConfigString = spHandler.getActiveConfig();
         else                 newConfigString = spHandler.getIdleConfig();
 
@@ -152,15 +151,12 @@ public class SCDCService extends Service {
                 getString(R.string.change_config_complete_message),
                 Toast.LENGTH_SHORT).show();
         return true;
-      } else {
-        Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");
-        Toast.makeText(getBaseContext(),
-                getString(R.string.change_config_failed_message),
-                Toast.LENGTH_SHORT).show();
-        return false;
-      }
+
     } else {
       Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");
+      Toast.makeText(getBaseContext(),
+              getString(R.string.change_config_failed_message),
+              Toast.LENGTH_SHORT).show();
       return false;
     }
   }

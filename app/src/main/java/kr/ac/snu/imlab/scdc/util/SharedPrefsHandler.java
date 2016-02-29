@@ -194,13 +194,28 @@ public class SharedPrefsHandler {
 
   // return true if at least one of active labels is on
   public boolean isActiveLabelOn() {
-    String[] labelNames = LaunchActivity.labelNames;
+    String[] normalLabelNames = LaunchActivity.normalLabelNames;
+    String[] specialLabelNames = LaunchActivity.specialLabelNames;
     String[] activeLabelNames = LaunchActivity.activeLabelNames;
-    for (int i = 0; i < labelNames.length; i++) {
-      // if current label is logged, check if it is included in active labels
+
+    for (int i = 0; i < normalLabelNames.length; i++) {
+      // if current normal label is logged,
+      // check if it is included in active labels
       if (getStartLoggingTime(i) != -1) {
         for (int j = 0; j < activeLabelNames.length; j++) {
           if (getLabelName(i).equals(activeLabelNames[j])) {
+            return true;
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < specialLabelNames.length; i++) {
+      // if current special label is logged,
+      // check if it is included in active labels
+      if (getStartLoggingTime(1000+i) != -1) {
+        for (int j = 0; j < activeLabelNames.length; j++) {
+          if (getLabelName(1000+i).equals(activeLabelNames[j])) {
             return true;
           }
         }

@@ -55,7 +55,7 @@ public class LabelProbe extends Base implements ContinuousProbe, LabelKeys {
             Log.w("DEBUG", "LabelProbe/ Received broadcast");
             JsonObject data = new JsonObject();
 
-            String[] labelNames = LaunchActivity.labelNames;
+            String[] labelNames = LaunchActivity.normalLabelNames;
             for (int i = 0; i < labelNames.length; i++) {
               labels.put(labelNames[i],
                          intent.getBooleanExtra(labelNames[i], false));
