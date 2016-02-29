@@ -12,17 +12,27 @@ public class AccompanyingStatusLabelEntry {
 
   protected static final String TAG = "AccompanyingNumbersEntry";
 
-  private static int labelId;
+  private int labelId;
   private SharedPrefsHandler spHandler;
 
-  public AccompanyingStatusLabelEntry(Context context, String prefsName) {
-    this.labelId = LabelKeys.ACCOMPANYING_STATUS_LABEL_ID;
+  public AccompanyingStatusLabelEntry(int labelId, String name,
+                                      Context context, String prefsName) {
+    this.labelId = labelId;
     this.spHandler = SharedPrefsHandler.getInstance(context,
                         prefsName, Context.MODE_PRIVATE);
+    if (name != null) setName(name);
   }
 
   public int getId() {
     return this.labelId;
+  }
+
+  public String getName() {
+    return spHandler.getLabelName(getId());
+  }
+
+  public void setName(String name) {
+    spHandler.setLabelName(getId(), name);
   }
 
   public int getLoggedStatus() {

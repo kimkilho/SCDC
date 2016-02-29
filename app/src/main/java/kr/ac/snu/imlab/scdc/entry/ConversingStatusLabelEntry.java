@@ -12,17 +12,27 @@ public class ConversingStatusLabelEntry {
 
   protected static final String TAG = "ConversingStatusLabelEntry";
 
-  private static int labelId;
+  private int labelId;
   private SharedPrefsHandler spHandler;
 
-  public ConversingStatusLabelEntry(Context context, String prefsName) {
-    this.labelId = LabelKeys.CONVERSING_STATUS_LABEL_ID;
+  public ConversingStatusLabelEntry(int labelId, String name,
+                                    Context context, String prefsName) {
+    this.labelId = labelId;
     this.spHandler = SharedPrefsHandler.getInstance(context,
                         prefsName, Context.MODE_PRIVATE);
+    if (name != null) setName(name);
   }
 
   public int getId() {
     return this.labelId;
+  }
+
+  public String getName() {
+    return spHandler.getLabelName(getId());
+  }
+
+  public void setName(String name) {
+    spHandler.setLabelName(getId(), name);
   }
 
   public int getLoggedStatus() {

@@ -119,13 +119,13 @@ public class SCDCKeys {
     // IS_LABELLED = "is_labelled";
 
     public static final int
-      ACCOMPANYING_STATUS_LABEL_ID = 1000,   // NOTE: Assign a large id
+      ACCOMPANYING_STATUS_LABEL_ID = 1000,   // NOTE: Assign a large id +1000
       ACCOMPANYING_STATUS_NONE = 0,
       ACCOMPANYING_STATUS_ALONE = 1,
       ACCOMPANYING_STATUS_WITH_2_TO_3 = 2,
       ACCOMPANYING_STATUS_WITH_4_TO_6 = 3,
       ACCOMPANYING_STATUS_WITH_OVER_7 = 4,
-      CONVERSING_STATUS_LABEL_ID = 1001,   // NOTE: Assign a large id
+      CONVERSING_STATUS_LABEL_ID = 1001,   // NOTE: Assign a large id +1000
       CONVERSING_STATUS_NONE = 0,
       CONVERSING_STATUS_QUIET = 1,
       CONVERSING_STATUS_TALKING = 2;
