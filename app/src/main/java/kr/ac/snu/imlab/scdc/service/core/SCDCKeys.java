@@ -17,7 +17,7 @@ public class SCDCKeys {
       // Update URL for publish
       DEFAULT_USERINFO_URL = "http://imlab-ws2.snu.ac.kr:7777/userinfo/",
       DEFAULT_UPDATE_URL_IDLE = "http://imlab-ws2.snu.ac.kr:7777/conf/idle/",
-      DEFAULT_UPDATE_URL_ACTIVE = "http://imlab-ws2.snu.ac.kr:7777/conf/shctive/",
+      DEFAULT_UPDATE_URL_ACTIVE = "http://imlab-ws2.snu.ac.kr:7777/conf/active/",
       // Update URL for debug
       DEFAULT_UPDATE_URL_DEBUG = "http://imlab-ws2.snu.ac.kr:7000/config";
 
