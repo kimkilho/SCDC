@@ -70,9 +70,6 @@ public class SCDCPipeline implements Pipeline, DataListener {
   protected RemoteFileArchive upload = null;
 
   @Configurable
-  protected ConfigUpdater update = null;
-
-  @Configurable
   protected List<JsonElement> data = new ArrayList<JsonElement>();
 
   @Configurable
@@ -109,12 +106,6 @@ public class SCDCPipeline implements Pipeline, DataListener {
                     "running uploader.run(archive, upload)");
             // uploader.start();
             uploader.run(archive, upload);
-          }
-          break;
-        case UPDATE:
-          if (update != null) {
-//            Log.w("DEBUG", "SCDCPipeline/ Entered handleMessage: UPDATE");
-            update.run(name, manager);
           }
           break;
         case DATA:
@@ -328,16 +319,6 @@ public class SCDCPipeline implements Pipeline, DataListener {
 
   public void setUpload(RemoteFileArchive upload) {
     this.upload = upload;
-  }
-
-
-  public ConfigUpdater getUpdate() {
-    return update;
-  }
-
-
-  public void setUpdate(ConfigUpdater update) {
-    this.update = update;
   }
 
 

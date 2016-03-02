@@ -203,7 +203,7 @@ public class LaunchActivity extends ActionBarActivity
       Log.d(LogKeys.DEBUG, TAG+".scdcManagerConn.onServiceConnected(): "
                             + "spHandler.isActiveLabelOn()=" +
                             spHandler.isActiveLabelOn());
-      changeConfig(spHandler.isActiveLabelOn());
+//      changeConfig(spHandler.isActiveLabelOn());
 
     }
 
@@ -913,16 +913,17 @@ public class LaunchActivity extends ActionBarActivity
 
 //        if (newConfigString == null) newConfigString = oldConfig.toString();
 
-      Log.d(LogKeys.DEBUG,
-              TAG+".changeConfig/ newConfig=" + newConfigString);
       JsonObject newConfig = new JsonParser().parse(newConfigString).getAsJsonObject();
+      boolean result = false;
       if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
-        scdcManager.saveAndReload(pipeline.getName(), newConfig);
+        result = scdcService.saveAndReload(pipeline.getName(), newConfig);
+        if (result) {
+          Toast.makeText(getBaseContext(),
+                  getString(R.string.change_config_complete_message),
+                  Toast.LENGTH_SHORT).show();
+        }
       }
-      Toast.makeText(getBaseContext(),
-              getString(R.string.change_config_complete_message),
-              Toast.LENGTH_SHORT).show();
-      return true;
+      return result;
 
     } else {
       Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");

@@ -42,7 +42,7 @@ public class SCDCService extends Service {
     @Override
     public void onServiceConnected(ComponentName name, IBinder service) {
       scdcManager = ((SCDCManager.LocalBinder) service).getManager();
-      scdcManager.reload();
+//      scdcManager.reload();
       pipeline = (SCDCPipeline) scdcManager.getRegisteredPipeline
               (SCDCKeys.Config.PIPELINE_NAME);
       scdcManager.enablePipeline(pipeline.getName());
@@ -56,7 +56,7 @@ public class SCDCService extends Service {
       Log.d(LogKeys.DEBUG, TAG+".scdcManagerConn.onServiceConnected(): "
               + "spHandler.isActiveLabelOn()=" +
               spHandler.isActiveLabelOn());
-      changeConfig(spHandler.isActiveLabelOn());
+//      changeConfig(spHandler.isActiveLabelOn());
 
       spHandler.setSensorId(spHandler.getSensorId() + 1);
       Toast.makeText(getBaseContext(),
@@ -132,31 +132,11 @@ public class SCDCService extends Service {
     }
   }
 
-  public boolean changeConfig(boolean isActiveLabelOn) {
-    if (pipeline != null) {
-      JsonObject oldConfig = scdcManager.getPipelineConfig(pipeline.getName());
-      String newConfigString;
-        if (isActiveLabelOn) newConfigString = spHandler.getActiveConfig();
-        else                 newConfigString = spHandler.getIdleConfig();
-
-        if (newConfigString == null) newConfigString = oldConfig.toString();
-
-        Log.d(LogKeys.DEBUG,
-                TAG+".changeConfig/ newConfig=" + newConfigString);
-        JsonObject newConfig = new JsonParser().parse(newConfigString).getAsJsonObject();
-        if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
-          scdcManager.saveAndReload(pipeline.getName(), newConfig);
-        }
-        Toast.makeText(getBaseContext(),
-                getString(R.string.change_config_complete_message),
-                Toast.LENGTH_SHORT).show();
-        return true;
-
+  public boolean saveAndReload(String pipelineName, JsonObject newConfig) {
+    if (scdcManager != null) {
+      Log.d(LogKeys.DEBUG, TAG+".saveAndReload(" + pipelineName + ", newConfig): call scdcManager.saveAndReload()");
+      return scdcManager.saveAndReload(pipelineName, newConfig);
     } else {
-      Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");
-      Toast.makeText(getBaseContext(),
-              getString(R.string.change_config_failed_message),
-              Toast.LENGTH_SHORT).show();
       return false;
     }
   }
