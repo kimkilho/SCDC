@@ -19,6 +19,7 @@ import com.google.gson.JsonParser;
 
 import java.io.File;
 
+import edu.mit.media.funf.pipeline.Pipeline;
 import edu.mit.media.funf.util.EqualsUtil;
 import kr.ac.snu.imlab.scdc.activity.LaunchActivity;
 import kr.ac.snu.imlab.scdc.service.core.SCDCKeys.LogKeys;
@@ -58,10 +59,6 @@ public class SCDCService extends Service {
               spHandler.isActiveLabelOn());
 //      changeConfig(spHandler.isActiveLabelOn());
 
-      spHandler.setSensorId(spHandler.getSensorId() + 1);
-      Toast.makeText(getBaseContext(),
-              SCDCKeys.SharedPrefs.KEY_SENSOR_ID + ": " + spHandler.getSensorId(),
-              Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -139,5 +136,13 @@ public class SCDCService extends Service {
     } else {
       return false;
     }
+  }
+
+  public Pipeline getRegisteredPipeline(String name) {
+    return scdcManager.getRegisteredPipeline(name);
+  }
+
+  public JsonObject getPipelineConfig(String name) {
+    return scdcManager.getPipelineConfig(name);
   }
 }

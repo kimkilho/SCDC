@@ -228,42 +228,7 @@ public class LaunchActivity extends ActionBarActivity
     this.getWindow().setSoftInputMode(
             WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
-    // Set current username
-    userName = (EditText) findViewById(R.id.user_name);
-    userName.setText(spHandler.getUsername());
-    isMaleRadioButton = (RadioButton) findViewById(R.id.radio_male);
-    isFemaleRadioButton = (RadioButton) findViewById(R.id.radio_female);
-    isMaleRadioButton.setChecked(!spHandler.getIsFemale());
-    isFemaleRadioButton.setChecked(spHandler.getIsFemale());
-    userName.setEnabled(false);
-    isMaleRadioButton.setEnabled(false);
-    isFemaleRadioButton.setEnabled(false);
-    isEdited = false;
-
-    userNameButton = (Button) findViewById(R.id.user_name_btn);
-    userNameButton.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        // If it's currently not being edited now:
-        if (!isEdited) {
-            userName.setEnabled(true);
-            isMaleRadioButton.setEnabled(true);
-            isFemaleRadioButton.setEnabled(true);
-            isEdited = true;
-            userNameButton.setText(getString(R.string.save));
-            // If it has just finished being edited:
-        } else {
-          spHandler.setUsername(userName.getText().toString());
-          spHandler.setIsFemale(isFemaleRadioButton.isChecked());
-          userName.setEnabled(false);
-          isMaleRadioButton.setEnabled(false);
-          isFemaleRadioButton.setEnabled(false);
-          isEdited = false;
-          userNameButton.setText(getString(R.string.edit));
-        }
-      }
-    });
-
+    setUserInfo();
 
     // Add a single AccompanyingStatusLabelEntry
     asLabelEntry =
@@ -600,6 +565,48 @@ public class LaunchActivity extends ActionBarActivity
 
   /**
    * @author Kilho Kim
+   * Set user info UI.
+   */
+  private void setUserInfo() {
+    // Set current username
+    userName = (EditText) findViewById(R.id.user_name);
+    userName.setText(spHandler.getUsername());
+    isMaleRadioButton = (RadioButton) findViewById(R.id.radio_male);
+    isFemaleRadioButton = (RadioButton) findViewById(R.id.radio_female);
+    isMaleRadioButton.setChecked(!spHandler.getIsFemale());
+    isFemaleRadioButton.setChecked(spHandler.getIsFemale());
+    userName.setEnabled(false);
+    isMaleRadioButton.setEnabled(false);
+    isFemaleRadioButton.setEnabled(false);
+    isEdited = false;
+
+    userNameButton = (Button) findViewById(R.id.user_name_btn);
+    userNameButton.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        // If it's currently not being edited now:
+        if (!isEdited) {
+          userName.setEnabled(true);
+          isMaleRadioButton.setEnabled(true);
+          isFemaleRadioButton.setEnabled(true);
+          isEdited = true;
+          userNameButton.setText(getString(R.string.save));
+          // If it has just finished being edited:
+        } else {
+          spHandler.setUsername(userName.getText().toString());
+          spHandler.setIsFemale(isFemaleRadioButton.isChecked());
+          userName.setEnabled(false);
+          isMaleRadioButton.setEnabled(false);
+          isFemaleRadioButton.setEnabled(false);
+          isEdited = false;
+          userNameButton.setText(getString(R.string.edit));
+        }
+      }
+    });
+  }
+
+  /**
+   * @author Kilho Kim
    * Set click listeners for ConversingStatusView buttons.
    */
   private void setConversingStatusListener() {
@@ -904,19 +911,28 @@ public class LaunchActivity extends ActionBarActivity
   }
 
   public boolean changeConfig(boolean isActiveLabelOn) {
-    if (pipeline != null) {
-      JsonObject oldConfig = scdcManager.getPipelineConfig(pipeline.getName());
+      JsonObject oldConfig;
+      if (spHandler.isSensorOn()) {  // when sensor is on
+        oldConfig = scdcService.getPipelineConfig(Config.PIPELINE_NAME);
+      } else {  // when sensor is off
+        oldConfig = scdcManager.getPipelineConfig(Config.PIPELINE_NAME);
+      }
+
       String newConfigString;
 
       if (isActiveLabelOn) newConfigString = spHandler.getActiveConfig();
-      else                 newConfigString = spHandler.getIdleConfig();
+      else newConfigString = spHandler.getIdleConfig();
 
 //        if (newConfigString == null) newConfigString = oldConfig.toString();
 
       JsonObject newConfig = new JsonParser().parse(newConfigString).getAsJsonObject();
       boolean result = false;
       if (!EqualsUtil.areEqual(oldConfig, newConfig)) {
-        result = scdcService.saveAndReload(pipeline.getName(), newConfig);
+        if (spHandler.isSensorOn()) {
+          result = scdcService.saveAndReload(Config.PIPELINE_NAME, newConfig);
+        } else {
+          result = scdcManager.saveAndReload(Config.PIPELINE_NAME, newConfig);
+        }
         if (result) {
           Toast.makeText(getBaseContext(),
                   getString(R.string.change_config_complete_message),
@@ -924,14 +940,11 @@ public class LaunchActivity extends ActionBarActivity
         }
       }
       return result;
-
-    } else {
-      Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");
-      Toast.makeText(getBaseContext(),
-              getString(R.string.change_config_failed_message),
-              Toast.LENGTH_SHORT).show();
-      return false;
-    }
+//      Log.d(LogKeys.DEBUG, TAG + ".changeConfig/ failed to change config");
+//      Toast.makeText(getBaseContext(),
+//              getString(R.string.change_config_failed_message),
+//              Toast.LENGTH_SHORT).show();
+//      return false;
   }
 
   // Update config for both active and idle state
