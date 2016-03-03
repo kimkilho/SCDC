@@ -50,6 +50,8 @@ import kr.ac.snu.imlab.scdc.util.SharedPrefsHandler;
  */
 public class SCDCPipeline implements Pipeline, DataListener {
 
+  protected static final String TAG = "SCDCPipeline";
+
   public static final String
     ACTION_ARCHIVE = "archive",
     ACTION_UPLOAD = "upload",
@@ -162,8 +164,9 @@ public class SCDCPipeline implements Pipeline, DataListener {
       cv.put(SCDCDatabaseHelper.COLUMN_TIMESTAMP, timestamp);
       // Added by Kilho Kim: When the data table is suddenly truncated:
       db.insertOrThrow(SCDCDatabaseHelper.DATA_TABLE.name, "", cv);
-    } catch (SQLiteException e) {
+    } catch (Exception e) {
       // Do nothing
+      Log.e(LogKeys.DEBUG, TAG+".writeData(): " + e.toString());
     }
   }
 
